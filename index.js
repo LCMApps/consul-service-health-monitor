@@ -1,14 +1,16 @@
 'use strict';
 
-const FramesMonitor = require('./src/FramesMonitor');
-const StreamsInfo   = require('./src/StreamsInfo');
-const processFrames = require('./src/processFrames');
+const ServiceInstancesMonitor = require('./src/ServiceInstancesMonitor');
+const ServiceInstance         = require('./src/ServiceInstance');
+const ServiceInstances        = require('./src/ServiceInstances');
+const ServiceInstanceStatus   = require('./src/ServiceInstanceStatus');
 
 const Errors = require('./src/Error');
 
 module.exports = {
-    FramesMonitor,
-    StreamsInfo,
-    processFrames,
+    ServiceInstancesMonitor,
+    ServiceInstance,
+    ServiceInstances,
+    ServiceInstanceStatus,
     Errors
 };
