@@ -1,0 +1,178 @@
+'use strict';
+
+class ServiceInstances {
+    constructor() {
+        this._healthyMap = new Map();
+        this._overloadedMap = new Map();
+        this._unhealthyMap = new Map();
+    }
+
+    /**
+     * Adds an instance to the list and mark it as `healthy`.
+     *
+     * Healthy instance is one with all checks in `passing` state and status of server
+     * that comes in response to consul healthcheck request is in "OK" state.
+     *
+     * In example below response from `consul.health.service` will be interpret "healthy"
+     * @example
+     * {
+     *   "Node": { "Node": "transcoder_app", "Address": "192.168.101.4", ... },
+     *   "Service": { "Service": "transcoder", ... },
+     *   "Checks": [
+     *     {
+     *       "CheckID": "serfHealth",
+     *       "Status": "passing",
+     *       "Output": "Agent alive and reachable"
+     *     },
+     *     {
+     *       "CheckID": "service:transcoder",
+     *       "Status": "passing",
+     *       "Output": "HTTP GET ${path}: 200 OK Output: " +
+     *         "\"data\":{" +
+     *           "{\"status\":\"OK\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
+     *           "{\"usage\":1.2295908130391557,\"count\":16}}" +
+     *         "}"
+     *     }
+     *   ]
+     * }
+     *
+     * @param {ServiceInstance} instance
+     * @return {ServiceInstances} return link to itself to make method chainable
+     */
+    addHealthy(instance) {
+        this._healthyMap.set(instance.getNodeAddress(), instance);
+        return this;
+    }
+
+    /**
+     * Adds an instance to the list and mark it as `overloaded`.
+     *
+     * Overloaded instance is one that has one of the following criteria:
+     *   - all checks are in `passing` state and `ServiceInstance.getStatus().isOverloaded() === true`
+     *   - only instance-status check is not passing and `ServiceInstance.getStatus().isOverloaded() === true`
+     *
+     * If instance check status is in failing state but check doesn't contain output
+     * or output has invalid format this node must be considered as unhealthy and another method
+     * to add instance must be used!
+     *
+     * In example below response from `consul.health.service` will be interpret "overloaded"
+     * @example
+     * {
+     *   "Node": { "Node": "transcoder_app", "Address": "192.168.101.4", ... },
+     *   "Service": { "Service": "transcoder", ... },
+     *   "Checks": [
+     *     {
+     *       "CheckID": "serfHealth",
+     *       "Status": "passing",
+     *       "Output": "Agent alive and reachable"
+     *     },
+     *     {
+     *       "CheckID": "service:transcoder",
+     *       "Status": "critical",
+     *       "Output": "HTTP GET ${path}: 200 OK Output: " +
+     *         "{\"data\":" +
+     *           "{\"status\":\"OVERLOADED\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
+     *           "{\"usage\":1.2295908130391557,\"count\":16}}" +
+     *         "}"
+     *     }
+     *   ]
+     * }
+     *
+     * @param {ServiceInstance} instance
+     * @return {ServiceInstances} return link to itself to make method chainable
+     */
+    addOverloaded(instance) {
+        this._overloadedMap.set(instance.getNodeAddress(), instance);
+        return this;
+    }
+
+    /**
+     * Adds an instance to the list and mark it as `unhealthy`.
+     *
+     * Unhealthy instance is one that has one of the following criteria:
+     *   - at least one check, except check with instance-status, not in `passing` state
+     *   - instance-status check isn't in passing state while `ServiceInstance.getStatus().isOk() === true`
+     *
+     * Anyway, instance status check must have output and it must be valid.
+     * Instance must not be added buy this method or by any method of this class if
+     * instance status check output can't be parsed. It must be interpret as invalid service ant must
+     * not be in this list.
+     *
+     * In example below response from `consul.health.service` will be interpret "unhealthy":
+     * @example
+     * {
+     *   "Node": { "Node": "transcoder_app", "Address": "192.168.101.4", ... },
+     *   "Service": { "Service": "transcoder", ... },
+     *   "Checks": [
+     *     {
+     *       "CheckID": "serfHealth",
+     *       "Status": "critical",
+     *       "Output": "Agent alive and reachable"
+     *     },
+     *     {
+     *       "CheckID": "service:transcoder",
+     *       "Status": "passing",
+     *       "Output": "HTTP GET ${path}: 200 OK Output: " +
+     *         "{\"data\":"
+     *           "{\"status\":\"OK\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
+     *           "{\"usage\":1.2295908130391557,\"count\":16}}" +
+     *         "}"
+     *     }
+     *   ]
+     * }
+     *
+     * The next one example will be "unhealthy too, the reason is that instance status check
+     * is in critical state but `ServiceInstance.getStatus().isOk()`:
+     * @example
+     * {
+     *   "Node": { "Node": "transcoder_app", "Address": "192.168.101.4", ... },
+     *   "Service": { "Service": "transcoder", ... },
+     *   "Checks": [
+     *     {
+     *       "CheckID": "serfHealth",
+     *       "Status": "critical",
+     *       "Output": "Agent alive and reachable"
+     *     },
+     *     {
+     *       "CheckID": "service:transcoder",
+     *       "Status": "critical",
+     *       "Output": "HTTP GET ${path}: 200 OK Output: " +
+     *         "{\"data\":"
+     *           "{\"status\":\"OK\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
+     *           "{\"usage\":1.2295908130391557,\"count\":16}}" +
+     *         "}"
+     *     }
+     *   ]
+     * }
+     *
+     * @param {ServiceInstance} instances
+     * @return {ServiceInstances} return link to itself to make method chainable
+     */
+    addUnhealthy(instances) {
+        this._unhealthyMap.set(instances.getNodeAddress(), instances);
+        return this;
+    }
+
+    /**
+     * @return {ServiceInstance[]}
+     */
+    getHealthy() {
+        return [...this._healthyMap.values()];
+    }
+
+    /**
+     * @return {ServiceInstance[]}
+     */
+    getOverloaded() {
+        return [...this._overloadedMap.values()];
+    }
+
+    /**
+     * @return {ServiceInstance[]}
+     */
+    getUnhealthy() {
+        return [...this._unhealthyMap.values()];
+    }
+}
+
+module.exports = ServiceInstances;
