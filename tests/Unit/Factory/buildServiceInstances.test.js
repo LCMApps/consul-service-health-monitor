@@ -352,6 +352,160 @@ describe('Factory::buildServiceInstances', function () {
         assert.isEmpty(instances.getOverloaded());
     });
 
+    it('unhealthy - node with only instance check in critical state and MAINTENANCE status', function () {
+        // MAINTENANCE status must be set up with 200 OK code only,
+        // situation described in test is abnormal and instance muse be marked as unhealthy
+        const inputTranscoderStatus = deepFreeze({
+            data: {
+                status: 'MAINTENANCE',
+                pid: 100,
+                mem: { total: 13121352, free: 4256144 },
+                cpu: { usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const inputNodes = deepFreeze([{
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: {
+                    lan: '192.168.101.4',
+                    wan: '1.2.3.4'
+                },
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+            },
+            Checks: [
+                {
+                    CheckID: 'serfHealth',
+                    Status: 'passing',
+                    Output: 'Agent alive and reachable',
+                },
+                {
+                    CheckID: 'service:transcoder',
+                    Status: 'critical',
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
+                    'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
+                }
+            ],
+        }]);
+
+        const expectedErr = new InvalidDataError(
+            'ServiceInstance status check is MAINTENANCE but status in consul is not passing, node will be skipped',
+            { address: inputNodes[0].Node.Address, check: inputNodes[0].Checks[1] }
+        );
+
+        const expTranscoder = new ServiceInstance(
+            inputNodes[0].Node.TaggedAddresses.lan,
+            inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Node.Address,
+            inputNodes[0].Node.Node,
+            inputNodes[0].Service.Tags,
+            new ServiceInstanceStatus(
+                inputTranscoderStatus.data.pid,
+                inputTranscoderStatus.data.status,
+                inputTranscoderStatus.data.mem.total,
+                inputTranscoderStatus.data.mem.free,
+                inputTranscoderStatus.data.cpu.usage,
+                inputTranscoderStatus.data.cpu.count
+            )
+        );
+        builderStub.returns({validNodes: inputNodes, errors: []});
+
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+
+        assert.isTrue(builderStub.calledOnce);
+        assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
+        assert.instanceOf(instances, ServiceInstances);
+        assert.isArray(errors);
+        assert.lengthOf(errors, 1);
+        assert.deepEqual(errors[0].toString(), expectedErr.toString());
+        assert.isEmpty(instances.getHealthy());
+        assert.isEmpty(instances.getOnMaintenance());
+        assert.isEmpty(instances.getOverloaded());
+        assert.lengthOf(instances.getUnhealthy(), 1);
+        /** @var {ServiceInstance} */
+        const unhealthyTranscoder = instances.getUnhealthy()[0];
+        assert.deepEqual(unhealthyTranscoder, expTranscoder);
+    });
+
+    it('unhealthy - node with one check in critical state and passing instance-status check + ' +
+        'MAINTENANCE status', function () {
+        const inputTranscoderStatus = deepFreeze({
+            data: {
+                status: 'MAINTENANCE',
+                pid: 100,
+                mem: { total: 13121352, free: 4256144 },
+                cpu: { usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const inputNodes = deepFreeze([{
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: {
+                    lan: '192.168.101.4',
+                    wan: '1.2.3.4'
+                },
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+            },
+            Checks: [
+                {
+                    CheckID: 'serfHealth',
+                    Status: 'passing',
+                    Output: 'Agent alive and reachable',
+                },
+                {
+                    CheckID: 'maintenance',
+                    Status: 'critical',
+                    Output: 'Any output',
+                },
+                {
+                    CheckID: 'service:transcoder',
+                    Status: 'passing',
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
+                    'Output: ' + JSON.stringify(inputTranscoderStatus),
+                }
+            ],
+        }]);
+
+        const expTranscoder = new ServiceInstance(
+            inputNodes[0].Node.TaggedAddresses.lan,
+            inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Node.Address,
+            inputNodes[0].Node.Node,
+            inputNodes[0].Service.Tags,
+            new ServiceInstanceStatus(
+                inputTranscoderStatus.data.pid,
+                inputTranscoderStatus.data.status,
+                inputTranscoderStatus.data.mem.total,
+                inputTranscoderStatus.data.mem.free,
+                inputTranscoderStatus.data.cpu.usage,
+                inputTranscoderStatus.data.cpu.count
+            )
+        );
+        builderStub.returns({validNodes: inputNodes, errors: []});
+
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+
+        assert.isTrue(builderStub.calledOnce);
+        assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
+        assert.instanceOf(instances, ServiceInstances);
+        assert.isArray(errors);
+        assert.isEmpty(errors);
+        assert.isEmpty(instances.getHealthy());
+        assert.isEmpty(instances.getOnMaintenance());
+        assert.isEmpty(instances.getOverloaded());
+        assert.lengthOf(instances.getUnhealthy(), 1);
+        /** @var {ServiceInstance} */
+        const unhealthyTranscoder = instances.getUnhealthy()[0];
+        assert.deepEqual(unhealthyTranscoder, expTranscoder);
+    });
+
     it('overloaded - node with only instance check in critical state and OVERLOADED status', function () {
         const inputTranscoderStatus = deepFreeze({
             data: {
@@ -488,6 +642,76 @@ describe('Factory::buildServiceInstances', function () {
         /** @var {ServiceInstances} */
         const overloadedTranscoder = instances.getOverloaded()[0];
         assert.deepEqual(overloadedTranscoder, expTranscoder);
+    });
+
+    it('maintenance - node with only instance check in passing state and MAINTENANCE status', function () {
+        const inputTranscoderStatus = deepFreeze({
+            data: {
+                status: 'MAINTENANCE',
+                pid: 100,
+                mem: { total: 13121352, free: 4256144 },
+                cpu: { usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const inputNodes = deepFreeze([{
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: {
+                    lan: '192.168.101.4',
+                    wan: '1.2.3.4'
+                },
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+            },
+            Checks: [
+                {
+                    CheckID: 'serfHealth',
+                    Status: 'passing',
+                    Output: 'Agent alive and reachable',
+                },
+                {
+                    CheckID: 'service:transcoder',
+                    Status: 'passing',
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
+                        'Output: ' + JSON.stringify(inputTranscoderStatus),
+                }
+            ],
+        }]);
+
+        const expTranscoder = new ServiceInstance(
+            inputNodes[0].Node.TaggedAddresses.lan,
+            inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Node.Address,
+            inputNodes[0].Node.Node,
+            inputNodes[0].Service.Tags,
+            new ServiceInstanceStatus(
+                inputTranscoderStatus.data.pid,
+                inputTranscoderStatus.data.status,
+                inputTranscoderStatus.data.mem.total,
+                inputTranscoderStatus.data.mem.free,
+                inputTranscoderStatus.data.cpu.usage,
+                inputTranscoderStatus.data.cpu.count
+            )
+        );
+        builderStub.returns({validNodes: inputNodes, errors: []});
+
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+
+        assert.isTrue(builderStub.calledOnce);
+        assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
+        assert.instanceOf(instances, ServiceInstances);
+        assert.isArray(errors);
+        assert.isEmpty(errors);
+        assert.isEmpty(instances.getHealthy());
+        assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getOverloaded());
+        assert.lengthOf(instances.getOnMaintenance(), 1);
+        /** @var {ServiceInstance} */
+        const onMaintenanceTranscoder = instances.getOnMaintenance()[0];
+        assert.deepEqual(onMaintenanceTranscoder, expTranscoder);
     });
 
     it('healthy - node with all checks in passing state, not OVERLOADED', function () {

@@ -3,6 +3,7 @@
 class ServiceInstances {
     constructor() {
         this._healthyMap = new Map();
+        this._onMaintenanceMap = new Map();
         this._overloadedMap = new Map();
         this._unhealthyMap = new Map();
     }
@@ -41,6 +42,71 @@ class ServiceInstances {
      */
     addHealthy(instance) {
         this._healthyMap.set(instance.getNodeAddress(), instance);
+        return this;
+    }
+
+    /**
+     * Adds an instance to the list and mark it as `on-maintenance`.
+     *
+     * On-maintenance instance is one that has one of the following criteria:
+     *   - all checks are in `passing` state
+     *   - instance-status check is passing and `ServiceInstance.getStatus().isOnMaintenance() === true`
+     *
+     * If instance check status is in failing state but status is "MAINTENANCE" this node must be considered
+     * as unhealthy and another method to add instance must be used!
+     *
+     * In example below response from `consul.health.service` will be interpret "on-maintenance"
+     * @example
+     * {
+     *   "Node": { "Node": "transcoder_app", "Address": "192.168.101.4", ... },
+     *   "Service": { "Service": "transcoder", ... },
+     *   "Checks": [
+     *     {
+     *       "CheckID": "serfHealth",
+     *       "Status": "passing",
+     *       "Output": "Agent alive and reachable"
+     *     },
+     *     {
+     *       "CheckID": "service:transcoder",
+     *       "Status": "critical",
+     *       "Output": "HTTP GET ${path}: 200 OK Output: " +
+     *         "{\"data\":" +
+     *           "{\"status\":\"MAINTENANCE\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
+     *           "{\"usage\":1.2295908130391557,\"count\":16}}" +
+     *         "}"
+     *     }
+     *   ]
+     * }
+     *
+     * The next one example will be "unhealthy", but with "MAINTENANCE" status. The reason is that instance
+     * status check is in critical state but, but be in passing:
+     * @example
+     * {
+     *   "Node": { "Node": "transcoder_app", "Address": "192.168.101.4", ... },
+     *   "Service": { "Service": "transcoder", ... },
+     *   "Checks": [
+     *     {
+     *       "CheckID": "serfHealth",
+     *       "Status": "critical",
+     *       "Output": "Agent alive and reachable"
+     *     },
+     *     {
+     *       "CheckID": "service:transcoder",
+     *       "Status": "critical",
+     *       "Output": "HTTP GET ${path}: 503 Service Unavailable Output: " +
+     *         "{\"data\":"
+     *           "{\"status\":\"MAINTENANCE\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
+     *           "{\"usage\":1.2295908130391557,\"count\":16}}" +
+     *         "}"
+     *     }
+     *   ]
+     * }
+     *
+     * @param {ServiceInstance} instance
+     * @return {ServiceInstances} return link to itself to make method chainable
+     */
+    addOnMaintenance(instance) {
+        this._onMaintenanceMap.set(instance.getNodeAddress(), instance);
         return this;
     }
 
@@ -158,6 +224,13 @@ class ServiceInstances {
      */
     getHealthy() {
         return [...this._healthyMap.values()];
+    }
+
+    /**
+     * @return {ServiceInstance[]}
+     */
+    getOnMaintenance() {
+        return [...this._onMaintenanceMap.values()];
     }
 
     /**

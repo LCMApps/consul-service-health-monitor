@@ -180,7 +180,7 @@ class ServiceInstanceStatus {
      *
      * @return {boolean}
      */
-    isMaintenance() {
+    isOnMaintenance() {
         return this._status === STATE_MAINTENANCE;
     }
 }

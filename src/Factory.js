@@ -80,19 +80,22 @@ function buildServiceInstance(node, instanceStatus) {
 }
 
 /**
- * Function receives an array of nodes, and classify it as `healthy`, `unhealthy` or `overloaded`
+ * Function receives an array of nodes, and classify it as `healthy`, `unhealthy`, `overloaded` or `on-maintenance`
  *
  * It validates `registeredNodes` using `ConsulResponseValidator.filterValidHealthyServices`, so
  * check documentation of `consulHelper.filterValidHealthyServices` to understand which
  * fields are checked and required.
  *
- * Node will be marked `unhealthy` in case:
+ * Node will be marked `unhealthy` if at least one case occurs:
  *   - at least one check, except check with instance-status, not in `passing` state
  *   - instance-status check isn't in passing state while instance returns "OK" to health check
  *
- * Node will be marked `overloaded` in case:
- *   - all checks are in `passing` state and instance returns "OVERLOADED" to health check
- *   - only instance-status check is not passing and instance returns "OVERLOADED" to health check
+ * Node will be marked `overloaded` if all cases occurs:
+ *   - all checks except instance-status check are in `passing` state
+ *   - only instance-status check is not in passing state and instance returns "OVERLOADED" to health check
+ *
+ * Node will be marked 'on-maintenance' if all cases occurs:
+ *   - all checks are in `passing` state and instance returns "MAINTENANCE" to health check
  *
  * Node will be `skipped` in case:
  *   - it doesn't contain registered checks at all
@@ -172,6 +175,14 @@ function buildServiceInstances(registeredNodes, checkIdWithStatus) {
                     ));
 
                     passing = false;
+                } else if (instanceStatus.isOnMaintenance() && check.Status !== CHECK_STATUS_PASSING) {
+                    errors.push(new InvalidDataError(
+                        'ServiceInstance status check is MAINTENANCE but status in consul is not passing, ' +
+                            'node will be skipped',
+                        { address: ip, check: check }
+                    ));
+
+                    passing = false;
                 }
             }
 
@@ -199,6 +210,8 @@ function buildServiceInstances(registeredNodes, checkIdWithStatus) {
             instances.addHealthy(instance);
         } else if (instance.getStatus().isOverloaded()) {
             instances.addOverloaded(instance);
+        } else if (instance.getStatus().isOnMaintenance()) {
+            instances.addOnMaintenance(instance);
         }
     });
 
