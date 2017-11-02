@@ -34,7 +34,7 @@ class ServiceInstancesMonitor extends EventEmitter {
     /**
      * @param {Object} options
      * @param {string} options.serviceName -  name of service in consul to monitor
-     * @param {string} options.checkIdWithStatus
+     * @param {string} options.checkNameWithStatus
      * @param {Consul} consul
      * @throws {TypeError} On invalid options format
      * @public
@@ -50,17 +50,17 @@ class ServiceInstancesMonitor extends EventEmitter {
             throw new TypeError('options.serviceName must be set and be a non-empty string');
         }
 
-        if (!_.has(options, 'checkIdWithStatus') ||
-            !_.isString(options.checkIdWithStatus) ||
-            _.isEmpty(options.checkIdWithStatus)
+        if (!_.has(options, 'checkNameWithStatus') ||
+            !_.isString(options.checkNameWithStatus) ||
+            _.isEmpty(options.checkNameWithStatus)
         ) {
             throw new TypeError('options.checkIdWithStatus must be a non-empty string');
         }
 
-        this._serviceName = options.serviceName;
-        this._checkIdWithStatus = options.checkIdWithStatus;
-        this._initialized = false;
-        this._serversList = [];
+        this._serviceName         = options.serviceName;
+        this._checkNameWithStatus = options.checkNameWithStatus;
+        this._initialized         = false;
+        this._serversList         = [];
 
         this._consul = consul;
 
@@ -188,7 +188,12 @@ class ServiceInstancesMonitor extends EventEmitter {
             const firstChange = (data) => {
                 this._watchAnyNodeChange.removeListener('error', firstError);
                 clearTimeout(timerId);
-                resolve(data);
+
+                const {instances} = instancesFactory.buildServiceInstances(
+                    data, this._checkNameWithStatus
+                );
+
+                resolve(instances);
             };
 
             const firstError = (err) => {
@@ -227,12 +232,12 @@ class ServiceInstancesMonitor extends EventEmitter {
             this._setWatchHealthy();
         }
 
-        const {serviceInstances, errors} = instancesFactory.buildServiceInstances(
-            data, this._checkIdWithStatus
+        const {instances, errors} = instancesFactory.buildServiceInstances(
+            data, this._checkNameWithStatus
         );
 
-        this._serviceInstances = serviceInstances;
-        this.emit('changed', serviceInstances);
+        this._serviceInstances = instances;
+        this.emit('changed', instances);
 
         if (!_.isEmpty(errors)) {
             this._emitFactoryErrors(errors);
