@@ -13,7 +13,7 @@ const InvalidDataError = require('src/Error').InvalidDataError;
 
 describe('Factory::buildServiceInstances', function () {
 
-    const checkNameWithStatus = 'service:transcoder';
+    const checkNameWithStatus = "Service 'transcoder' health info";
     const builderStub = sinon.stub();
     const Factory = proxyquire('src/Factory', {
         './ConsulResponseValidator': {
@@ -100,11 +100,13 @@ describe('Factory::buildServiceInstances', function () {
                     {
                         CheckID: 'serfHealth',
                         Status: 'passing',
+                        Name: 'Serf Health Status',
                         Output: 'Agent alive and reachable',
                     },
                     {
                         CheckID: 'service:transcoder',
                         Status: 'passing',
+                        Name: checkNameWithStatus,
                         Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
                             'Output: ' + arg.value
                     }
@@ -157,11 +159,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'critical',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'passing',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
                         'Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -226,11 +230,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'critical',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
                         'Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -303,16 +309,19 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'maintenance',
                     Status: 'critical',
+                    Name: 'Service Maintenance Mode',
                     Output: 'Any output',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'critical',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 ' +
                         'Service Unavailable Output: ' + JSON.stringify(inputInstanceStatus),
                 }
@@ -380,11 +389,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'critical',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
                     'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -457,16 +468,19 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'maintenance',
                     Status: 'critical',
+                    Name: 'Service Maintenance Mode',
                     Output: 'Any output',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'passing',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
                     'Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -532,11 +546,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'critical',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
                         'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -601,11 +617,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'passing',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
                         'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -670,11 +688,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'passing',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
                         'Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
@@ -740,11 +760,13 @@ describe('Factory::buildServiceInstances', function () {
                 {
                     CheckID: 'serfHealth',
                     Status: 'passing',
+                    Name: 'Serf Health Status',
                     Output: 'Agent alive and reachable',
                 },
                 {
                     CheckID: 'service:transcoder',
                     Status: 'passing',
+                    Name: checkNameWithStatus,
                     Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: ' +
                         '200 OK Output: ' + JSON.stringify(inputTranscoderStatus),
                 }

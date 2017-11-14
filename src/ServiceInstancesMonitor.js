@@ -54,7 +54,7 @@ class ServiceInstancesMonitor extends EventEmitter {
             !_.isString(options.checkNameWithStatus) ||
             _.isEmpty(options.checkNameWithStatus)
         ) {
-            throw new TypeError('options.checkIdWithStatus must be a non-empty string');
+            throw new TypeError('options.checkNameWithStatus must be a non-empty string');
         }
 
         this._serviceName         = options.serviceName;
