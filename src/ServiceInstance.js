@@ -17,6 +17,20 @@ function throwErrorIfNotEmptyString(variable, variableName) {
 }
 
 /**
+ * Checks that `variable` is defined and is number
+ *
+ * @param {*} variable - variable value to check
+ * @param {string} variableName - name of variable for pretty and descriptive errors
+ * @throws {TypeError}
+ * @return {void}
+ */
+function throwErrorIfNotNumber(variable, variableName) {
+    if ((typeof variable !== 'number')) {
+        throw new TypeError(`${variableName} must be a number`);
+    }
+}
+
+/**
  * Represents service instance and its load status
  */
 class ServiceInstance {
@@ -24,15 +38,17 @@ class ServiceInstance {
     /**
      * @param {string} lanIp
      * @param {string} wanIp
+     * @param {number} port
      * @param {string} nodeAddress - ip or host of node on which service instance is running
      * @param {string} nodeId - id of node, in most cases it is hostname of node where service instance is running
      * @param {string[]} serviceTags - tags of service
      * @param {ServiceInstanceStatus} serviceInstanceStatus - status of the service
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, nodeAddress, nodeId, serviceTags, serviceInstanceStatus) {
+    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus) {
         throwErrorIfNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotEmptyString(wanIp, 'wanIp');
+        throwErrorIfNotNumber(port, 'port');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
         throwErrorIfNotEmptyString(nodeId, 'nodeId');
 
@@ -50,6 +66,7 @@ class ServiceInstance {
 
         this._lanIp = lanIp;
         this._wanIp = wanIp;
+        this._port = port;
         this._nodeAddress = nodeAddress;
         this._nodeId = nodeId;
         this._serviceTags = serviceTags;
@@ -72,6 +89,15 @@ class ServiceInstance {
      */
     getWanIp() {
         return this._wanIp;
+    }
+
+    /**
+     * Returns port.
+     *
+     * @returns {number}
+     */
+    getPort() {
+        return this._port;
     }
 
     /**

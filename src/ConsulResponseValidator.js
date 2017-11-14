@@ -10,7 +10,8 @@ const InvalidDataError = require('./Error').InvalidDataError;
  */
 function isValidChecks(checks) {
     return checks.every(
-        check => _.isObject(check) && _.has(check, 'CheckID') && _.has(check, 'Status') && _.has(check, 'Output')
+        check => _.isObject(check) && _.has(check, 'CheckID') && _.has(check, 'Status') &&
+            _.has(check, 'Name') && _.has(check, 'Output')
     );
 }
 
@@ -27,6 +28,7 @@ function isValidChecks(checks) {
  *   - `nodes[n].Checks` and checks that prop is array with at least one element
  *   - `nodes[n].Checks[m].CheckID`
  *   - `nodes[n].Checks[m].Status`
+ *   - `nodes[n].Checks[m].Name`
  *   - `nodes[n].Checks[m].Output`
  *
  * @param {*} nodes - data received from `consul.health.service`

@@ -53,6 +53,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [],
         }]);
@@ -95,6 +96,7 @@ describe('Factory::buildServiceInstances', function () {
                 },
                 Service: {
                     Tags: ['transcoder_app'],
+                    Port: 12345
                 },
                 Checks: [
                     {
@@ -154,6 +156,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -175,6 +178,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -225,6 +229,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -246,6 +251,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -304,6 +310,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -331,6 +338,7 @@ describe('Factory::buildServiceInstances', function () {
         const expInstances = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -384,6 +392,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -410,6 +419,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -463,6 +473,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -490,6 +501,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -541,6 +553,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -562,6 +575,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -612,6 +626,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -633,6 +648,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -683,6 +699,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -704,6 +721,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,
@@ -755,6 +773,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Port: 12345
             },
             Checks: [
                 {
@@ -776,6 +795,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
             inputNodes[0].Service.Tags,

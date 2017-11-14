@@ -69,6 +69,7 @@ function buildServiceInstance(node, instanceStatus) {
         return new ServiceInstance(
             node.Node.TaggedAddresses.lan,
             node.Node.TaggedAddresses.wan,
+            node.Service.Port,
             node.Node.Address,
             node.Node.Node,
             node.Service.Tags,
@@ -219,6 +220,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
 }
 
 module.exports = {
+    buildServiceInstance,
     buildServiceInstances,
     buildInstanceStatusFromOutput
 };
