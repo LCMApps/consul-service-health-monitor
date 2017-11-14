@@ -13,7 +13,7 @@ const InvalidDataError = require('src/Error').InvalidDataError;
 
 describe('Factory::buildServiceInstances', function () {
 
-    const checkIdWithStatus = 'service:transcoder';
+    const checkNameWithStatus = 'service:transcoder';
     const builderStub = sinon.stub();
     const Factory = proxyquire('src/Factory', {
         './ConsulResponseValidator': {
@@ -29,7 +29,7 @@ describe('Factory::buildServiceInstances', function () {
         const nodes = [];
         builderStub.returns({ validNodes: [], errors: [] });
 
-        const { instances, errors } = Factory.buildServiceInstances(nodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(nodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(nodes));
@@ -63,7 +63,7 @@ describe('Factory::buildServiceInstances', function () {
             { address: inputNodes[0].Node.Address, nodeId: inputNodes[0].Node.Node }
         );
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -117,7 +117,7 @@ describe('Factory::buildServiceInstances', function () {
                 { address: inputNodes[0].Node.Address, check: inputNodes[0].Checks[1] }
             );
 
-            const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+            const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
             assert.isTrue(builderStub.calledOnce);
             assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -185,7 +185,7 @@ describe('Factory::buildServiceInstances', function () {
         );
         builderStub.returns({ validNodes: inputNodes, errors: [] });
 
-        const {instances, errors} = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const {instances, errors} = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -260,7 +260,7 @@ describe('Factory::buildServiceInstances', function () {
 
         builderStub.returns({ validNodes: inputNodes, errors: [] });
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -337,7 +337,7 @@ describe('Factory::buildServiceInstances', function () {
 
         builderStub.returns({validNodes: inputNodes, errors: []});
 
-        const {instances, errors} = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const {instances, errors} = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -413,7 +413,7 @@ describe('Factory::buildServiceInstances', function () {
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -490,7 +490,7 @@ describe('Factory::buildServiceInstances', function () {
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -560,7 +560,7 @@ describe('Factory::buildServiceInstances', function () {
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -629,7 +629,7 @@ describe('Factory::buildServiceInstances', function () {
         );
         builderStub.returns({ validNodes: inputNodes, errors: [] });
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -698,7 +698,7 @@ describe('Factory::buildServiceInstances', function () {
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
@@ -769,7 +769,7 @@ describe('Factory::buildServiceInstances', function () {
 
         builderStub.returns({ validNodes: inputNodes, errors: [] });
 
-        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkIdWithStatus);
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
 
         assert.isTrue(builderStub.calledOnce);
         assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
