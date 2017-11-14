@@ -105,10 +105,10 @@ function buildServiceInstance(node, instanceStatus) {
  * In all other cases node will be `healthy`.
  *
  * @param {Array} registeredNodes - an array of nodes received from consul
- * @param {string} checkIdWithStatus - the name of check that contains output with status of instance
+ * @param {string} checkNameWithStatus - the name of check that contains output with status of instance
  * @return {{instances: ServiceInstances, errors: InvalidDataError[]}}
  */
-function buildServiceInstances(registeredNodes, checkIdWithStatus) {
+function buildServiceInstances(registeredNodes, checkNameWithStatus) {
     const instances = new ServiceInstances();
     const {validNodes, errors} = ConsulResponseValidator.filterValidHealthyServices(registeredNodes);
 
@@ -131,7 +131,7 @@ function buildServiceInstances(registeredNodes, checkIdWithStatus) {
         }
 
         node.Checks.forEach(check => {
-            if (check.CheckID !== checkIdWithStatus) {
+            if (check.Name !== checkNameWithStatus) {
                 if (check.Status !== CHECK_STATUS_PASSING) {
                     passing = false;
                 }

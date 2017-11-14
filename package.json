@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Service to monitor health status of services in consul.",
   "main": "index.js",
-  "engines": {
-    "node": ">=6.0 <7.0.0"
-  },
   "directories": {
     "test": "tests"
   },
@@ -34,6 +31,7 @@
     "sinon": "^2.4.1"
   },
   "dependencies": {
+    "asyncawait": "^1.0.6",
     "deep-freeze": "0.0.1",
     "lodash": "^4.17.4"
   }
