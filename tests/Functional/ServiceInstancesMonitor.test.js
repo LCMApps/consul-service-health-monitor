@@ -6,7 +6,6 @@ const await_ = require('asyncawait/await');
 const consul = require('consul');
 const nock = require('nock');
 const assert = require('chai').assert;
-const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const getPort = require('get-port');
 const ServiceInstance = require('src/ServiceInstance');
