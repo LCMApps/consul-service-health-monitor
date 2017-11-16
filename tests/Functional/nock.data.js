@@ -94,7 +94,7 @@ module.exports = {
                     'Node': 'transcoder-2.priv',
                     'Notes': '',
                     'Output': 'HTTP GET http://192.168.101.11:8080/transcoder/v1/service/status: 200 OK Output: ' +
-                        `{'data':${JSON.stringify(loadData1)}}`,
+                        `{"data":${JSON.stringify(loadData1)}}`,
                     'ServiceID': 'transcoder_192.168.101.11_8080',
                     'ServiceName': 'transcoder',
                     'Status': 'passing'
