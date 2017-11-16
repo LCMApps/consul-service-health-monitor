@@ -121,6 +121,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
         const ip = node.Node.Address;
         let passing = true;
         let instanceStatus = null;
+        let checkWithStatusFound = false;
 
         if (node.Checks.length === 0) {
             errors.push(new InvalidDataError(
@@ -140,6 +141,8 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
                 // skip this check and jump to the next one
                 return;
             }
+
+            checkWithStatusFound = true;
 
             // if we are here the check is check with instance status
             const pos = check.Output.indexOf(CHECK_OUTPUT_PATTERN);
@@ -190,6 +193,13 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
         });
 
         if (instanceStatus === null) {
+            if (!checkWithStatusFound) {
+                errors.push(new InvalidDataError(
+                    'Check with `checkNameWithStatus` was not found among all checks on the node, node will be skipped',
+                    { node }
+                ));
+            }
+
             return;
         }
 

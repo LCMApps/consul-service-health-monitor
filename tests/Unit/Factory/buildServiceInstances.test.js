@@ -135,6 +135,65 @@ describe('Factory::buildServiceInstances', function () {
         });
     });
 
+    it('skipped - node without check that matches instance-status check name', function () {
+        const inputTranscoderStatus = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 100,
+                mem: {total: 13121352, free: 4256144},
+                cpu: {usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const inputNodes = deepFreeze([{
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: {
+                    lan: '192.168.101.4',
+                    wan: '1.2.3.4'
+                },
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+                Port: 12345
+            },
+            Checks: [
+                {
+                    CheckID: 'serfHealth',
+                    Status: 'passing',
+                    Name: 'Serf Health Status',
+                    Output: 'Agent alive and reachable',
+                },
+                {
+                    CheckID: 'service:transcoder',
+                    Status: 'passing',
+                    Name: 'Name that does not match checkNameWithStatus',
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
+                    'Output: ' + JSON.stringify(inputTranscoderStatus)
+                }
+            ],
+        }]);
+
+        builderStub.returns({ validNodes: inputNodes, errors: [] });
+        const expectedErr = new InvalidDataError(
+            'Check with `checkNameWithStatus` was not found among all checks on the node, node will be skipped',
+            { node: inputNodes[0] }
+        );
+
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
+
+        assert.isTrue(builderStub.calledOnce);
+        assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
+        assert.instanceOf(instances, ServiceInstances);
+        assert.isArray(errors);
+        assert.isEmpty(instances.getHealthy());
+        assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getOverloaded());
+        assert.lengthOf(errors, 1);
+        assert.deepEqual(errors[0].toString(), expectedErr.toString());
+    });
+
     it('unhealthy - node with non-instance-status check in critical state', function () {
         const inputTranscoderStatus = deepFreeze({
             data: {
