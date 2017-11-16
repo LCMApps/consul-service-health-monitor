@@ -3,3 +3,4 @@
 --check-leaks
 --recursive
 --require ./tests/Bootstrap.js
+--globals _semaphore

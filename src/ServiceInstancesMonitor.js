@@ -3,12 +3,13 @@ const _ = require('lodash');
 const async_ = require('asyncawait/async');
 const await_ = require('asyncawait/await');
 const instancesFactory = require('./Factory');
+const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
 const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
 
 
-const CONSUL_WAIT_INIT_TIMEOUT_MSEC = 5000;
+const DEFAULT_TIMEOUT_MSEC = 5000;
 
 /**
  * Single node data
@@ -35,6 +36,7 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @param {Object} options
      * @param {string} options.serviceName -  name of service in consul to monitor
      * @param {string} options.checkNameWithStatus
+     * @param {string} [options.timeoutMsec=5000] - connection timeout to consul
      * @param {Consul} consul
      * @throws {TypeError} On invalid options format
      * @public
@@ -42,7 +44,7 @@ class ServiceInstancesMonitor extends EventEmitter {
     constructor(options, consul) {
         super();
 
-        if (!_.isObject(options)) {
+        if (!_.isPlainObject(options)) {
             throw new TypeError('options must be an object');
         }
 
@@ -54,13 +56,29 @@ class ServiceInstancesMonitor extends EventEmitter {
             !_.isString(options.checkNameWithStatus) ||
             _.isEmpty(options.checkNameWithStatus)
         ) {
-            throw new TypeError('options.checkNameWithStatus must be a non-empty string');
+            throw new TypeError('options.checkNameWithStatus must be set and be a non-empty string');
+        }
+
+        if (!_.has(options, 'timeoutMsec')) {
+            this._timeoutMsec = DEFAULT_TIMEOUT_MSEC;
+        } else {
+            if (!_.isSafeInteger(options.timeoutMsec) || options.timeoutMsec <= 0) {
+                throw new TypeError('options.timeoutMsec must be a positive integer if set');
+            }
+
+            this._timeoutMsec = options.timeoutMsec;
+        }
+
+        // duck typing check
+        if (!_.isObject(consul) || !_.isFunction(consul.watch) ||
+            !_.isObject(consul.health) || !_.isFunction(consul.health.service)
+        ) {
+            throw new TypeError('consul argument does not look like Consul object');
         }
 
         this._serviceName         = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
         this._initialized         = false;
-        this._serversList         = [];
 
         this._consul = consul;
 
@@ -68,7 +86,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._onWatcherError = this._onWatcherError.bind(this);
         this._onWatcherEnd = this._onWatcherEnd.bind(this);
 
-        this._serviceInstances = null;
+        this._serviceInstances = new ServiceInstances();
         this._watchAnyNodeChange = null;
         this._setWatchUnealthy();
         this._setUninitialized();
@@ -102,12 +120,8 @@ class ServiceInstancesMonitor extends EventEmitter {
         return this._watchAnyNodeChange !== null;
     }
 
-    getHealthyNodes() {
-        return this._nodes.healthy;
-    }
-
-    getUnhealthyNodes() {
-        return this._nodes.unhealthy;
+    getInstances() {
+        return this._serviceInstances;
     }
 
     /**
@@ -138,13 +152,29 @@ class ServiceInstancesMonitor extends EventEmitter {
 
             this._setInitialized();
             this._setWatchHealthy();
+            this._serviceInstances = initialListOfNodes;
             return initialListOfNodes;
         })();
     }
 
+    /**
+     * Stops service even if it is not started yet. Monitor becomes `uninitialized` and `unhalthy`.
+     *
+     * Listens for changes after successful resolve.
+     *
+     * Promise will be rejected with:
+     *   `AlreadyInitializedError` if service is already started.
+     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
+     *   `WatchError` on error from `consul` underlying method
+     *
+     * Rejection of promise means that watcher was stopped and no retries will be done.
+     *
+     * @returns {ServiceInstancesMonitor}
+     * @public
+     */
     stopService() {
         if (!this._isWatcherRegistered()) {
-            return;
+            return this;
         }
 
         // we need to remove listener to prevent emitting of `end` event after stop of watcher
@@ -153,6 +183,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._watchAnyNodeChange = null;
         this._setUninitialized();
         this._setWatchUnealthy();
+        return this;
     }
 
     /**
@@ -189,9 +220,13 @@ class ServiceInstancesMonitor extends EventEmitter {
                 this._watchAnyNodeChange.removeListener('error', firstError);
                 clearTimeout(timerId);
 
-                const {instances} = instancesFactory.buildServiceInstances(
+                const {instances, errors} = instancesFactory.buildServiceInstances(
                     data, this._checkNameWithStatus
                 );
+
+                if (!_.isEmpty(errors)) {
+                    this._emitFactoryErrors(errors);
+                }
 
                 resolve(instances);
             };
@@ -210,7 +245,7 @@ class ServiceInstancesMonitor extends EventEmitter {
                 this._watchAnyNodeChange.end();
                 this._watchAnyNodeChange = null;
                 reject(new WatchTimeoutError('Initial consul watch request was timed out'));
-            }, CONSUL_WAIT_INIT_TIMEOUT_MSEC);
+            }, this._timeoutMsec);
 
             this._watchAnyNodeChange.once('change', firstChange);
             this._watchAnyNodeChange.once('error', firstError);
@@ -261,7 +296,7 @@ class ServiceInstancesMonitor extends EventEmitter {
 
     _emitFactoryErrors(errors) {
         setImmediate(() => {
-            errors.forEach(error => this.emit.call('error', error));
+            errors.forEach(error => this.emit.call(this, 'error', error));
         });
     }
 }
