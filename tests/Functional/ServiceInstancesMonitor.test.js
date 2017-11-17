@@ -12,7 +12,7 @@ const ServiceInstance = require('src/ServiceInstance');
 const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
 const ServiceInstances = require('src/ServiceInstances');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
-const {WatchError, WatchTimeoutError} = require('src/Error');
+const {WatchError, WatchTimeoutError, InvalidDataError} = require('src/Error');
 
 const nockTestParams = require('./nock.data');
 
@@ -346,6 +346,11 @@ describe('ServiceInstancesMonitor::constructor', function () {
             const firstResponseBody = _.cloneDeep(nockTestParams.firstResponseBody);
             firstResponseBody[0].Checks[1].Name = 'Name of check that will not match checkNameWithStatus';
 
+            const expectedErrorType = InvalidDataError;
+            const expectedErrorMessage = 'Check with `checkNameWithStatus` was not found among all checks on the ' +
+                'node, node will be skipped';
+            const expectedErrorExtra = {node: firstResponseBody[0]};
+
             const firstRequestIndex = 0;
             // blocking queries read X-Consul-Index header and make next request using that value as index
             const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
@@ -357,6 +362,12 @@ describe('ServiceInstancesMonitor::constructor', function () {
                 .delay(60000)
                 .reply(200, firstResponseBody, nockTestParams.firstResponseHeaders);
 
+            const waitFn = () => {
+                return new Promise(resolve => {
+                    setTimeout(resolve, 0);
+                });
+            };
+
             const errors = [];
             const monitor = new ServiceInstancesMonitor(options, consulClient);
             monitor.on('error', (error) => {
@@ -365,7 +376,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
             const initialInstances = await_(monitor.startService());
 
-            assert.lengthOf(errors, 1);
+            assert.lengthOf(errors, 0);
 
             assert.instanceOf(initialInstances, ServiceInstances);
             assert.lengthOf(initialInstances.getHealthy(), 1);
@@ -377,6 +388,13 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
             assert.instanceOf(node2, ServiceInstance);
             assert.deepEqual(node2, expectedNode2);
+
+            await_(waitFn());
+
+            assert.lengthOf(errors, 1);
+            assert.instanceOf(errors[0], expectedErrorType);
+            assert.strictEqual(errors[0].message, expectedErrorMessage);
+            assert.deepEqual(errors[0].extra, expectedErrorExtra);
         })().then(done).catch(done);
     });
 });

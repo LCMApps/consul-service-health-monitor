@@ -1,8 +1,11 @@
 {
   "name": "consul-service-health-monitor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Service to monitor health status of services in consul.",
   "main": "index.js",
+  "engines": {
+    "node": ">=6.0 <9.0"
+  },
   "directories": {
     "test": "tests"
   },
@@ -20,6 +23,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
     "app-module-path": "^2.2.0",
+    "asyncawait": "^1.0.6",
     "chai": "^4.1.0",
     "chai-as-promised": "^7.1.1",
     "consul": "^0.30.0",
@@ -33,7 +37,6 @@
     "sinon": "^2.4.1"
   },
   "dependencies": {
-    "asyncawait": "^1.0.6",
     "deep-freeze": "0.0.1",
     "lodash": "^4.17.4"
   }

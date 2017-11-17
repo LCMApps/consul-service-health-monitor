@@ -1,7 +1,5 @@
 const EventEmitter = require('events');
 const _ = require('lodash');
-const async_ = require('asyncawait/async');
-const await_ = require('asyncawait/await');
 const instancesFactory = require('./Factory');
 const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
@@ -140,21 +138,21 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @public
      */
     startService() {
-        return async_(() => {
-            if (this._isWatcherRegistered()) {
-                throw new AlreadyInitializedError('Service is already started');
-            }
+        if (this._isWatcherRegistered()) {
+            return Promise.reject(new AlreadyInitializedError('Service is already started'));
+        }
 
-            const initialListOfNodes = await_(this._registerWatcherAndWaitForInitialNodes());
-            this._watchAnyNodeChange.on('change', this._onWatcherChange);
-            this._watchAnyNodeChange.on('error', this._onWatcherError);
-            this._watchAnyNodeChange.on('end', this._onWatcherEnd);
+        return this._registerWatcherAndWaitForInitialNodes()
+            .then(initialListOfNodes => {
+                this._watchAnyNodeChange.on('change', this._onWatcherChange);
+                this._watchAnyNodeChange.on('error', this._onWatcherError);
+                this._watchAnyNodeChange.on('end', this._onWatcherEnd);
 
-            this._setInitialized();
-            this._setWatchHealthy();
-            this._serviceInstances = initialListOfNodes;
-            return initialListOfNodes;
-        })();
+                this._setInitialized();
+                this._setWatchHealthy();
+                this._serviceInstances = initialListOfNodes;
+                return initialListOfNodes;
+            });
     }
 
     /**
