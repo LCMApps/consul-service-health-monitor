@@ -1,8 +1,11 @@
 {
   "name": "consul-service-health-monitor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Service to monitor health status of services in consul.",
   "main": "index.js",
+  "engines": {
+    "node": ">=6.0 <9.0"
+  },
   "directories": {
     "test": "tests"
   },
