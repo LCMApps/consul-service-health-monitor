@@ -428,9 +428,9 @@ describe('Factory::buildServiceInstances', function () {
         assert.isEmpty(instances.getOverloaded());
     });
 
-    it('unhealthy - node with only instance check in critical state and MAINTENANCE status', function () {
+    it('unhealthy - node with only instance check in passing state and MAINTENANCE status', function () {
         // MAINTENANCE status must be set up with 200 OK code only,
-        // situation described in test is abnormal and instance muse be marked as unhealthy
+        // situation described in test is abnormal and instance must be marked as unhealthy
         const inputTranscoderStatus = deepFreeze({
             data: {
                 status: 'MAINTENANCE',
@@ -462,16 +462,16 @@ describe('Factory::buildServiceInstances', function () {
                 },
                 {
                     CheckID: 'service:transcoder',
-                    Status: 'critical',
+                    Status: 'passing',
                     Name: checkNameWithStatus,
-                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
-                    'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
+                    'Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
             ],
         }]);
 
         const expectedErr = new InvalidDataError(
-            'ServiceInstance status check is MAINTENANCE but status in consul is not passing, node will be skipped',
+            'ServiceInstance status check is MAINTENANCE but status in consul is not critical, node will be skipped',
             { address: inputNodes[0].Node.Address, check: inputNodes[0].Checks[1] }
         );
 
@@ -510,7 +510,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.deepEqual(unhealthyTranscoder, expTranscoder);
     });
 
-    it('unhealthy - node with one check in critical state and passing instance-status check + ' +
+    it('unhealthy - node with one check in critical state and critical instance-status check ' +
         'MAINTENANCE status', function () {
         const inputTranscoderStatus = deepFreeze({
             data: {
@@ -549,10 +549,10 @@ describe('Factory::buildServiceInstances', function () {
                 },
                 {
                     CheckID: 'service:transcoder',
-                    Status: 'passing',
+                    Status: 'critical',
                     Name: checkNameWithStatus,
-                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
-                    'Output: ' + JSON.stringify(inputTranscoderStatus),
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
+                    'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
             ],
         }]);
@@ -737,7 +737,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.deepEqual(overloadedTranscoder, expTranscoder);
     });
 
-    it('maintenance - node with only instance check in passing state and MAINTENANCE status', function () {
+    it('maintenance - node with only instance check in critical state and MAINTENANCE status', function () {
         const inputTranscoderStatus = deepFreeze({
             data: {
                 status: 'MAINTENANCE',
@@ -769,10 +769,10 @@ describe('Factory::buildServiceInstances', function () {
                 },
                 {
                     CheckID: 'service:transcoder',
-                    Status: 'passing',
+                    Status: 'critical',
                     Name: checkNameWithStatus,
-                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 200 OK ' +
-                        'Output: ' + JSON.stringify(inputTranscoderStatus),
+                    Output: 'HTTP GET http://localhost:9090/videoStreamingService/v1/transcoder/status: 503 Service ' +
+                    'Unavailable Output: ' + JSON.stringify(inputTranscoderStatus),
                 }
             ],
         }]);

@@ -8,6 +8,7 @@ const ConsulResponseValidator = require('./ConsulResponseValidator');
 const InvalidDataError = require('./Error').InvalidDataError;
 
 const CHECK_STATUS_PASSING = 'passing';
+const CHECK_STATUS_CRITICAL = 'critical';
 const CHECK_OUTPUT_PATTERN = 'Output: ';
 
 /**
@@ -179,9 +180,9 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
                     ));
 
                     passing = false;
-                } else if (instanceStatus.isOnMaintenance() && check.Status !== CHECK_STATUS_PASSING) {
+                } else if (instanceStatus.isOnMaintenance() && check.Status !== CHECK_STATUS_CRITICAL) {
                     errors.push(new InvalidDataError(
-                        'ServiceInstance status check is MAINTENANCE but status in consul is not passing, ' +
+                        'ServiceInstance status check is MAINTENANCE but status in consul is not critical, ' +
                             'node will be skipped',
                         { address: ip, check: check }
                     ));
