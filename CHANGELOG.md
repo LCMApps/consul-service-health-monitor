@@ -4,8 +4,8 @@
 
 BUG FIXES:
 * `ServiceInstancesMonitor` doesn't throw error when Node.TaggedAddresses === null. This situation may appear
-if agent on node or whole node fails or there is no connection to consul master. `ServiceInstancesMonitor` marks
-service on such node as `unhealthy`. You may find the real output from consul in such situation below.
+if agent on node or whole node fails or there is no connection to consul master. `ServiceInstancesMonitor` will skip
+service on such node at all. You may find the real output from consul in such situation below.
 
 ```json
 [
