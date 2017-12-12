@@ -67,9 +67,20 @@ function buildInstanceStatusFromOutput(output) {
  */
 function buildServiceInstance(node, instanceStatus) {
     try {
+        let lanIp = null;
+        let wanIp = null;
+
+        if (_.has(node.Node.TaggedAddresses, 'lan')) {
+            lanIp = node.Node.TaggedAddresses.lan;
+        }
+
+        if (_.has(node.Node.TaggedAddresses, 'wan')) {
+            wanIp = node.Node.TaggedAddresses.wan;
+        }
+
         return new ServiceInstance(
-            node.Node.TaggedAddresses.lan,
-            node.Node.TaggedAddresses.wan,
+            lanIp,
+            wanIp,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,

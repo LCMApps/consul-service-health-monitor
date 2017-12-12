@@ -136,4 +136,191 @@ describe('Factory::buildServiceInstance', function () {
         assert.instanceOf(instance, ServiceInstance);
         assert.strictEqual(instance, expectedInstance);
     });
+
+    it('check of passed arguments from factory to inner class constructor, without TaggedAddresses.lan', function () {
+
+        const inputStatus = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 100,
+                mem: {total: 13121352, free: 4256144},
+                cpu: {usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const node = deepFreeze({
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: {
+                    wan: '1.2.3.4'
+                },
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+                Port: 12345
+            }
+        });
+
+        const instanceStatus = new ServiceInstanceStatus(
+            inputStatus.data.pid,
+            inputStatus.data.status,
+            inputStatus.data.mem.total,
+            inputStatus.data.mem.free,
+            inputStatus.data.cpu.usage,
+            inputStatus.data.cpu.count
+        );
+
+        const expectedInstance = new ServiceInstance(
+            null,
+            node.Node.TaggedAddresses.wan,
+            node.Service.Port,
+            node.Node.Address,
+            node.Node.Node,
+            node.Service.Tags,
+            instanceStatus
+        );
+
+        stub.returns(expectedInstance);
+
+        const instance = Factory.buildServiceInstance(node, instanceStatus);
+
+        assert.isTrue(stub.calledOnce);
+        assert.isTrue(stub.firstCall.calledWithExactly(
+            null,
+            node.Node.TaggedAddresses.wan,
+            node.Service.Port,
+            node.Node.Address,
+            node.Node.Node,
+            node.Service.Tags,
+            instanceStatus
+        ));
+
+        assert.instanceOf(instance, ServiceInstance);
+        assert.strictEqual(instance, expectedInstance);
+    });
+
+    it('check of passed arguments from factory to inner class constructor, without TaggedAddresses.wan', function () {
+
+        const inputStatus = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 100,
+                mem: {total: 13121352, free: 4256144},
+                cpu: {usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const node = deepFreeze({
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: {
+                    lan: '192.168.101.4'
+                },
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+                Port: 12345
+            }
+        });
+
+        const instanceStatus = new ServiceInstanceStatus(
+            inputStatus.data.pid,
+            inputStatus.data.status,
+            inputStatus.data.mem.total,
+            inputStatus.data.mem.free,
+            inputStatus.data.cpu.usage,
+            inputStatus.data.cpu.count
+        );
+
+        const expectedInstance = new ServiceInstance(
+            node.Node.TaggedAddresses.lan,
+            null,
+            node.Service.Port,
+            node.Node.Address,
+            node.Node.Node,
+            node.Service.Tags,
+            instanceStatus
+        );
+
+        stub.returns(expectedInstance);
+
+        const instance = Factory.buildServiceInstance(node, instanceStatus);
+
+        assert.isTrue(stub.calledOnce);
+        assert.isTrue(stub.firstCall.calledWithExactly(
+            node.Node.TaggedAddresses.lan,
+            null,
+            node.Service.Port,
+            node.Node.Address,
+            node.Node.Node,
+            node.Service.Tags,
+            instanceStatus
+        ));
+
+        assert.instanceOf(instance, ServiceInstance);
+        assert.strictEqual(instance, expectedInstance);
+    });
+
+    it('check of passed arguments from factory to inner class constructor, with TaggedAddresses === null', function () {
+
+        const inputStatus = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 100,
+                mem: {total: 13121352, free: 4256144},
+                cpu: {usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const node = deepFreeze({
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: null,
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+                Port: 12345
+            }
+        });
+
+        const instanceStatus = new ServiceInstanceStatus(
+            inputStatus.data.pid,
+            inputStatus.data.status,
+            inputStatus.data.mem.total,
+            inputStatus.data.mem.free,
+            inputStatus.data.cpu.usage,
+            inputStatus.data.cpu.count
+        );
+
+        const expectedInstance = new ServiceInstance(
+            null,
+            null,
+            node.Service.Port,
+            node.Node.Address,
+            node.Node.Node,
+            node.Service.Tags,
+            instanceStatus
+        );
+
+        stub.returns(expectedInstance);
+
+        const instance = Factory.buildServiceInstance(node, instanceStatus);
+
+        assert.isTrue(stub.calledOnce);
+        assert.isTrue(stub.firstCall.calledWithExactly(
+            null,
+            null,
+            node.Service.Port,
+            node.Node.Address,
+            node.Node.Node,
+            node.Service.Tags,
+            instanceStatus
+        ));
+
+        assert.instanceOf(instance, ServiceInstance);
+        assert.strictEqual(instance, expectedInstance);
+    });
 });
