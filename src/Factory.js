@@ -7,6 +7,7 @@ const ServiceInstances = require('./ServiceInstances');
 const ConsulResponseValidator = require('./ConsulResponseValidator');
 const InvalidDataError = require('./Error').InvalidDataError;
 
+const CHECK_ID_SERF_HEALTH = 'serfHealth';
 const CHECK_STATUS_PASSING = 'passing';
 const CHECK_STATUS_CRITICAL = 'critical';
 const CHECK_OUTPUT_PATTERN = 'Output: ';
@@ -100,7 +101,7 @@ function buildServiceInstance(node, instanceStatus) {
  * fields are checked and required.
  *
  * Node will be marked `unhealthy` if at least one case occurs:
- *   - at least one check, except check with instance-status, not in `passing` state
+ *   - at least one check, except check with instance-status and serfHealth, not in `passing` state
  *   - instance-status check isn't in passing state while instance returns "OK" to health check
  *
  * Node will be marked `overloaded` if all cases occurs:
@@ -114,6 +115,7 @@ function buildServiceInstance(node, instanceStatus) {
  *   - it doesn't contain registered checks at all
  *   - it doesn't contain instance-status check
  *   - instance-status check has invalid format
+ *   - serfHealth check is in critical state
  *
  * In all other cases node will be `healthy`.
  *
@@ -134,6 +136,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
         let passing = true;
         let instanceStatus = null;
         let checkWithStatusFound = false;
+        let serfHealthCritical = false;
 
         if (node.Checks.length === 0) {
             errors.push(new InvalidDataError(
@@ -145,6 +148,16 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
         }
 
         node.Checks.forEach(check => {
+            if (check.CheckID === CHECK_ID_SERF_HEALTH && check.Status !== CHECK_STATUS_PASSING) {
+                serfHealthCritical = true;
+            }
+
+            if (serfHealthCritical) {
+                // skip this check and jump to the next one
+                // will skip all checks once serfHealth was found
+                return;
+            }
+
             if (check.Name !== checkNameWithStatus) {
                 if (check.Status !== CHECK_STATUS_PASSING) {
                     passing = false;
@@ -203,6 +216,15 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
             }
 
         });
+
+        if (serfHealthCritical) {
+            errors.push(new InvalidDataError(
+                'serfHealth check is in critical state, node will be skipped',
+                { node }
+            ));
+
+            return;
+        }
 
         if (instanceStatus === null) {
             if (!checkWithStatusFound) {
