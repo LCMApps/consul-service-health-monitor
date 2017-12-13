@@ -17,7 +17,7 @@ function throwErrorIfNotEmptyString(variable, variableName) {
 }
 
 /**
- * Checks that `variable` is non empty string
+ * Checks that `variable` is non-empty string or null
  *
  * @param {*} variable - variable value to check
  * @param {string} variableName - name of variable for pretty and descriptive errors
