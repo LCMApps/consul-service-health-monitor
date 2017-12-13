@@ -17,6 +17,26 @@ function throwErrorIfNotEmptyString(variable, variableName) {
 }
 
 /**
+ * Checks that `variable` is non-empty string or null
+ *
+ * @param {*} variable - variable value to check
+ * @param {string} variableName - name of variable for pretty and descriptive errors
+ * @throws {TypeError}
+ * @return {void}
+ */
+function throwErrorIfNotNullOrNotEmptyString(variable, variableName) {
+    if (variable === null) {
+        return;
+    }
+
+    if ((typeof variable === 'string') && variable.length > 0) {
+        return;
+    }
+
+    throw new TypeError(`${variableName} must be a non-empty string or null`);
+}
+
+/**
  * Checks that `variable` is defined and is number
  *
  * @param {*} variable - variable value to check
@@ -36,8 +56,8 @@ function throwErrorIfNotNumber(variable, variableName) {
 class ServiceInstance {
 
     /**
-     * @param {string} lanIp
-     * @param {string} wanIp
+     * @param {string|null} lanIp
+     * @param {string|null} wanIp
      * @param {number} port
      * @param {string} nodeAddress - ip or host of node on which service instance is running
      * @param {string} nodeId - id of node, in most cases it is hostname of node where service instance is running
@@ -46,8 +66,8 @@ class ServiceInstance {
      * @throws {TypeError} on invalid type or value of one of arguments
      */
     constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus) {
-        throwErrorIfNotEmptyString(lanIp, 'lanIp');
-        throwErrorIfNotEmptyString(wanIp, 'wanIp');
+        throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
+        throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
         throwErrorIfNotNumber(port, 'port');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
         throwErrorIfNotEmptyString(nodeId, 'nodeId');
@@ -76,7 +96,11 @@ class ServiceInstance {
     /**
      * Returns lanIp.
      *
-     * @returns {string}
+     * May be null if consul agent (or whole server) on the node goes down. In such situation consul leader remembers
+     * service and node for some time and marks serfHealth as critical. While node exists, health api returns
+     * null for `Node.TaggedAddresses`.
+     *
+     * @returns {string|null}
      */
     getLanIp() {
         return this._lanIp;
@@ -85,7 +109,11 @@ class ServiceInstance {
     /**
      * Returns wanIp.
      *
-     * @returns {string}
+     * May be null if consul agent (or whole server) on the node goes down. In such situation consul leader remembers
+     * service and node for some time and marks serfHealth as critical. While node exists, health api returns
+     * null for `Node.TaggedAddresses`.
+     *
+     * @returns {string|null}
      */
     getWanIp() {
         return this._wanIp;
@@ -98,6 +126,18 @@ class ServiceInstance {
      */
     getPort() {
         return this._port;
+    }
+
+    /**
+     * Returns nodeId of node where service is running
+     *
+     * May be empty string if consul agent (or whole server) on the node goes down. In such situation
+     * consul leader remembers service and node for some time but returns empty string as nodeIdand.
+     *
+     * @returns {string}
+     */
+    getNodeId() {
+        return this._nodeId;
     }
 
     /**

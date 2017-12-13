@@ -135,7 +135,7 @@ class ServiceInstances {
      *     {
      *       "CheckID": "service:transcoder",
      *       "Status": "critical",
-     *       "Output": "HTTP GET ${path}: 200 OK Output: " +
+     *       "Output": "HTTP GET ${path}: 503 Service Unavailable Output: " +
      *         "{\"data\":" +
      *           "{\"status\":\"OVERLOADED\",\"pid\":100,\"mem\":{\"total\":13121352,\"free\":4256144},\"cpu\":' +
      *           "{\"usage\":1.2295908130391557,\"count\":16}}" +

@@ -48,11 +48,15 @@ function filterValidHealthyServices(nodes) {
     }
 
     nodes.forEach(node => {
+        const isTaggedAddressesValid = _.has(node, ['Node', 'TaggedAddresses']) &&
+            (node.Node.TaggedAddresses === null ||
+                (_.has(node, ['Node', 'TaggedAddresses', 'lan']) && _.has(node, ['Node', 'TaggedAddresses', 'wan']))
+            );
+
         if (
             !_.isObject(node) || !_.has(node, ['Node', 'Node']) || !_.has(node, ['Node', 'Address']) ||
             !_.has(node, ['Service', 'Tags']) || !_.has(node, 'Checks') || !_.isArray(node.Service.Tags) ||
-            !_.has(node, ['Node', 'TaggedAddresses', 'lan']) || !_.has(node, ['Node', 'TaggedAddresses', 'wan'])
-            || !_.isArray(node.Checks) || _.isEmpty(node.Checks)
+            !isTaggedAddressesValid || !_.isArray(node.Checks) || _.isEmpty(node.Checks)
         ) {
             data.errors.push(new InvalidDataError('Invalid format of node data received from consul', { node }));
 
