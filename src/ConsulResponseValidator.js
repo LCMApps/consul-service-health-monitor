@@ -48,7 +48,7 @@ function filterValidHealthyServices(nodes) {
     }
 
     nodes.forEach(node => {
-        const isTaggedAddressesValid = _.has(node.Node.TaggedAddresses) &&
+        const isTaggedAddressesValid = _.has(node, ['Node', 'TaggedAddresses']) &&
             (node.Node.TaggedAddresses === null ||
                 (_.has(node, ['Node', 'TaggedAddresses', 'lan']) && _.has(node, ['Node', 'TaggedAddresses', 'wan']))
             );

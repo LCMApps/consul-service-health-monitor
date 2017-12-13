@@ -238,6 +238,75 @@ describe('ServiceInstancesMonitor::constructor', function () {
         })().then(done).catch(done);
     });
 
+    it('initial list of nodes with serfHealth checks in critical status, one service with OK, another ' +
+        'with MAINTENANCE', function (done) {
+        async_(() => {
+            const firstResponseBody = _.cloneDeep(nockTestParams.serfHealthCriticalResponseBody);
+
+            const firstExpectedErrorType = InvalidDataError;
+            const firstExpectedErrorMessage = 'serfHealth check is in critical state, node will be skipped';
+            const firstExpectedErrorExtra = {node: firstResponseBody[0]};
+
+            const secondExpectedErrorType = InvalidDataError;
+            const secondExpectedErrorMessage = 'serfHealth check is in critical state, node will be skipped';
+            const secondExpectedErrorExtra = {node: firstResponseBody[1]};
+
+            const firstRequestIndex = 0;
+            // blocking queries read X-Consul-Index header and make next request using that value as index
+            const secondRequestIndex = nockTestParams.serfHealthCriticalResponseHeaders['X-Consul-Index'];
+
+            nock(consulHostAndPort)
+                .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+                .reply(
+                    200,
+                    nockTestParams.serfHealthCriticalResponseBody,
+                    nockTestParams.serfHealthCriticalResponseHeaders
+                )
+                .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+                .delay(60000)
+                .reply(
+                    200,
+                    nockTestParams.serfHealthCriticalResponseBody,
+                    nockTestParams.serfHealthCriticalResponseHeaders
+                );
+
+            const waitFn = () => {
+                return new Promise(resolve => {
+                    setTimeout(resolve, 0);
+                });
+            };
+
+            const errors = [];
+            const monitor = new ServiceInstancesMonitor(options, consulClient);
+            monitor.on('error', (error) => {
+                errors.push(error);
+            });
+
+            const initialInstances = await_(monitor.startService());
+
+            // need to wait for emitting of errors
+            await_(waitFn());
+
+
+            assert.isTrue(monitor.isInitialized());
+            assert.isTrue(monitor.isWatchHealthy());
+
+            assert.lengthOf(errors, 2);
+            assert.instanceOf(errors[0], firstExpectedErrorType);
+            assert.strictEqual(errors[0].message, firstExpectedErrorMessage);
+            assert.deepEqual(errors[0].extra, firstExpectedErrorExtra);
+            assert.instanceOf(errors[1], secondExpectedErrorType);
+            assert.strictEqual(errors[1].message, secondExpectedErrorMessage);
+            assert.deepEqual(errors[1].extra, secondExpectedErrorExtra);
+
+            assert.instanceOf(initialInstances, ServiceInstances);
+            assert.isEmpty(initialInstances.getHealthy());
+            assert.isEmpty(initialInstances.getOnMaintenance());
+            assert.isEmpty(initialInstances.getOverloaded());
+            assert.isEmpty(initialInstances.getUnhealthy());
+        })().then(done).catch(done);
+    });
+
     it('reaction on 500 error from consul during startService', function (done) {
         this.timeout(options.timeoutMsec * 5);
 
