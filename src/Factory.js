@@ -85,6 +85,7 @@ function buildServiceInstance(node, instanceStatus) {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         );
