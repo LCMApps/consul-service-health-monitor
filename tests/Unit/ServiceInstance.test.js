@@ -69,11 +69,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'lanIp must be a non-empty string or null'
@@ -87,10 +90,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.isNull(serviceInstance.getLanIp());
@@ -102,10 +106,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.strictEqual(serviceInstance.getLanIp(), lanIp);
@@ -118,11 +123,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'wanIp must be a non-empty string or null'
@@ -136,10 +144,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.isNull(serviceInstance.getWanIp());
@@ -151,10 +160,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.strictEqual(serviceInstance.getWanIp(), wanIp);
@@ -167,11 +177,14 @@ describe('ServiceInstance::constructor', function () {
             const port = arg.value;
             const nodeAddress = '192.168.1.10';
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'port must be a number'
@@ -185,10 +198,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.equal(serviceInstance.getPort(), port);
@@ -201,11 +215,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = arg.value;
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'nodeAddress must be a string'
@@ -219,10 +236,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.equal(serviceInstance.getNodeAddress(), nodeAddress);
@@ -235,11 +253,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeId = arg.value;
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'nodeId must be a string'
@@ -253,10 +274,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.equal(serviceInstance.getNodeId(), nodeId);
@@ -269,11 +291,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = arg.value;
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'serviceTags must be an array'
@@ -288,11 +313,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = [arg.value];
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'serviceTag item must be a string'
@@ -306,10 +334,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = deepFreeze([]);
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.equal(serviceInstance.getServiceTags(), serviceTags);
@@ -322,12 +351,15 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = 'service_192.168.1.10_8080';
             const serviceTags = [];
             const serviceInstanceStatus = arg.value;
 
             assert.throws(
                 function () {
-                    new ServiceInstance(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus);
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
                 },
                 TypeError,
                 'serviceInstanceStatus must be an instance of ServiceInstanceStatus'
@@ -341,10 +373,11 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
         );
 
         assert.deepEqual(serviceInstance.getStatus(), serviceInstanceStatus);

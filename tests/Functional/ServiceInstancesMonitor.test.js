@@ -160,6 +160,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
                 nockTestParams.firstResponseBody[0].Service.Port,
                 nockTestParams.firstResponseBody[0].Node.Address,
                 nockTestParams.firstResponseBody[0].Node.Node,
+                nockTestParams.firstResponseBody[0].Service.ID,
                 nockTestParams.firstResponseBody[0].Service.Tags,
                 new ServiceInstanceStatus(
                     nockTestParams.loadData1.pid,
@@ -177,6 +178,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
                 nockTestParams.firstResponseBody[1].Service.Port,
                 nockTestParams.firstResponseBody[1].Node.Address,
                 nockTestParams.firstResponseBody[1].Node.Node,
+                nockTestParams.firstResponseBody[1].Service.ID,
                 nockTestParams.firstResponseBody[1].Service.Tags,
                 new ServiceInstanceStatus(
                     nockTestParams.loadData1.pid,
@@ -401,6 +403,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
                 nockTestParams.firstResponseBody[1].Service.Port,
                 nockTestParams.firstResponseBody[1].Node.Address,
                 nockTestParams.firstResponseBody[1].Node.Node,
+                nockTestParams.firstResponseBody[1].Service.ID,
                 nockTestParams.firstResponseBody[1].Service.Tags,
                 new ServiceInstanceStatus(
                     nockTestParams.loadData1.pid,

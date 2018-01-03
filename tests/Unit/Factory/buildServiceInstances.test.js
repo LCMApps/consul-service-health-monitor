@@ -53,7 +53,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [],
         }]);
@@ -96,7 +97,8 @@ describe('Factory::buildServiceInstances', function () {
                 },
                 Service: {
                     Tags: ['transcoder_app'],
-                    Port: 12345
+                    Port: 12345,
+                    ID: 'service_192.168.1.10_8080'
                 },
                 Checks: [
                     {
@@ -156,7 +158,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -215,7 +218,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -274,7 +278,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -299,6 +304,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -355,7 +361,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -386,6 +393,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputInstanceStatus.data.pid,
@@ -437,7 +445,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -467,6 +476,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -518,7 +528,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -549,6 +560,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -598,7 +610,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -623,6 +636,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -671,7 +685,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -696,6 +711,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -744,7 +760,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -769,6 +786,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -818,7 +836,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -843,6 +862,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
@@ -889,7 +909,8 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             },
             Checks: [
                 {
@@ -914,6 +935,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             new ServiceInstanceStatus(
                 inputTranscoderStatus.data.pid,
