@@ -283,6 +283,81 @@ describe('ServiceInstance::constructor', function () {
 
         assert.equal(serviceInstance.getNodeId(), nodeId);
     });
+    dataDriven(testParams.notAString, function () {
+        it('incorrect type of nodeId, type = {type}', function (arg) {
+            const lanIp = '192.168.1.1';
+            const wanIp = '8.8.8.8';
+            const port = 8080;
+            const nodeAddress = '192.168.1.10';
+            const nodeId = arg.value;
+            const serviceID = 'service_192.168.1.10_8080';
+            const serviceTags = [];
+
+            assert.throws(
+                function () {
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
+                },
+                TypeError,
+                'nodeId must be a string'
+            );
+        });
+    });
+
+    it('no errors on nodeId with string value', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+        );
+
+        assert.equal(serviceInstance.getNodeId(), nodeId);
+    });
+
+    dataDriven(testParams.notAString, function () {
+        it('incorrect type of serviceID, type = {type}', function (arg) {
+            const lanIp = '192.168.1.1';
+            const wanIp = '8.8.8.8';
+            const port = 8080;
+            const nodeAddress = '192.168.1.10';
+            const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const serviceID = arg.value;
+            const serviceTags = [];
+
+            assert.throws(
+                function () {
+                    new ServiceInstance(
+                        lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+                    );
+                },
+                TypeError,
+                'serviceID must be a string'
+            );
+        });
+    });
+
+    it('no errors on serviceID with string value', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceID = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceID, serviceTags, serviceInstanceStatus
+        );
+
+        assert.equal(serviceInstance.getServiceID(), serviceID);
+    });
 
     dataDriven(testParams.notAString, function () {
         it('incorrect type of serviceTags, type = {type}', function (arg) {

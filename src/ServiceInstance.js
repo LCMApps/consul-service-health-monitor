@@ -72,6 +72,7 @@ class ServiceInstance {
         throwErrorIfNotNumber(port, 'port');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
         throwErrorIfNotEmptyString(nodeId, 'nodeId');
+        throwErrorIfNotEmptyString(serviceID, 'serviceID');
 
         if (!Array.isArray(serviceTags)) {
             throw new TypeError('serviceTags must be an array');
