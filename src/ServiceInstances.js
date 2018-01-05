@@ -252,7 +252,7 @@ class ServiceInstances {
      * @return {string}
      */
     _generateStorageKey(instance) {
-        return `${instance.getServiceID()}_${instance.getNodeAddress()}`;
+        return `${instance.getServiceId()}_${instance.getNodeAddress()}`;
     }
 }
 
