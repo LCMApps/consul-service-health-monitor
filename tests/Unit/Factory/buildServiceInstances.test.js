@@ -963,4 +963,131 @@ describe('Factory::buildServiceInstances', function () {
         const healthyTranscoder = instances.getHealthy()[0];
         assert.deepEqual(healthyTranscoder, expTranscoder);
     });
+
+    it('different instances of the same service on the same node with different ports, both healthy', function () {
+        const inputService1Status = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 100,
+                mem: { total: 13121352, free: 4256144 },
+                cpu: { usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const inputService2Status = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 101,
+                mem: { total: 13121352, free: 4256144 },
+                cpu: { usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const inputNodes = deepFreeze([{
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: null,
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
+            },
+            Checks: [
+                {
+                    CheckID: 'serfHealth',
+                    Status: 'passing',
+                    Name: 'Serf Health Status',
+                    Output: 'Agent alive and reachable',
+                },
+                {
+                    CheckID: 'transcoder_192.168.1.10_8080_status',
+                    Status: 'passing',
+                    Name: checkNameWithStatus,
+                    Output: 'HTTP GET http://localhost:8080/videoStreamingService/v1/transcoder/status: ' +
+                        '200 OK Output: ' + JSON.stringify(inputService1Status),
+                }
+            ],
+        }, {
+            Node: {
+                Node: 'transcoder_app',
+                Address: '192.168.101.4',
+                TaggedAddresses: null,
+            },
+            Service: {
+                Tags: ['transcoder_app'],
+                Port: 12345,
+                ID: 'service_192.168.1.10_8081'
+            },
+            Checks: [
+                {
+                    CheckID: 'serfHealth',
+                    Status: 'passing',
+                    Name: 'Serf Health Status',
+                    Output: 'Agent alive and reachable',
+                },
+                {
+                    CheckID: 'transcoder_192.168.1.10_8081_status',
+                    Status: 'passing',
+                    Name: checkNameWithStatus,
+                    Output: 'HTTP GET http://localhost:8081/videoStreamingService/v1/transcoder/status: ' +
+                        '200 OK Output: ' + JSON.stringify(inputService2Status),
+                }
+            ],
+        }]);
+
+        const expTranscoder1 = new ServiceInstance(
+            null,
+            null,
+            inputNodes[0].Service.Port,
+            inputNodes[0].Node.Address,
+            inputNodes[0].Node.Node,
+            inputNodes[0].Service.ID,
+            inputNodes[0].Service.Tags,
+            new ServiceInstanceStatus(
+                inputService1Status.data.pid,
+                inputService1Status.data.status,
+                inputService1Status.data.mem.total,
+                inputService1Status.data.mem.free,
+                inputService1Status.data.cpu.usage,
+                inputService1Status.data.cpu.count
+            )
+        );
+        const expTranscoder2 = new ServiceInstance(
+            null,
+            null,
+            inputNodes[1].Service.Port,
+            inputNodes[1].Node.Address,
+            inputNodes[1].Node.Node,
+            inputNodes[1].Service.ID,
+            inputNodes[1].Service.Tags,
+            new ServiceInstanceStatus(
+                inputService2Status.data.pid,
+                inputService2Status.data.status,
+                inputService2Status.data.mem.total,
+                inputService2Status.data.mem.free,
+                inputService2Status.data.cpu.usage,
+                inputService2Status.data.cpu.count
+            )
+        );
+        builderStub.returns({validNodes: inputNodes, errors: []});
+
+        const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
+
+        assert.isTrue(builderStub.calledOnce);
+        assert.isTrue(builderStub.firstCall.calledWithExactly(inputNodes));
+        assert.instanceOf(instances, ServiceInstances);
+        assert.isArray(errors);
+        assert.isEmpty(errors);
+        assert.lengthOf(instances.getHealthy(), 2);
+        assert.isEmpty(instances.getOnMaintenance());
+        assert.isEmpty(instances.getOverloaded());
+        assert.isEmpty(instances.getUnhealthy());
+        /** @var {ServiceInstance} */
+        const healthyTranscoder1 = instances.getHealthy()[0];
+        assert.deepEqual(healthyTranscoder1, expTranscoder1);
+        const healthyTranscoder2 = instances.getHealthy()[1];
+        assert.deepEqual(healthyTranscoder2, expTranscoder2);
+    });
 });

@@ -96,7 +96,8 @@ describe('Factory::buildServiceInstance', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             }
         });
 
