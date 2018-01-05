@@ -41,7 +41,7 @@ class ServiceInstances {
      * @return {ServiceInstances} return link to itself to make method chainable
      */
     addHealthy(instance) {
-        this._healthyMap.set(`${instance.getServiceID()}_${instance.getNodeAddress()}`, instance);
+        this._healthyMap.set(this._generateStorageKey(instance), instance);
         return this;
     }
 
@@ -106,7 +106,7 @@ class ServiceInstances {
      * @return {ServiceInstances} return link to itself to make method chainable
      */
     addOnMaintenance(instance) {
-        this._onMaintenanceMap.set(`${instance.getServiceID()}_${instance.getNodeAddress()}`, instance);
+        this._onMaintenanceMap.set(this._generateStorageKey(instance), instance);
         return this;
     }
 
@@ -148,7 +148,7 @@ class ServiceInstances {
      * @return {ServiceInstances} return link to itself to make method chainable
      */
     addOverloaded(instance) {
-        this._overloadedMap.set(`${instance.getServiceID()}_${instance.getNodeAddress()}`, instance);
+        this._overloadedMap.set(this._generateStorageKey(instance), instance);
         return this;
     }
 
@@ -215,7 +215,7 @@ class ServiceInstances {
      * @return {ServiceInstances} return link to itself to make method chainable
      */
     addUnhealthy(instance) {
-        this._unhealthyMap.set(`${instance.getServiceID()}_${instance.getNodeAddress()}`, instance);
+        this._unhealthyMap.set(this._generateStorageKey(instance), instance);
         return this;
     }
 
@@ -245,6 +245,14 @@ class ServiceInstances {
      */
     getUnhealthy() {
         return [...this._unhealthyMap.values()];
+    }
+
+    /**
+     * @param {ServiceInstance} instance
+     * @return {string}
+     */
+    _generateStorageKey(instance) {
+        return `${instance.getServiceID()}_${instance.getNodeAddress()}`;
     }
 }
 

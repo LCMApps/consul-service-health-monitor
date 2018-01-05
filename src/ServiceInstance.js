@@ -153,9 +153,9 @@ class ServiceInstance {
     }
 
     /**
-     * Returns array of serviceTags
+     * Returns ID of service instance
      *
-     * @returns {string[]}
+     * @returns {string}
      */
     getServiceID() {
         return this._serviceID;
