@@ -55,8 +55,9 @@ function filterValidHealthyServices(nodes) {
 
         if (
             !_.isObject(node) || !_.has(node, ['Node', 'Node']) || !_.has(node, ['Node', 'Address']) ||
-            !_.has(node, ['Service', 'Tags']) || !_.has(node, 'Checks') || !_.isArray(node.Service.Tags) ||
-            !isTaggedAddressesValid || !_.isArray(node.Checks) || _.isEmpty(node.Checks)
+            !_.has(node, ['Service', 'ID']) || !_.has(node, ['Service', 'Tags']) || !_.has(node, 'Checks') ||
+            !_.isArray(node.Service.Tags) || !isTaggedAddressesValid || !_.isArray(node.Checks) ||
+            _.isEmpty(node.Checks)
         ) {
             data.errors.push(new InvalidDataError('Invalid format of node data received from consul', { node }));
 

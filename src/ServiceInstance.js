@@ -61,16 +61,18 @@ class ServiceInstance {
      * @param {number} port
      * @param {string} nodeAddress - ip or host of node on which service instance is running
      * @param {string} nodeId - id of node, in most cases it is hostname of node where service instance is running
+     * @param {string} serviceId - unique identifier of service instance
      * @param {string[]} serviceTags - tags of service
      * @param {ServiceInstanceStatus} serviceInstanceStatus - status of the service
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceTags, serviceInstanceStatus) {
+    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus) {
         throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
         throwErrorIfNotNumber(port, 'port');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
         throwErrorIfNotEmptyString(nodeId, 'nodeId');
+        throwErrorIfNotEmptyString(serviceId, 'serviceId');
 
         if (!Array.isArray(serviceTags)) {
             throw new TypeError('serviceTags must be an array');
@@ -89,6 +91,7 @@ class ServiceInstance {
         this._port = port;
         this._nodeAddress = nodeAddress;
         this._nodeId = nodeId;
+        this._serviceId = serviceId;
         this._serviceTags = serviceTags;
         this._serverInstanceStatus = serviceInstanceStatus;
     }
@@ -147,6 +150,15 @@ class ServiceInstance {
      */
     getNodeAddress() {
         return this._nodeAddress;
+    }
+
+    /**
+     * Returns ID of service instance
+     *
+     * @returns {string}
+     */
+    getServiceId() {
+        return this._serviceId;
     }
 
     /**

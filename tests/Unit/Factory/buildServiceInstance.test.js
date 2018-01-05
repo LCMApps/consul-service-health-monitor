@@ -52,7 +52,8 @@ describe('Factory::buildServiceInstance', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             }
         });
 
@@ -95,7 +96,8 @@ describe('Factory::buildServiceInstance', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             }
         });
 
@@ -114,6 +116,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         );
@@ -129,6 +132,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         ));
@@ -158,7 +162,8 @@ describe('Factory::buildServiceInstance', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             }
         });
 
@@ -177,6 +182,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         );
@@ -192,6 +198,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         ));
@@ -221,7 +228,8 @@ describe('Factory::buildServiceInstance', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             }
         });
 
@@ -240,6 +248,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         );
@@ -255,6 +264,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         ));
@@ -282,7 +292,8 @@ describe('Factory::buildServiceInstance', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
-                Port: 12345
+                Port: 12345,
+                ID: 'service_192.168.1.10_8080'
             }
         });
 
@@ -301,6 +312,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         );
@@ -316,6 +328,7 @@ describe('Factory::buildServiceInstance', function () {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Service.ID,
             node.Service.Tags,
             instanceStatus
         ));
