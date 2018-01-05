@@ -1,5 +1,12 @@
 ## Changelog
 
+### 1.1.0
+
+BUG FIXES:
+
+- [#19119](https://redmine.hwtool.net/issues/19119) Fix nonuniqueness keys in map for service instances
+- Added new method ServiceInstance#getServiceId that returns Service.ID parameter of check
+
 ### 1.0.3
 
 BUG FIXES:
