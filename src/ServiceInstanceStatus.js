@@ -30,9 +30,10 @@ class ServiceInstanceStatus {
      * @param {number} memFree - free memory in kB, integer, may be -1
      * @param {number} cpuUsage - float number between 0 and 100 and it represents average usage between available cores
      * @param {number} cpuCount - number of available cores on the instance, may be -1
+     * @param {Object} rowOutput - data that service returns on Health Check request
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(pid, status, memTotal, memFree, cpuUsage, cpuCount) {
+    constructor(pid, status, memTotal, memFree, cpuUsage, cpuCount, rowOutput) {
         if (!(typeof status === 'string') || status.length === 0) {
             throw new TypeError('status must be an non-empty string');
         }
@@ -67,6 +68,7 @@ class ServiceInstanceStatus {
         this._memFree = memFree;
         this._cpuUsage = cpuUsage;
         this._cpuCount = cpuCount;
+        this._rawOutput = rowOutput;
     }
 
     /**
@@ -155,6 +157,15 @@ class ServiceInstanceStatus {
      */
     getStatus() {
         return this._status;
+    }
+
+    /**
+     * Returns parsed data of Health Check output
+     *
+     * @returns {Object}
+     */
+    getRowOutput() {
+        return this._rawOutput;
     }
 
     /**

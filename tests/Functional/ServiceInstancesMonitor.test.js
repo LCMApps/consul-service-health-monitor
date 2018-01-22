@@ -168,9 +168,9 @@ describe('ServiceInstancesMonitor::constructor', function () {
                     nockTestParams.loadData1.mem.total,
                     nockTestParams.loadData1.mem.free,
                     nockTestParams.loadData1.cpu.usage,
-                    nockTestParams.loadData1.cpu.count
-                ),
-                nockTestParams.loadData1
+                    nockTestParams.loadData1.cpu.count,
+                    nockTestParams.loadData1
+                )
             );
 
             const expectedNode2 = new ServiceInstance(
@@ -187,9 +187,9 @@ describe('ServiceInstancesMonitor::constructor', function () {
                     nockTestParams.loadData1.mem.total,
                     nockTestParams.loadData1.mem.free,
                     nockTestParams.loadData1.cpu.usage,
-                    nockTestParams.loadData1.cpu.count
-                ),
-                nockTestParams.loadData1
+                    nockTestParams.loadData1.cpu.count,
+                    nockTestParams.loadData1
+                )
             );
 
             const firstRequestIndex = 0;
@@ -413,9 +413,9 @@ describe('ServiceInstancesMonitor::constructor', function () {
                     nockTestParams.loadData1.mem.total,
                     nockTestParams.loadData1.mem.free,
                     nockTestParams.loadData1.cpu.usage,
-                    nockTestParams.loadData1.cpu.count
-                ),
-                nockTestParams.loadData1
+                    nockTestParams.loadData1.cpu.count,
+                    nockTestParams.loadData1
+                )
             );
 
             const firstResponseBody = _.cloneDeep(nockTestParams.firstResponseBody);
