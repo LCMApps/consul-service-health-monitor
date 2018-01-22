@@ -2,6 +2,7 @@
 
 const assert = require('chai').assert;
 const dataDriven = require('data-driven');
+const deepFreeze = require('deep-freeze');
 const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
 
 /**
@@ -205,34 +206,47 @@ describe('ServiceInstanceStatus::constructor', function () {
     });
 
     it('test getters', function () {
-        const pid = 87;
-        const statusOk = ServiceInstanceStatus.STATE_OK;
-        const statusOverloaded = ServiceInstanceStatus.STATE_OVERLOADED;
-        const memTotal = 2047;
-        const memFree = 1337;
-        const cpuUsage = 34.91;
-        const cpuCount = 16;
-        const instanceOk = new ServiceInstanceStatus(pid, statusOk, memTotal, memFree, cpuUsage, cpuCount);
+        const validDataOk = deepFreeze({
+            pid: 87,
+            status: ServiceInstanceStatus.STATE_OK,
+            mem: {free: 1337, total: 2047},
+            cpu: {usage: 34.91, count: 16},
+            network: {bpsInRate: 0, bpsOutRate: 0, connections: 0}
+        });
+
+        const validDataOverloaded = deepFreeze({
+            pid: 87,
+            status: ServiceInstanceStatus.STATE_OK,
+            mem: {free: 1337, total: 2047},
+            cpu: {usage: 34.91, count: 16},
+            network: {bpsInRate: 0, bpsOutRate: 0, connections: 0}
+        });
+
+        const instanceOk = new ServiceInstanceStatus(validDataOk.pid, validDataOk.status, validDataOk.mem.total,
+            validDataOk.mem.free, validDataOk.cpu.usage, validDataOk.cpu.count, validDataOk);
         const instanceOverloaded = new ServiceInstanceStatus(
-            pid, statusOverloaded, memTotal, memFree, cpuUsage, cpuCount
+            validDataOverloaded.pid, validDataOverloaded.status, validDataOverloaded.mem.total,
+            validDataOverloaded.mem.free, validDataOverloaded.cpu.usage, validDataOverloaded.cpu.count,
+            validDataOverloaded
         );
 
         // instance with status 'OK'
         assert.isNumber(instanceOk.getPid());
-        assert.equal(pid, instanceOk.getPid());
+        assert.equal(validDataOk.pid, instanceOk.getPid());
         assert.isString(instanceOk.getStatus());
-        assert.equal(statusOk, instanceOk.getStatus());
+        assert.equal(validDataOk.status, instanceOk.getStatus());
         assert.isNumber(instanceOk.getMemTotal());
-        assert.equal(memTotal, instanceOk.getMemTotal());
+        assert.equal(validDataOk.mem.total, instanceOk.getMemTotal());
         assert.isNumber(instanceOk.getMemFree());
-        assert.equal(memFree, instanceOk.getMemFree());
+        assert.equal(validDataOk.mem.free, instanceOk.getMemFree());
         assert.isNumber(instanceOk.getCpuUsage());
-        assert.equal(cpuUsage, instanceOk.getCpuUsage());
+        assert.equal(validDataOk.cpu.usage, instanceOk.getCpuUsage());
         assert.isNumber(instanceOk.getCpuCount());
-        assert.equal(cpuCount, instanceOk.getCpuCount());
+        assert.equal(validDataOk.cpu.count, instanceOk.getCpuCount());
+        assert.deepEqual(validDataOk, instanceOk.getRowOutput());
 
         // instance with status 'OVERLOADED'
         assert.isString(instanceOverloaded.getStatus());
-        assert.equal(statusOverloaded, instanceOverloaded.getStatus());
+        assert.equal(validDataOverloaded.status, instanceOverloaded.getStatus());
     });
 });
