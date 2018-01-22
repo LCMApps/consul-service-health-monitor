@@ -19,19 +19,13 @@ const CHECK_OUTPUT_PATTERN = 'Output: ';
  *   `{"data":{"status":"OK","pid":1687,"mem":{"total":13121352,"free":3405508},
  *      "cpu":{"usage":1.2079917706585719,"count":16}}}"`
  *
- * After stringification of JSON it becomes:
- *   `{\"data\":{\"status\":\"OK\",\"pid\":1687,\"mem\":{\"total\":13121352,\"free\":3405508},
- *      \"cpu\":{\"usage\":1.2079917706585719,\"count\":16}}}"`
+ * Tries to build `ServiceInstanceStatus` object.
  *
- * This method parses stringified JSON and tries to build `ServiceInstanceStatus` object.
- *
- * @param {string} output
+ * @param {Object} parsedOutput
  * @returns {ServiceInstanceStatus|null} returns null if data in the output is missed or has an invalid format
  */
-function buildInstanceStatusFromOutput(output) {
+function buildInstanceStatusFromOutput(parsedOutput) {
     try {
-        const parsedOutput = JSON.parse(output);
-
         if (!_.has(parsedOutput, 'data') || !_.isObject(parsedOutput.data)) {
             return null;
         }
@@ -64,9 +58,10 @@ function buildInstanceStatusFromOutput(output) {
  *
  * @param {Object} node - data that returns `consul.health.service` call
  * @param {ServiceInstanceStatus} instanceStatus
+ * @param {Object} checkOutput - parsed Health Check response body
  * @return {ServiceInstance|null}
  */
-function buildServiceInstance(node, instanceStatus) {
+function buildServiceInstance(node, instanceStatus, checkOutput) {
     try {
         let lanIp = null;
         let wanIp = null;
@@ -87,7 +82,8 @@ function buildServiceInstance(node, instanceStatus) {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            checkOutput
         );
     } catch (err) {
         return null;
@@ -136,6 +132,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
         const ip = node.Node.Address;
         let passing = true;
         let instanceStatus = null;
+        let parsedOutput = null;
         let checkWithStatusFound = false;
         let serfHealthCritical = false;
 
@@ -184,9 +181,14 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
                 return;
             }
 
-            instanceStatus = buildInstanceStatusFromOutput(
-                check.Output.substring(pos + CHECK_OUTPUT_PATTERN.length)
-            );
+            const checkOutput = check.Output.substring(pos + CHECK_OUTPUT_PATTERN.length);
+            try {
+                parsedOutput = JSON.parse(checkOutput);
+                instanceStatus = buildInstanceStatusFromOutput(parsedOutput);
+            } catch (err) {
+                instanceStatus = null;
+            }
+
 
             if (instanceStatus === null) {
                 if (check.Status === CHECK_STATUS_PASSING) {
@@ -238,7 +240,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
             return;
         }
 
-        const instance = buildServiceInstance(node, instanceStatus);
+        const instance = buildServiceInstance(node, instanceStatus, parsedOutput.data);
         if (instance === null) {
             errors.push(new InvalidDataError('Invalid format of node data, node will be skipped', { node }));
 

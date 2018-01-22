@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.2.0
+
+- [#19311](https://redmine.hwtool.net/issues/19311) Розширення функціональності модуля "consul-service-health-monitor"
+
 ### 1.1.0
 
 BUG FIXES:
