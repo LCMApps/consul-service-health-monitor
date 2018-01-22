@@ -64,9 +64,10 @@ class ServiceInstance {
      * @param {string} serviceId - unique identifier of service instance
      * @param {string[]} serviceTags - tags of service
      * @param {ServiceInstanceStatus} serviceInstanceStatus - status of the service
+     * @param {Object} checkOutput - parsed Health Check response body
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus) {
+    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus, checkOutput) {
         throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
         throwErrorIfNotNumber(port, 'port');
@@ -94,6 +95,7 @@ class ServiceInstance {
         this._serviceId = serviceId;
         this._serviceTags = serviceTags;
         this._serverInstanceStatus = serviceInstanceStatus;
+        this._checkOutput = checkOutput;
     }
 
     /**
@@ -177,6 +179,15 @@ class ServiceInstance {
      */
     getStatus() {
         return this._serverInstanceStatus;
+    }
+
+    /**
+     * Return parsed body of Health Check response
+     *
+     * @returns{Object}
+     */
+    getCheckOutput() {
+        return this._checkOutput;
     }
 }
 

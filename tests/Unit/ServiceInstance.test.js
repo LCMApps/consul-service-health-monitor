@@ -457,4 +457,28 @@ describe('ServiceInstance::constructor', function () {
 
         assert.deepEqual(serviceInstance.getStatus(), serviceInstanceStatus);
     });
+
+    it('getCheckOutput() function return Health Check output', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeId = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceId = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+        const inputStatus = deepFreeze({
+            data: {
+                status: 'OK',
+                pid: 100,
+                mem: {total: 13121352, free: 4256144},
+                cpu: {usage: 1.2295908130391557, count: 16}
+            }
+        });
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus, inputStatus.data
+        );
+
+        assert.deepEqual(serviceInstance.getCheckOutput(), inputStatus.data);
+    });
 });

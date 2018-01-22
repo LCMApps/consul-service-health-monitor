@@ -73,9 +73,8 @@ describe('Factory::buildInstanceStatusFromOutput', function () {
     it('instance of ServiceInstanceStatus was created and returned', function () {
         const returnedByStub = {};
         ServiceInstanceStatusStub.returns(returnedByStub);
-        const outputStr = JSON.stringify(validObj);
 
-        const serviceInstance = Factory.buildInstanceStatusFromOutput(outputStr);
+        const serviceInstance = Factory.buildInstanceStatusFromOutput(validObj);
 
         assert.isTrue(ServiceInstanceStatusStub.calledOnce);
         assert.isTrue(ServiceInstanceStatusStub.calledWithNew());

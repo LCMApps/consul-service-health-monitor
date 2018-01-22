@@ -27,7 +27,7 @@ describe('Factory::buildServiceInstance', function () {
     });
 
     it('return null on incorrect arguments of builder', function () {
-        const instance = Factory.buildServiceInstance({}, {});
+        const instance = Factory.buildServiceInstance({}, {}, {});
         assert.isNull(instance);
     });
 
@@ -68,7 +68,7 @@ describe('Factory::buildServiceInstance', function () {
 
         stub.throws('TypeError');
 
-        const instance = Factory.buildServiceInstance(node, instanceStatus);
+        const instance = Factory.buildServiceInstance(node, instanceStatus, inputStatus.data);
 
         assert.isTrue(stub.calledOnce);
         assert.isNull(instance);
@@ -118,12 +118,13 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         );
 
         stub.returns(expectedInstance);
 
-        const instance = Factory.buildServiceInstance(node, instanceStatus);
+        const instance = Factory.buildServiceInstance(node, instanceStatus, inputStatus);
 
         assert.isTrue(stub.calledOnce);
         assert.isTrue(stub.firstCall.calledWithExactly(
@@ -134,7 +135,8 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         ));
 
         assert.instanceOf(instance, ServiceInstance);
@@ -184,12 +186,13 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         );
 
         stub.returns(expectedInstance);
 
-        const instance = Factory.buildServiceInstance(node, instanceStatus);
+        const instance = Factory.buildServiceInstance(node, instanceStatus, inputStatus);
 
         assert.isTrue(stub.calledOnce);
         assert.isTrue(stub.firstCall.calledWithExactly(
@@ -200,7 +203,8 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         ));
 
         assert.instanceOf(instance, ServiceInstance);
@@ -250,12 +254,13 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         );
 
         stub.returns(expectedInstance);
 
-        const instance = Factory.buildServiceInstance(node, instanceStatus);
+        const instance = Factory.buildServiceInstance(node, instanceStatus, inputStatus);
 
         assert.isTrue(stub.calledOnce);
         assert.isTrue(stub.firstCall.calledWithExactly(
@@ -266,7 +271,8 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         ));
 
         assert.instanceOf(instance, ServiceInstance);
@@ -314,12 +320,13 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         );
 
         stub.returns(expectedInstance);
 
-        const instance = Factory.buildServiceInstance(node, instanceStatus);
+        const instance = Factory.buildServiceInstance(node, instanceStatus, inputStatus);
 
         assert.isTrue(stub.calledOnce);
         assert.isTrue(stub.firstCall.calledWithExactly(
@@ -330,7 +337,8 @@ describe('Factory::buildServiceInstance', function () {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceStatus,
+            inputStatus
         ));
 
         assert.instanceOf(instance, ServiceInstance);
