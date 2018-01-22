@@ -52,7 +52,8 @@ function buildInstanceStatusFromOutput(output) {
             statusData.mem.total,
             statusData.mem.free,
             statusData.cpu.usage,
-            statusData.cpu.count
+            statusData.cpu.count,
+            statusData
         );
     } catch (err) {
         return null;

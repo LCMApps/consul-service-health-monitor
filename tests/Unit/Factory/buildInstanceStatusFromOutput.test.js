@@ -83,7 +83,7 @@ describe('Factory::buildInstanceStatusFromOutput', function () {
         assert.isTrue(
             ServiceInstanceStatusStub.firstCall.calledWithExactly(
                 validObj.data.pid, validObj.data.status, validObj.data.mem.total, validObj.data.mem.free,
-                validObj.data.cpu.usage, validObj.data.cpu.count
+                validObj.data.cpu.usage, validObj.data.cpu.count, validObj.data
             )
         );
         assert.strictEqual(serviceInstance, returnedByStub);

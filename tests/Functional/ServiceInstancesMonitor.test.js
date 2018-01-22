@@ -168,7 +168,8 @@ describe('ServiceInstancesMonitor::constructor', function () {
                     nockTestParams.loadData1.mem.total,
                     nockTestParams.loadData1.mem.free,
                     nockTestParams.loadData1.cpu.usage,
-                    nockTestParams.loadData1.cpu.count
+                    nockTestParams.loadData1.cpu.count,
+                    nockTestParams.loadData1
                 )
             );
 
@@ -186,7 +187,8 @@ describe('ServiceInstancesMonitor::constructor', function () {
                     nockTestParams.loadData1.mem.total,
                     nockTestParams.loadData1.mem.free,
                     nockTestParams.loadData1.cpu.usage,
-                    nockTestParams.loadData1.cpu.count
+                    nockTestParams.loadData1.cpu.count,
+                    nockTestParams.loadData1
                 )
             );
 
@@ -411,7 +413,8 @@ describe('ServiceInstancesMonitor::constructor', function () {
                     nockTestParams.loadData1.mem.total,
                     nockTestParams.loadData1.mem.free,
                     nockTestParams.loadData1.cpu.usage,
-                    nockTestParams.loadData1.cpu.count
+                    nockTestParams.loadData1.cpu.count,
+                    nockTestParams.loadData1
                 )
             );
 

@@ -312,7 +312,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
 
@@ -401,7 +402,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputInstanceStatus.data.mem.total,
                 inputInstanceStatus.data.mem.free,
                 inputInstanceStatus.data.cpu.usage,
-                inputInstanceStatus.data.cpu.count
+                inputInstanceStatus.data.cpu.count,
+                inputInstanceStatus.data
             )
         );
 
@@ -484,7 +486,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
@@ -568,7 +571,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
@@ -644,7 +648,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
@@ -719,7 +724,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
         builderStub.returns({ validNodes: inputNodes, errors: [] });
@@ -794,7 +800,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
@@ -870,7 +877,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
 
@@ -943,7 +951,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputTranscoderStatus.data.mem.total,
                 inputTranscoderStatus.data.mem.free,
                 inputTranscoderStatus.data.cpu.usage,
-                inputTranscoderStatus.data.cpu.count
+                inputTranscoderStatus.data.cpu.count,
+                inputTranscoderStatus.data
             )
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
@@ -1051,7 +1060,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputService1Status.data.mem.total,
                 inputService1Status.data.mem.free,
                 inputService1Status.data.cpu.usage,
-                inputService1Status.data.cpu.count
+                inputService1Status.data.cpu.count,
+                inputService1Status.data
             )
         );
         const expTranscoder2 = new ServiceInstance(
@@ -1068,7 +1078,8 @@ describe('Factory::buildServiceInstances', function () {
                 inputService2Status.data.mem.total,
                 inputService2Status.data.mem.free,
                 inputService2Status.data.cpu.usage,
-                inputService2Status.data.cpu.count
+                inputService2Status.data.cpu.count,
+                inputService2Status.data
             )
         );
         builderStub.returns({validNodes: inputNodes, errors: []});
