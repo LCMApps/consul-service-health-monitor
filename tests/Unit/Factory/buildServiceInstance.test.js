@@ -5,7 +5,7 @@ const sinon = require('sinon');
 const assert = require('chai').assert;
 const deepFreeze = require('deep-freeze');
 const ServiceInstance = require('src/ServiceInstance');
-const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
+const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 
 
 describe('Factory::buildServiceInstance', function () {
@@ -57,7 +57,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceStatus(
+        const instanceStatus = new ServiceInstanceInfo(
             inputStatus.data.pid,
             inputStatus.data.status,
             inputStatus.data.mem.total,
@@ -101,7 +101,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceStatus(
+        const instanceStatus = new ServiceInstanceInfo(
             inputStatus.data.pid,
             inputStatus.data.status,
             inputStatus.data.mem.total,
@@ -167,7 +167,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceStatus(
+        const instanceStatus = new ServiceInstanceInfo(
             inputStatus.data.pid,
             inputStatus.data.status,
             inputStatus.data.mem.total,
@@ -233,7 +233,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceStatus(
+        const instanceStatus = new ServiceInstanceInfo(
             inputStatus.data.pid,
             inputStatus.data.status,
             inputStatus.data.mem.total,
@@ -297,7 +297,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceStatus(
+        const instanceStatus = new ServiceInstanceInfo(
             inputStatus.data.pid,
             inputStatus.data.status,
             inputStatus.data.mem.total,

@@ -1,6 +1,6 @@
 'use strict';
 
-const ServiceInstanceStatus = require('./ServiceInstanceStatus');
+const ServiceInstanceInfo = require('./ServiceInstanceInfo');
 
 /**
  * Checks that `variable` is non empty string
@@ -63,10 +63,10 @@ class ServiceInstance {
      * @param {string} nodeId - id of node, in most cases it is hostname of node where service instance is running
      * @param {string} serviceId - unique identifier of service instance
      * @param {string[]} serviceTags - tags of service
-     * @param {ServiceInstanceStatus} serviceInstanceStatus - status of the service
+     * @param {ServiceInstanceInfo|null} serviceInstanceInfo - status of the service
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus) {
+    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceInfo) {
         throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
         throwErrorIfNotNumber(port, 'port');
@@ -82,8 +82,8 @@ class ServiceInstance {
             throwErrorIfNotEmptyString(tag, 'serviceTag item');
         }
 
-        if (!(serviceInstanceStatus instanceof ServiceInstanceStatus)) {
-            throw new TypeError('serviceInstanceStatus must be an instance of ServiceInstanceStatus');
+        if (!(serviceInstanceInfo instanceof ServiceInstanceInfo) && serviceInstanceInfo !== null) {
+            throw new TypeError('serviceInstanceInfo must be an instance of ServiceInstanceInfo');
         }
 
         this._lanIp = lanIp;
@@ -93,7 +93,7 @@ class ServiceInstance {
         this._nodeId = nodeId;
         this._serviceId = serviceId;
         this._serviceTags = serviceTags;
-        this._serverInstanceStatus = serviceInstanceStatus;
+        this._serverInstanceInfo = serviceInstanceInfo;
     }
 
     /**
@@ -173,10 +173,10 @@ class ServiceInstance {
     /**
      * Return object that represents status of instance
      *
-     * @returns {ServiceInstanceStatus}
+     * @returns {ServiceInstanceInfo}
      */
-    getStatus() {
-        return this._serverInstanceStatus;
+    getInfo() {
+        return this._serverInstanceInfo;
     }
 }
 

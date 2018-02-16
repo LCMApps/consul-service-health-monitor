@@ -4,7 +4,7 @@ const assert = require('chai').assert;
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const ServiceInstance = require('src/ServiceInstance');
-const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
+const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 
 /**
  * Returns object with passed to function variable itself and its type.
@@ -52,13 +52,13 @@ describe('ServiceInstance::constructor', function () {
 
     beforeEach(() => {
         const pid = 87;
-        const statusOk = ServiceInstanceStatus.STATE_OK;
+        const statusOk = ServiceInstanceInfo.STATE_OK;
         const memTotal = 2047;
         const memFree = 1337;
         const cpuUsage = 34.91;
         const cpuCount = 16;
         serviceInstanceStatus = deepFreeze(
-            new ServiceInstanceStatus(pid, statusOk, memTotal, memFree, cpuUsage, cpuCount)
+            new ServiceInstanceInfo(pid, statusOk, memTotal, memFree, cpuUsage, cpuCount)
         );
     });
 
@@ -437,7 +437,7 @@ describe('ServiceInstance::constructor', function () {
                     );
                 },
                 TypeError,
-                'serviceInstanceStatus must be an instance of ServiceInstanceStatus'
+                'serviceInstanceStatus must be an instance of ServiceInstanceInfo'
             );
         });
     });
@@ -455,6 +455,6 @@ describe('ServiceInstance::constructor', function () {
             lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceStatus
         );
 
-        assert.deepEqual(serviceInstance.getStatus(), serviceInstanceStatus);
+        assert.deepEqual(serviceInstance.getInfo(), serviceInstanceStatus);
     });
 });

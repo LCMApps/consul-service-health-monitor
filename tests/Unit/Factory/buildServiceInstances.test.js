@@ -6,7 +6,7 @@ const assert = require('chai').assert;
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const ServiceInstance = require('src/ServiceInstance');
-const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
+const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 const ServiceInstances = require('src/ServiceInstances');
 const InvalidDataError = require('src/Error').InvalidDataError;
 
@@ -306,7 +306,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -396,7 +396,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputInstanceStatus.data.pid,
                 inputInstanceStatus.data.status,
                 inputInstanceStatus.data.mem.total,
@@ -480,7 +480,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -565,7 +565,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -642,7 +642,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -718,7 +718,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -794,7 +794,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -871,7 +871,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -945,7 +945,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputTranscoderStatus.data.pid,
                 inputTranscoderStatus.data.status,
                 inputTranscoderStatus.data.mem.total,
@@ -1054,7 +1054,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Node.Node,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputService1Status.data.pid,
                 inputService1Status.data.status,
                 inputService1Status.data.mem.total,
@@ -1072,7 +1072,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[1].Node.Node,
             inputNodes[1].Service.ID,
             inputNodes[1].Service.Tags,
-            new ServiceInstanceStatus(
+            new ServiceInstanceInfo(
                 inputService2Status.data.pid,
                 inputService2Status.data.status,
                 inputService2Status.data.mem.total,

@@ -6,13 +6,13 @@ const sinon = require('sinon');
 const assert = require('chai').assert;
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
-const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
+const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 
 
 describe('Factory::buildInstanceStatusFromOutput', function () {
     const ServiceInstanceStatusStub = sinon.stub();
     const Factory = proxyquire('src/Factory', {
-        './ServiceInstanceStatus': ServiceInstanceStatusStub
+        './ServiceInstanceInfo': ServiceInstanceStatusStub
     });
 
     beforeEach(function () {
@@ -22,7 +22,7 @@ describe('Factory::buildInstanceStatusFromOutput', function () {
     const validObj = deepFreeze({
         data: {
             pid: 1,
-            status: ServiceInstanceStatus.STATE_OK,
+            status: ServiceInstanceInfo.STATE_OK,
             mem: {free: 4, total: 8},
             cpu: {usage: 2.4, count: 2},
         }
@@ -70,7 +70,7 @@ describe('Factory::buildInstanceStatusFromOutput', function () {
         });
     });
 
-    it('instance of ServiceInstanceStatus was created and returned', function () {
+    it('instance of ServiceInstanceInfo was created and returned', function () {
         const returnedByStub = {};
         ServiceInstanceStatusStub.returns(returnedByStub);
         const outputStr = JSON.stringify(validObj);

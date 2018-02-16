@@ -2,20 +2,19 @@
 
 const _ = require('lodash');
 const ServiceInstance = require('./ServiceInstance');
-const ServiceInstanceStatus = require('./ServiceInstanceStatus');
+const ServiceInstanceInfo = require('./ServiceInstanceInfo');
 const ServiceInstances = require('./ServiceInstances');
 const ConsulResponseValidator = require('./ConsulResponseValidator');
 const InvalidDataError = require('./Error').InvalidDataError;
 
 const CHECK_ID_SERF_HEALTH = 'serfHealth';
 const CHECK_STATUS_PASSING = 'passing';
-const CHECK_STATUS_CRITICAL = 'critical';
 const CHECK_OUTPUT_PATTERN = 'Output: ';
 
 /**
- * Tries to build `ServiceInstanceStatus` from output received from output of check with corresponding data.
+ * Tries to build `ServiceInstanceInfo` from output received from output of check with corresponding data.
  *
- * Service responds to consul healthcheck with JSON using the following format:
+ * Service responds to consul healthcheck with JSON using the following format (example):
  *   `{"data":{"status":"OK","pid":1687,"mem":{"total":13121352,"free":3405508},
  *      "cpu":{"usage":1.2079917706585719,"count":16}}}"`
  *
@@ -23,51 +22,32 @@ const CHECK_OUTPUT_PATTERN = 'Output: ';
  *   `{\"data\":{\"status\":\"OK\",\"pid\":1687,\"mem\":{\"total\":13121352,\"free\":3405508},
  *      \"cpu\":{\"usage\":1.2079917706585719,\"count\":16}}}"`
  *
- * This method parses stringified JSON and tries to build `ServiceInstanceStatus` object.
+ * This method parses stringified JSON and run extractors and tries to build `ServiceInstanceInfo` object.
  *
  * @param {string} output
- * @returns {ServiceInstanceStatus|null} returns null if data in the output is missed or has an invalid format
+ * @param {Object} extractors
+ *
+ * @returns {ServiceInstanceInfo}
  */
-function buildInstanceStatusFromOutput(output) {
-    try {
-        const parsedOutput = JSON.parse(output);
+function buildInstanceInfoFromOutput(output, extractors) {
+    const parsedOutput = JSON.parse(output);
+    const instanceInfo = Object.create(null);
 
-        if (!_.has(parsedOutput, 'data') || !_.isObject(parsedOutput.data)) {
-            return null;
-        }
-
-        const statusData = parsedOutput.data;
-
-        if (
-            !_.has(statusData, 'status') || !_.has(statusData, 'pid') ||
-            !_.has(statusData, ['mem', 'total']) || !_.has(statusData, ['mem', 'free']) ||
-            !_.has(statusData, ['cpu', 'usage']) || !_.has(statusData, ['cpu', 'count'])
-        ) {
-            return null;
-        }
-
-        return new ServiceInstanceStatus(
-            statusData.pid,
-            statusData.status,
-            statusData.mem.total,
-            statusData.mem.free,
-            statusData.cpu.usage,
-            statusData.cpu.count,
-            statusData
-        );
-    } catch (err) {
-        return null;
+    for (const extractorName in extractors) {
+        instanceInfo[extractorName] = extractors[extractorName].extract(parsedOutput);
     }
+
+    return new ServiceInstanceInfo(instanceInfo);
 }
 
 /**
  * Tries to build `ServiceInstance` object and in case of fail returns null
  *
  * @param {Object} node - data that returns `consul.health.service` call
- * @param {ServiceInstanceStatus} instanceStatus
+ * @param {ServiceInstanceInfo} instanceInfo
  * @return {ServiceInstance|null}
  */
-function buildServiceInstance(node, instanceStatus) {
+function buildServiceInstance(node, instanceInfo) {
     try {
         let lanIp = null;
         let wanIp = null;
@@ -88,7 +68,7 @@ function buildServiceInstance(node, instanceStatus) {
             node.Node.Node,
             node.Service.ID,
             node.Service.Tags,
-            instanceStatus
+            instanceInfo
         );
     } catch (err) {
         return null;
@@ -96,7 +76,7 @@ function buildServiceInstance(node, instanceStatus) {
 }
 
 /**
- * Function receives an array of nodes, and classify it as `healthy`, `unhealthy`, `overloaded` or `on-maintenance`
+ * Function receives an array of nodes, and classify it as `healthy` or `unhealthy`
  *
  * It validates `registeredNodes` using `ConsulResponseValidator.filterValidHealthyServices`, so
  * check documentation of `consulHelper.filterValidHealthyServices` to understand which
@@ -105,13 +85,6 @@ function buildServiceInstance(node, instanceStatus) {
  * Node will be marked `unhealthy` if at least one case occurs:
  *   - at least one check, except check with instance-status and serfHealth, not in `passing` state
  *   - instance-status check isn't in passing state while instance returns "OK" to health check
- *
- * Node will be marked `overloaded` if all cases occurs:
- *   - all checks except instance-status check are in `passing` state
- *   - only instance-status check is not in passing state and instance returns "OVERLOADED" to health check
- *
- * Node will be marked 'on-maintenance' if all cases occurs:
- *   - all checks are in `passing` state and instance returns "MAINTENANCE" to health check
  *
  * Node will be `skipped` in case:
  *   - it doesn't contain registered checks at all
@@ -123,9 +96,10 @@ function buildServiceInstance(node, instanceStatus) {
  *
  * @param {Array} registeredNodes - an array of nodes received from consul
  * @param {string} checkNameWithStatus - the name of check that contains output with status of instance
+ * @param {Object|undefined} extractors - an object that contains extractors of service info  from output
  * @return {{instances: ServiceInstances, errors: InvalidDataError[]}}
  */
-function buildServiceInstances(registeredNodes, checkNameWithStatus) {
+function buildServiceInstances(registeredNodes, checkNameWithStatus, extractors) {
     const instances = new ServiceInstances();
     const {validNodes, errors} = ConsulResponseValidator.filterValidHealthyServices(registeredNodes);
 
@@ -136,14 +110,14 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
     validNodes.forEach(node => {
         const ip = node.Node.Address;
         let passing = true;
-        let instanceStatus = null;
+        let instanceInfo = null;
         let checkWithStatusFound = false;
         let serfHealthCritical = false;
 
         if (node.Checks.length === 0) {
             errors.push(new InvalidDataError(
                 'node received from consul has not registered health checks, node will be skipped',
-                { address: node.Node.Address, nodeId: node.Node.Node }
+                {address: node.Node.Address, nodeId: node.Node.Node}
             ));
 
             return;
@@ -176,7 +150,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
             if (pos <= 0) {
                 errors.push(new InvalidDataError(
                     'Invalid format of output field of check received from consul, node will be skipped',
-                    { address: ip, check: check }
+                    {address: ip, check: check}
                 ));
 
                 passing = false;
@@ -185,80 +159,46 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
                 return;
             }
 
-            instanceStatus = buildInstanceStatusFromOutput(
-                check.Output.substring(pos + CHECK_OUTPUT_PATTERN.length)
-            );
+            if (extractors !== undefined) {
+                const outputData = check.Output.substring(pos + CHECK_OUTPUT_PATTERN.length);
 
-            if (instanceStatus === null) {
-                if (check.Status === CHECK_STATUS_PASSING) {
-                    errors.push(new InvalidDataError(
-                        'Invalid format of output field of check received from consul, node will be skipped',
-                        { address: ip, check: check }
-                    ));
-
-                    passing = false;
-                }
-            } else {
-                if (instanceStatus.isOk() && check.Status !== CHECK_STATUS_PASSING) {
-                    errors.push(new InvalidDataError(
-                        'ServiceInstance status check is OK but status in consul is not passing, node will be skipped',
-                        { address: ip, check: check }
-                    ));
-
-                    passing = false;
-                } else if (instanceStatus.isOnMaintenance() && check.Status !== CHECK_STATUS_CRITICAL) {
-                    errors.push(new InvalidDataError(
-                        'ServiceInstance status check is MAINTENANCE but status in consul is not critical, ' +
-                            'node will be skipped',
-                        { address: ip, check: check }
-                    ));
-
-                    passing = false;
+                try {
+                    instanceInfo = buildInstanceInfoFromOutput(outputData, extractors);
+                } catch (err) {
+                    errors.push(new InvalidDataError(err.message, {outputData}));
                 }
             }
-
         });
 
         if (serfHealthCritical) {
             errors.push(new InvalidDataError(
                 'serfHealth check is in critical state, node will be skipped',
-                { node }
+                {node}
             ));
 
             return;
         }
 
-        if (instanceStatus === null) {
-            if (!checkWithStatusFound) {
-                errors.push(new InvalidDataError(
-                    'Check with `checkNameWithStatus` was not found among all checks on the node, node will be skipped',
-                    { node }
-                ));
-            }
-
-            return;
+        if (!checkWithStatusFound) {
+            errors.push(new InvalidDataError(
+                'Check with `checkNameWithStatus` was not found among all checks on the node, node will be skipped',
+                {node}
+            ));
         }
 
-        const instance = buildServiceInstance(node, instanceStatus);
+        const instance = buildServiceInstance(node, instanceInfo);
         if (instance === null) {
-            errors.push(new InvalidDataError('Invalid format of node data, node will be skipped', { node }));
+            errors.push(new InvalidDataError('Invalid format of node data, node will be skipped', {node}));
 
             return;
         }
 
         // if some another check is in failing mode, except check with instance status or
-        // if check with instance status has invalid format
-        if (!passing) {
-            instances.addUnhealthy(instance);
-            return;
-        }
-
-        if (instance.getStatus().isOk()) {
+        // if check with instance status has invalid format - service is unhealthy
+        if (passing) {
             instances.addHealthy(instance);
-        } else if (instance.getStatus().isOverloaded()) {
-            instances.addOverloaded(instance);
-        } else if (instance.getStatus().isOnMaintenance()) {
-            instances.addOnMaintenance(instance);
+        } else {
+            instances.addUnhealthy(instance);
         }
     });
 
@@ -268,5 +208,5 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
 module.exports = {
     buildServiceInstance,
     buildServiceInstances,
-    buildInstanceStatusFromOutput
+    buildInstanceInfoFromOutput
 };

@@ -3,7 +3,7 @@
 const assert = require('chai').assert;
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
-const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
+const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 
 /**
  * Returns object with passed to function variable itself and its type.
@@ -33,13 +33,13 @@ const testParams = {
     ]
 };
 
-describe('ServiceInstanceStatus::constructor', function () {
+describe('ServiceInstanceInfo::constructor', function () {
     dataDriven(testParams.notANumber, function () {
         it('incorrect type of pid, type = {type}', function (arg) {
             /** @var {{value: *, type: string}} arg */
             assert.throws(
                 function () {
-                    new ServiceInstanceStatus(arg.value, 'OK', 1, 1, 1, 1);
+                    new ServiceInstanceInfo(arg.value, 'OK', 1, 1, 1, 1);
                 },
                 TypeError,
                 'pid must be an integer'
@@ -52,7 +52,7 @@ describe('ServiceInstanceStatus::constructor', function () {
             /** @var {{value: *, type: string}} arg */
             assert.throws(
                 function () {
-                    new ServiceInstanceStatus(1, arg.value, 1, 1, 1, 1);
+                    new ServiceInstanceInfo(1, arg.value, 1, 1, 1, 1);
                 },
                 TypeError,
                 'status must be an non-empty string'
@@ -65,7 +65,7 @@ describe('ServiceInstanceStatus::constructor', function () {
             /** @var {{value: *, type: string}} arg */
             assert.throws(
                 function () {
-                    new ServiceInstanceStatus(1, 'OK', arg.value, 1, 1, 1);
+                    new ServiceInstanceInfo(1, 'OK', arg.value, 1, 1, 1);
                 },
                 TypeError,
                 'memTotal must be an integer'
@@ -78,7 +78,7 @@ describe('ServiceInstanceStatus::constructor', function () {
             /** @var {{value: *, type: string}} arg */
             assert.throws(
                 function () {
-                    new ServiceInstanceStatus(1, 'OK', 1, arg.value, 1, 1);
+                    new ServiceInstanceInfo(1, 'OK', 1, arg.value, 1, 1);
                 },
                 TypeError,
                 'memFree must be an integer'
@@ -91,7 +91,7 @@ describe('ServiceInstanceStatus::constructor', function () {
             /** @var {{value: *, type: string}} arg */
             assert.throws(
                 function () {
-                    new ServiceInstanceStatus(1, 'OK', 1, 1, arg.value, 1);
+                    new ServiceInstanceInfo(1, 'OK', 1, 1, arg.value, 1);
                 },
                 TypeError,
                 'cpuUsage must be a number between [0, 100]'
@@ -104,7 +104,7 @@ describe('ServiceInstanceStatus::constructor', function () {
             /** @var {{value: *, type: string}} arg */
             assert.throws(
                 function () {
-                    new ServiceInstanceStatus(1, 'OK', 1, 1, 1, arg.value);
+                    new ServiceInstanceInfo(1, 'OK', 1, 1, 1, arg.value);
                 },
                 TypeError,
                 'cpuCount must be an integer'
@@ -116,7 +116,7 @@ describe('ServiceInstanceStatus::constructor', function () {
         // empty string is not allowed
         assert.throws(
             function () {
-                new ServiceInstanceStatus(1, '', 1, 1, 1, 1);
+                new ServiceInstanceInfo(1, '', 1, 1, 1, 1);
             },
             TypeError,
             'status must be an non-empty string'
@@ -125,20 +125,20 @@ describe('ServiceInstanceStatus::constructor', function () {
         // strings that is not in allow list is not allowed
         assert.throws(
             function () {
-                new ServiceInstanceStatus(1, 'SMTH', 1, 1, 1, 1);
+                new ServiceInstanceInfo(1, 'SMTH', 1, 1, 1, 1);
             },
             TypeError,
             'status must be on of the following values: ["OK", "OVERLOADED", "MAINTENANCE"]'
         );
 
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'OK', 1, 1, 1, 1);
+            new ServiceInstanceInfo(1, 'OK', 1, 1, 1, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'OVERLOADED', 1, 1, 1, 1);
+            new ServiceInstanceInfo(1, 'OVERLOADED', 1, 1, 1, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'MAINTENANCE', 1, 1, 1, 1);
+            new ServiceInstanceInfo(1, 'MAINTENANCE', 1, 1, 1, 1);
         }, Error);
     });
 
@@ -146,7 +146,7 @@ describe('ServiceInstanceStatus::constructor', function () {
         // values <0 is not allowed
         assert.throws(
             function () {
-                new ServiceInstanceStatus(-1, 'OK', 1, 1, 1, 1);
+                new ServiceInstanceInfo(-1, 'OK', 1, 1, 1, 1);
             },
             TypeError,
             'pid must be a positive integer'
@@ -155,20 +155,20 @@ describe('ServiceInstanceStatus::constructor', function () {
         // non-int values is not allowed
         assert.throws(
             function () {
-                new ServiceInstanceStatus(50.4, 'OK', 1, 1, 1, 1);
+                new ServiceInstanceInfo(50.4, 'OK', 1, 1, 1, 1);
             },
             TypeError,
             'pid must be an integer'
         );
 
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(0, 'OK', 1, 1, 1, 1);
+            new ServiceInstanceInfo(0, 'OK', 1, 1, 1, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(101, 'OK', 1, 1, 1, 1);
+            new ServiceInstanceInfo(101, 'OK', 1, 1, 1, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(10001, 'OK', 1, 1, 1, 1);
+            new ServiceInstanceInfo(10001, 'OK', 1, 1, 1, 1);
         }, Error);
     });
 
@@ -176,7 +176,7 @@ describe('ServiceInstanceStatus::constructor', function () {
         // values <0 is not allowed
         assert.throws(
             function () {
-                new ServiceInstanceStatus(1, 'OK', 1, 1, -1, 1);
+                new ServiceInstanceInfo(1, 'OK', 1, 1, -1, 1);
             },
             TypeError,
             'cpuUsage must be a number between [0, 100]'
@@ -185,30 +185,30 @@ describe('ServiceInstanceStatus::constructor', function () {
         // values >100 is not allowed
         assert.throws(
             function () {
-                new ServiceInstanceStatus(1, 'OK', 1, 1, 101, 1);
+                new ServiceInstanceInfo(1, 'OK', 1, 1, 101, 1);
             },
             TypeError,
             'cpuUsage must be a number between [0, 100]'
         );
 
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'OK', 1, 1, 0, 1);
+            new ServiceInstanceInfo(1, 'OK', 1, 1, 0, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'OK', 1, 1, 1, 1);
+            new ServiceInstanceInfo(1, 'OK', 1, 1, 1, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'OK', 1, 1, 99.999, 1);
+            new ServiceInstanceInfo(1, 'OK', 1, 1, 99.999, 1);
         }, Error);
         assert.doesNotThrow(function () {
-            new ServiceInstanceStatus(1, 'OK', 1, 1, 100, 1);
+            new ServiceInstanceInfo(1, 'OK', 1, 1, 100, 1);
         }, Error);
     });
 
     it('test getters', function () {
         const validDataOk = deepFreeze({
             pid: 87,
-            status: ServiceInstanceStatus.STATE_OK,
+            status: ServiceInstanceInfo.STATE_OK,
             mem: {free: 1337, total: 2047},
             cpu: {usage: 34.91, count: 16},
             network: {bpsInRate: 0, bpsOutRate: 0, connections: 0}
@@ -216,15 +216,15 @@ describe('ServiceInstanceStatus::constructor', function () {
 
         const validDataOverloaded = deepFreeze({
             pid: 87,
-            status: ServiceInstanceStatus.STATE_OK,
+            status: ServiceInstanceInfo.STATE_OK,
             mem: {free: 1337, total: 2047},
             cpu: {usage: 34.91, count: 16},
             network: {bpsInRate: 0, bpsOutRate: 0, connections: 0}
         });
 
-        const instanceOk = new ServiceInstanceStatus(validDataOk.pid, validDataOk.status, validDataOk.mem.total,
+        const instanceOk = new ServiceInstanceInfo(validDataOk.pid, validDataOk.status, validDataOk.mem.total,
             validDataOk.mem.free, validDataOk.cpu.usage, validDataOk.cpu.count, validDataOk);
-        const instanceOverloaded = new ServiceInstanceStatus(
+        const instanceOverloaded = new ServiceInstanceInfo(
             validDataOverloaded.pid, validDataOverloaded.status, validDataOverloaded.mem.total,
             validDataOverloaded.mem.free, validDataOverloaded.cpu.usage, validDataOverloaded.cpu.count,
             validDataOverloaded
@@ -233,8 +233,8 @@ describe('ServiceInstanceStatus::constructor', function () {
         // instance with status 'OK'
         assert.isNumber(instanceOk.getPid());
         assert.equal(validDataOk.pid, instanceOk.getPid());
-        assert.isString(instanceOk.getStatus());
-        assert.equal(validDataOk.status, instanceOk.getStatus());
+        assert.isString(instanceOk.getInfo());
+        assert.equal(validDataOk.status, instanceOk.getInfo());
         assert.isNumber(instanceOk.getMemTotal());
         assert.equal(validDataOk.mem.total, instanceOk.getMemTotal());
         assert.isNumber(instanceOk.getMemFree());
@@ -246,7 +246,7 @@ describe('ServiceInstanceStatus::constructor', function () {
         assert.deepEqual(validDataOk, instanceOk.getRowOutput());
 
         // instance with status 'OVERLOADED'
-        assert.isString(instanceOverloaded.getStatus());
-        assert.equal(validDataOverloaded.status, instanceOverloaded.getStatus());
+        assert.isString(instanceOverloaded.getInfo());
+        assert.equal(validDataOverloaded.status, instanceOverloaded.getInfo());
     });
 });
