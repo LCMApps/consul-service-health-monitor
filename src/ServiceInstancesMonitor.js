@@ -75,8 +75,14 @@ class ServiceInstancesMonitor extends EventEmitter {
             throw new TypeError('consul argument does not look like Consul object');
         }
 
-        if (!_.isPlainObject(extractors) && extractors !== undefined) {
-            throw new TypeError('extractors argument must be an object or undefined');
+        if (_.isPlainObject(extractors)) {
+            for (const extractorName in extractors) {
+                if (!_.isFunction(extractors[extractorName].extract)) {
+                    throw new TypeError('extractors instances must have a method "extract"');
+                }
+            }
+        } else if (extractors !== undefined) {
+            throw new TypeError('extractors argument must be an plain object or undefined');
         }
 
         this._serviceName = options.serviceName;

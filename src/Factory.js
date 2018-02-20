@@ -44,7 +44,7 @@ function buildInstanceInfoFromOutput(output, extractors) {
  * Tries to build `ServiceInstance` object and in case of fail returns null
  *
  * @param {Object} node - data that returns `consul.health.service` call
- * @param {ServiceInstanceInfo} instanceInfo
+ * @param {ServiceInstanceInfo|null} instanceInfo
  * @return {ServiceInstance|null}
  */
 function buildServiceInstance(node, instanceInfo) {
