@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events');
 const _ = require('lodash');
 const instancesFactory = require('./Factory');
@@ -5,7 +7,6 @@ const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
 const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
-
 
 const DEFAULT_TIMEOUT_MSEC = 5000;
 
@@ -16,7 +17,6 @@ const DEFAULT_TIMEOUT_MSEC = 5000;
  * @property {string} serverId - the id of the server
  */
 
-
 /**
  * Event is emmitted when something happens
  *
@@ -25,8 +25,8 @@ const DEFAULT_TIMEOUT_MSEC = 5000;
  */
 
 /**
- * @fires ServiceInstancesMonitor#initialized
- * @fires ServiceInstancesMonitor#changed
+ * @emits ServiceInstancesMonitor#initialized
+ * @emits ServiceInstancesMonitor#changed
  */
 class ServiceInstancesMonitor extends EventEmitter {
 
