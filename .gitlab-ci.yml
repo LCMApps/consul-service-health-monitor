@@ -1,8 +1,3 @@
-image:
-- name: node:6-alpine
-- name: node:8-alpine
-- name: node:9-alpine
-
 cache:
   paths:
   - node_modules/
@@ -11,13 +6,22 @@ before_script:
 - yarn install
 
 stages:
-  - lint
   - test
 
-linter:
-  stage: lint
-  script: yarn run lint
-
-tester:
+.test_template: &test_definition  # Hidden key
   stage: test
-  script: yarn run test
+  script:
+  - yarn run lint
+  - yarn run tests
+
+test:node6:
+  <<: *test_definition
+  image: node:6-alpine
+
+test:node8:
+  <<: *test_definition
+  image: node:8-alpine
+
+test:node9:
+  <<: *test_definition
+  image: node:9-alpine
