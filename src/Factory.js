@@ -143,7 +143,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus) {
         if (node.Checks.length === 0) {
             errors.push(new InvalidDataError(
                 'node received from consul has not registered health checks, node will be skipped',
-                { address: node.Node.Address, nodeId: node.Node.Node }
+                { address: node.Node.Address, nodeName: node.Node.Node }
             ));
 
             return;

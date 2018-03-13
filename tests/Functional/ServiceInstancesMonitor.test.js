@@ -92,6 +92,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
         // then after extra options.timeoutMsec time response from nock must be returned
         // and monitor must ignore that update
 
+        this.slow(options.timeoutMsec * 8);
         this.timeout(options.timeoutMsec * 4);
 
         async_(() => {
@@ -312,6 +313,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
     });
 
     it('reaction on 500 error from consul during startService', function (done) {
+        this.slow(options.timeoutMsec * 5);
         this.timeout(options.timeoutMsec * 5);
 
         async_(() => {
@@ -355,6 +357,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
     });
 
     it('reaction on 400 error from consul during startService', function (done) {
+        this.slow(options.timeoutMsec * 5);
         this.timeout(options.timeoutMsec * 5);
 
         async_(() => {
