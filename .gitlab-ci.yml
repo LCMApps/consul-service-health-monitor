@@ -1,4 +1,11 @@
-image: node:alpine
+image:
+- name: node:6-alpine
+- name: node:8-alpine
+- name: node:9-alpine
+
+cache:
+  paths:
+  - node_modules/
 
 before_script:
 - yarn install
