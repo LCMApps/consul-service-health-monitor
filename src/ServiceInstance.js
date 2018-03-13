@@ -60,18 +60,18 @@ class ServiceInstance {
      * @param {string|null} wanIp
      * @param {number} port
      * @param {string} nodeAddress - ip or host of node on which service instance is running
-     * @param {string} nodeId - id of node, in most cases it is hostname of node where service instance is running
+     * @param {string} nodeName - in most cases it is hostname of node where service instance is running
      * @param {string} serviceId - unique identifier of service instance
      * @param {string[]} serviceTags - tags of service
      * @param {ServiceInstanceInfo|null} serviceInstanceInfo - status of the service
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, port, nodeAddress, nodeId, serviceId, serviceTags, serviceInstanceInfo) {
+    constructor(lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus) {
         throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
         throwErrorIfNotNumber(port, 'port');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
-        throwErrorIfNotEmptyString(nodeId, 'nodeId');
+        throwErrorIfNotEmptyString(nodeName, 'nodeName');
         throwErrorIfNotEmptyString(serviceId, 'serviceId');
 
         if (!Array.isArray(serviceTags)) {
@@ -90,7 +90,7 @@ class ServiceInstance {
         this._wanIp = wanIp;
         this._port = port;
         this._nodeAddress = nodeAddress;
-        this._nodeId = nodeId;
+        this._nodeName = nodeName;
         this._serviceId = serviceId;
         this._serviceTags = serviceTags;
         this._serverInstanceInfo = serviceInstanceInfo;
@@ -132,15 +132,16 @@ class ServiceInstance {
     }
 
     /**
-     * Returns nodeId of node where service is running
+     * Returns nodeName of node where service is running. In most cases it is hostname of the node where service
+     * instance is running. From the other hand, it may be uuid of the node.
      *
      * May be empty string if consul agent (or whole server) on the node goes down. In such situation
-     * consul leader remembers service and node for some time but returns empty string as nodeIdand.
+     * consul leader remembers service and node for some time but returns empty string as nodeName.
      *
      * @returns {string}
      */
-    getNodeId() {
-        return this._nodeId;
+    getNodeName() {
+        return this._nodeName;
     }
 
     /**
