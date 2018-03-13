@@ -62,7 +62,7 @@ describe('Factory::buildServiceInstances', function () {
         builderStub.returns({ validNodes: inputNodes, errors: [] });
         const expectedErr = new InvalidDataError(
             'node received from consul has not registered health checks, node will be skipped',
-            { address: inputNodes[0].Node.Address, nodeId: inputNodes[0].Node.Node }
+            { address: inputNodes[0].Node.Address, nodeName: inputNodes[0].Node.Node }
         );
 
         const { instances, errors } = Factory.buildServiceInstances(inputNodes, checkNameWithStatus);
