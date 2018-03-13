@@ -63,10 +63,10 @@ class ServiceInstance {
      * @param {string} nodeName - in most cases it is hostname of node where service instance is running
      * @param {string} serviceId - unique identifier of service instance
      * @param {string[]} serviceTags - tags of service
-     * @param {ServiceInstanceInfo|null} serviceInstanceInfo - status of the service
+     * @param {ServiceInstanceInfo|null} serviceInstanceInfo - info of the service
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus) {
+    constructor(lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo) {
         throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
         throwErrorIfNotNumber(port, 'port');

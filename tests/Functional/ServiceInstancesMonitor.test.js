@@ -178,9 +178,9 @@ describe('ServiceInstancesMonitor::constructor', function () {
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
 
-            assert.instanceOf(initialInstances, ServiceInstances);
-            assert.lengthOf(initialInstances.getHealthy(), 2);
-            assert.isEmpty(initialInstances.getUnhealthy());
+        assert.instanceOf(initialInstances, ServiceInstances);
+        assert.lengthOf(initialInstances.getHealthy(), 2);
+        assert.isEmpty(initialInstances.getUnhealthy());
 
         const [node1, node2] = initialInstances.getHealthy();
 
@@ -400,12 +400,11 @@ describe('ServiceInstancesMonitor::constructor', function () {
         const initialInstances = await monitor.startService();
 
         assert.lengthOf(errors, 0);
+        assert.instanceOf(initialInstances, ServiceInstances);
+        assert.lengthOf(initialInstances.getHealthy(), 2);
+        assert.isEmpty(initialInstances.getUnhealthy());
 
-            assert.instanceOf(initialInstances, ServiceInstances);
-            assert.lengthOf(initialInstances.getHealthy(), 2);
-            assert.isEmpty(initialInstances.getUnhealthy());
-
-            const node2 = initialInstances.getHealthy()[1];
+        const node2 = initialInstances.getHealthy()[1];
 
         assert.instanceOf(node2, ServiceInstance);
         assert.deepEqual(node2, expectedNode2);
