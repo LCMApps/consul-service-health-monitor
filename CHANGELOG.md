@@ -2,6 +2,7 @@
 
 ### 1.3.0
 
+- removing asyncawait and support of node6
 - [#19651](https://redmine.hwtool.net/issues/19651) `ServiceInstance::getNodeId()` method was refactored to
 `ServiceInstance::getNodeName()`
 
