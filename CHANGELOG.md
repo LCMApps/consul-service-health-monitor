@@ -1,5 +1,11 @@
 ## Changelog
 
+### 1.3.0
+
+- [#19653](https://redmine.hwtool.net/issues/19653) `ServiceInstance::getNodeId()` method was refactored to
+`ServiceInstance::getNodeName()`
+- removing asyncawait and support of node6
+
 ### 1.2.0
 
 - [#19311](https://redmine.hwtool.net/issues/19311) Розширення функціональності модуля "consul-service-health-monitor"

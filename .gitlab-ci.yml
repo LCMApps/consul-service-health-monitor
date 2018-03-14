@@ -14,10 +14,6 @@ stages:
   - yarn run lint
   - yarn run tests
 
-test:node6:
-  <<: *test_definition
-  image: node:6-alpine
-
 test:node8:
   <<: *test_definition
   image: node:8-alpine
