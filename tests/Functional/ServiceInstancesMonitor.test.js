@@ -8,7 +8,6 @@ const assert = require('chai').assert;
 const deepFreeze = require('deep-freeze');
 const getPort = require('get-port');
 const ServiceInstance = require('src/ServiceInstance');
-const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 const ServiceInstances = require('src/ServiceInstances');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
 const {WatchError, WatchTimeoutError, InvalidDataError} = require('src/Error');
@@ -119,8 +118,6 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.isFalse(monitor.isInitialized());
         assert.isFalse(monitor.isWatchHealthy());
         assert.isEmpty(monitor.getInstances().getHealthy());
-        assert.isEmpty(monitor.getInstances().getOnMaintenance());
-        assert.isEmpty(monitor.getInstances().getOverloaded());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
     });
 
@@ -152,15 +149,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
             nockTestParams.firstResponseBody[0].Node.Node,
             nockTestParams.firstResponseBody[0].Service.ID,
             nockTestParams.firstResponseBody[0].Service.Tags,
-            new ServiceInstanceStatus(
-                nockTestParams.loadData1.pid,
-                nockTestParams.loadData1.status,
-                nockTestParams.loadData1.mem.total,
-                nockTestParams.loadData1.mem.free,
-                nockTestParams.loadData1.cpu.usage,
-                nockTestParams.loadData1.cpu.count,
-                nockTestParams.loadData1
-            )
+            null
         );
 
         const expectedNode2 = new ServiceInstance(
@@ -171,15 +160,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
             nockTestParams.firstResponseBody[1].Node.Node,
             nockTestParams.firstResponseBody[1].Service.ID,
             nockTestParams.firstResponseBody[1].Service.Tags,
-            new ServiceInstanceStatus(
-                nockTestParams.loadData1.pid,
-                nockTestParams.loadData1.status,
-                nockTestParams.loadData1.mem.total,
-                nockTestParams.loadData1.mem.free,
-                nockTestParams.loadData1.cpu.usage,
-                nockTestParams.loadData1.cpu.count,
-                nockTestParams.loadData1
-            )
+            null
         );
 
         const firstRequestIndex = 0;
@@ -198,8 +179,6 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         assert.instanceOf(initialInstances, ServiceInstances);
         assert.lengthOf(initialInstances.getHealthy(), 2);
-        assert.isEmpty(initialInstances.getOnMaintenance());
-        assert.isEmpty(initialInstances.getOverloaded());
         assert.isEmpty(initialInstances.getUnhealthy());
 
         const [node1, node2] = initialInstances.getHealthy();
@@ -291,8 +270,6 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         assert.instanceOf(initialInstances, ServiceInstances);
         assert.isEmpty(initialInstances.getHealthy());
-        assert.isEmpty(initialInstances.getOnMaintenance());
-        assert.isEmpty(initialInstances.getOverloaded());
         assert.isEmpty(initialInstances.getUnhealthy());
     });
 
@@ -333,8 +310,6 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.isFalse(monitor.isInitialized());
         assert.isFalse(monitor.isWatchHealthy());
         assert.isEmpty(monitor.getInstances().getHealthy());
-        assert.isEmpty(monitor.getInstances().getOnMaintenance());
-        assert.isEmpty(monitor.getInstances().getOverloaded());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
     });
 
@@ -375,8 +350,6 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.isFalse(monitor.isInitialized());
         assert.isFalse(monitor.isWatchHealthy());
         assert.isEmpty(monitor.getInstances().getHealthy());
-        assert.isEmpty(monitor.getInstances().getOnMaintenance());
-        assert.isEmpty(monitor.getInstances().getOverloaded());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
     });
 
@@ -389,15 +362,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
             nockTestParams.firstResponseBody[1].Node.Node,
             nockTestParams.firstResponseBody[1].Service.ID,
             nockTestParams.firstResponseBody[1].Service.Tags,
-            new ServiceInstanceStatus(
-                nockTestParams.loadData1.pid,
-                nockTestParams.loadData1.status,
-                nockTestParams.loadData1.mem.total,
-                nockTestParams.loadData1.mem.free,
-                nockTestParams.loadData1.cpu.usage,
-                nockTestParams.loadData1.cpu.count,
-                nockTestParams.loadData1
-            )
+            null
         );
 
         const firstResponseBody = _.cloneDeep(nockTestParams.firstResponseBody);
@@ -434,14 +399,11 @@ describe('ServiceInstancesMonitor::constructor', function () {
         const initialInstances = await monitor.startService();
 
         assert.lengthOf(errors, 0);
-
         assert.instanceOf(initialInstances, ServiceInstances);
-        assert.lengthOf(initialInstances.getHealthy(), 1);
-        assert.isEmpty(initialInstances.getOnMaintenance());
-        assert.isEmpty(initialInstances.getOverloaded());
+        assert.lengthOf(initialInstances.getHealthy(), 2);
         assert.isEmpty(initialInstances.getUnhealthy());
 
-        const [node2] = initialInstances.getHealthy();
+        const node2 = initialInstances.getHealthy()[1];
 
         assert.instanceOf(node2, ServiceInstance);
         assert.deepEqual(node2, expectedNode2);
