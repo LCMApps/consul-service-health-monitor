@@ -77,7 +77,7 @@ class ServiceInstancesMonitor extends EventEmitter {
 
         if (_.isPlainObject(extractors)) {
             for (const extractorName in extractors) {
-                if (!_.isFunction(extractors[extractorName].extract)) {
+                if (!extractors[extractorName] || !_.isFunction(extractors[extractorName].extract)) {
                     throw new TypeError('extractors instances must have a method "extract"');
                 }
             }

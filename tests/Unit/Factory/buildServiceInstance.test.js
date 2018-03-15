@@ -32,15 +32,6 @@ describe('Factory::buildServiceInstance', function () {
     });
 
     it('return null on throwing of error', function () {
-        const inputStatus = deepFreeze({
-            data: {
-                status: 'OK',
-                pid: 100,
-                mem: {total: 13121352, free: 4256144},
-                cpu: {usage: 1.2295908130391557, count: 16}
-            }
-        });
-
         const node = deepFreeze({
             Node: {
                 Node: 'transcoder_app',
@@ -57,14 +48,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceInfo(
-            inputStatus.data.pid,
-            inputStatus.data.status,
-            inputStatus.data.mem.total,
-            inputStatus.data.mem.free,
-            inputStatus.data.cpu.usage,
-            inputStatus.data.cpu.count
-        );
+        const instanceStatus = new ServiceInstanceInfo({});
 
         stub.throws('TypeError');
 
@@ -75,16 +59,6 @@ describe('Factory::buildServiceInstance', function () {
     });
 
     it('check of passed arguments from factory to inner class constructor', function () {
-
-        const inputStatus = deepFreeze({
-            data: {
-                status: 'OK',
-                pid: 100,
-                mem: {total: 13121352, free: 4256144},
-                cpu: {usage: 1.2295908130391557, count: 16}
-            }
-        });
-
         const node = deepFreeze({
             Node: {
                 Node: 'transcoder_app',
@@ -101,14 +75,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceInfo(
-            inputStatus.data.pid,
-            inputStatus.data.status,
-            inputStatus.data.mem.total,
-            inputStatus.data.mem.free,
-            inputStatus.data.cpu.usage,
-            inputStatus.data.cpu.count
-        );
+        const instanceStatus = new ServiceInstanceInfo({});
 
         const expectedInstance = new ServiceInstance(
             node.Node.TaggedAddresses.lan,
@@ -142,16 +109,6 @@ describe('Factory::buildServiceInstance', function () {
     });
 
     it('check of passed arguments from factory to inner class constructor, without TaggedAddresses.lan', function () {
-
-        const inputStatus = deepFreeze({
-            data: {
-                status: 'OK',
-                pid: 100,
-                mem: {total: 13121352, free: 4256144},
-                cpu: {usage: 1.2295908130391557, count: 16}
-            }
-        });
-
         const node = deepFreeze({
             Node: {
                 Node: 'transcoder_app',
@@ -167,14 +124,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceInfo(
-            inputStatus.data.pid,
-            inputStatus.data.status,
-            inputStatus.data.mem.total,
-            inputStatus.data.mem.free,
-            inputStatus.data.cpu.usage,
-            inputStatus.data.cpu.count
-        );
+        const instanceStatus = new ServiceInstanceInfo({});
 
         const expectedInstance = new ServiceInstance(
             null,
@@ -208,16 +158,6 @@ describe('Factory::buildServiceInstance', function () {
     });
 
     it('check of passed arguments from factory to inner class constructor, without TaggedAddresses.wan', function () {
-
-        const inputStatus = deepFreeze({
-            data: {
-                status: 'OK',
-                pid: 100,
-                mem: {total: 13121352, free: 4256144},
-                cpu: {usage: 1.2295908130391557, count: 16}
-            }
-        });
-
         const node = deepFreeze({
             Node: {
                 Node: 'transcoder_app',
@@ -233,14 +173,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceInfo(
-            inputStatus.data.pid,
-            inputStatus.data.status,
-            inputStatus.data.mem.total,
-            inputStatus.data.mem.free,
-            inputStatus.data.cpu.usage,
-            inputStatus.data.cpu.count
-        );
+        const instanceStatus = new ServiceInstanceInfo({});
 
         const expectedInstance = new ServiceInstance(
             node.Node.TaggedAddresses.lan,
@@ -274,16 +207,6 @@ describe('Factory::buildServiceInstance', function () {
     });
 
     it('check of passed arguments from factory to inner class constructor, with TaggedAddresses === null', function () {
-
-        const inputStatus = deepFreeze({
-            data: {
-                status: 'OK',
-                pid: 100,
-                mem: {total: 13121352, free: 4256144},
-                cpu: {usage: 1.2295908130391557, count: 16}
-            }
-        });
-
         const node = deepFreeze({
             Node: {
                 Node: 'transcoder_app',
@@ -297,14 +220,7 @@ describe('Factory::buildServiceInstance', function () {
             }
         });
 
-        const instanceStatus = new ServiceInstanceInfo(
-            inputStatus.data.pid,
-            inputStatus.data.status,
-            inputStatus.data.mem.total,
-            inputStatus.data.mem.free,
-            inputStatus.data.cpu.usage,
-            inputStatus.data.cpu.count
-        );
+        const instanceStatus = new ServiceInstanceInfo({});
 
         const expectedInstance = new ServiceInstance(
             null,

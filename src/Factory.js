@@ -113,6 +113,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus, extractors)
         let instanceInfo = null;
         let checkWithStatusFound = false;
         let serfHealthCritical = false;
+        let checkWithStatusOutputExist = true;
 
         if (node.Checks.length === 0) {
             errors.push(new InvalidDataError(
@@ -134,11 +135,11 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus, extractors)
                 return;
             }
 
-            if (check.Name !== checkNameWithStatus) {
-                if (check.Status !== CHECK_STATUS_PASSING) {
-                    passing = false;
-                }
+            if (check.Status !== CHECK_STATUS_PASSING) {
+                passing = false;
+            }
 
+            if (check.Name !== checkNameWithStatus) {
                 // skip this check and jump to the next one
                 return;
             }
@@ -153,7 +154,7 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus, extractors)
                     {address: ip, check: check}
                 ));
 
-                passing = false;
+                checkWithStatusOutputExist = false;
 
                 // skip this check and jump to the next one
                 return;
@@ -184,6 +185,12 @@ function buildServiceInstances(registeredNodes, checkNameWithStatus, extractors)
                 'Check with `checkNameWithStatus` was not found among all checks on the node, node will be skipped',
                 {node}
             ));
+
+            return;
+        }
+
+        if (!checkWithStatusOutputExist) {
+            return;
         }
 
         const instance = buildServiceInstance(node, instanceInfo);

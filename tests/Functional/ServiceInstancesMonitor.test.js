@@ -354,17 +354,6 @@ describe('ServiceInstancesMonitor::constructor', function () {
     });
 
     it('emission of error on initial data', async function () {
-        const expectedNode2 = new ServiceInstance(
-            nockTestParams.firstResponseBody[1].Node.TaggedAddresses.lan,
-            nockTestParams.firstResponseBody[1].Node.TaggedAddresses.wan,
-            nockTestParams.firstResponseBody[1].Service.Port,
-            nockTestParams.firstResponseBody[1].Node.Address,
-            nockTestParams.firstResponseBody[1].Node.Node,
-            nockTestParams.firstResponseBody[1].Service.ID,
-            nockTestParams.firstResponseBody[1].Service.Tags,
-            null
-        );
-
         const firstResponseBody = _.cloneDeep(nockTestParams.firstResponseBody);
         firstResponseBody[0].Checks[1].Name = 'Name of check that will not match checkNameWithStatus';
 
@@ -400,13 +389,8 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         assert.lengthOf(errors, 0);
         assert.instanceOf(initialInstances, ServiceInstances);
-        assert.lengthOf(initialInstances.getHealthy(), 2);
+        assert.lengthOf(initialInstances.getHealthy(), 1);
         assert.isEmpty(initialInstances.getUnhealthy());
-
-        const node2 = initialInstances.getHealthy()[1];
-
-        assert.instanceOf(node2, ServiceInstance);
-        assert.deepEqual(node2, expectedNode2);
 
         await waitFn();
 

@@ -1,5 +1,7 @@
 'use strict';
 
+const _ = require('lodash');
+
 /**
  * Represents collection of instance information
  */
@@ -10,6 +12,10 @@ class ServiceInstanceInfo {
      * @throws {TypeError} on invalid type or value of one of arguments
      */
     constructor(instanceInfo) {
+        if (!_.isPlainObject(instanceInfo)) {
+            throw new TypeError('instanceInfo argument must be a plain object');
+        }
+
         this._instanceInfo = instanceInfo;
     }
 
