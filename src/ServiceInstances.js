@@ -46,11 +46,10 @@ class ServiceInstances {
      * Adds an instance to the list and mark it as `unhealthy`.
      *
      * Unhealthy instance is one that has one of the following criteria:
-     *   - at least one check, except check with instance-status, not in `passing` state
+     *   - at least one check, except serfHealth check, not in `passing` state
      *
-     * Anyway, instance status check must have output and it must be valid.
-     * Instance must not be added buy this method or by any method of this class if
-     * instance status check output can't be parsed. It must be interpret as invalid service ant must
+     * Instance must not be added by this method or by any method of this class if
+     * instance status check output is absent. It must be interpret as invalid service and must
      * not be in this list.
      *
      * In example below response from `consul.health.service` will be interpret "unhealthy":

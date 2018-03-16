@@ -83,13 +83,12 @@ function buildServiceInstance(node, instanceInfo) {
  * fields are checked and required.
  *
  * Node will be marked `unhealthy` if at least one case occurs:
- *   - at least one check, except check with instance-status and serfHealth, not in `passing` state
- *   - instance-status check isn't in passing state while instance returns "OK" to health check
+ *   - at least one check, except serfHealth check, not in `passing` state
  *
  * Node will be `skipped` in case:
  *   - it doesn't contain registered checks at all
  *   - it doesn't contain instance-status check
- *   - instance-status check has invalid format
+ *   - invalid format of node data
  *   - serfHealth check is in critical state
  *
  * In all other cases node will be `healthy`.
