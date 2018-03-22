@@ -21,24 +21,28 @@ const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
  * @returns {{value: *, type: string}}
  */
 function vt(value) {
-    return { value, type: (value === null ? 'null' : typeof value) };
+    return {value, type: (value === null ? 'null' : typeof value)};
 }
 
 const testParams = {
     // all type except number
     notANumber: [
-        vt('string'), vt(true), vt(undefined), vt(Symbol()), vt({ }), vt(setTimeout), vt(null)
+        vt('string'), vt(true), vt(undefined), vt(Symbol()), vt({}), vt(setTimeout), vt(null)
     ],
     // all types except string
     notAString: [
-        vt(true), vt(123), vt(undefined), vt(Symbol()), vt({ }), vt(setTimeout), vt(null)
+        vt(true), vt(123), vt(undefined), vt(Symbol()), vt({}), vt(setTimeout), vt(null)
     ],
     // all types except object
     notAnObject: [
         vt('string'), vt(true), vt(123), vt(undefined), vt(Symbol()), vt(setTimeout), vt(null)
     ],
+    // all types except object
+    notAnObjectExceptUndefined: [
+        vt('string'), vt(true), vt(123), vt(Symbol()), vt(setTimeout), vt(null), vt([])
+    ],
     notAFunction: [
-        vt('string'), vt(true), vt(123), vt(undefined), vt(Symbol()), vt({ }), vt(null)
+        vt('string'), vt(true), vt(123), vt(undefined), vt(Symbol()), vt({}), vt(null)
     ]
 };
 
@@ -57,7 +61,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
     });
 
     it('valid arguments', function () {
-        (new ServiceInstancesMonitor(validOptions, validConsulClient));
+        new ServiceInstancesMonitor(validOptions, validConsulClient);
     });
 
     dataDriven(testParams.notAnObject, function () {
@@ -218,4 +222,37 @@ describe('ServiceInstancesMonitor::constructor', function () {
             );
         });
     });
+
+    dataDriven(testParams.notAnObjectExceptUndefined, function () {
+        it('incorrect type of extractors argument, type = {type}', function (arg) {
+
+            /** @var {{value: *, type: string}} arg */
+            assert.throws(
+                function () {
+                    new ServiceInstancesMonitor(validOptions, validConsulClient, arg.value);
+                },
+                TypeError,
+                'extractors argument must be an plain object or undefined'
+            );
+        });
+    });
+
+    dataDriven(testParams.notAFunction, function () {
+        it('method "extract" of extractors is incorrect, type = {type}', function (arg) {
+            /** @var {{value: *, type: string}} arg */
+            assert.throws(
+                function () {
+                    new ServiceInstancesMonitor(validOptions, validConsulClient, {[arg.type]: arg.value});
+                },
+                TypeError,
+                'extractors instances must have a method "extract"'
+            );
+        });
+    });
+
+    it('no errors on extractors argument equal undefined', function () {
+        new ServiceInstancesMonitor(validOptions, validConsulClient, undefined);
+    });
+
+
 });

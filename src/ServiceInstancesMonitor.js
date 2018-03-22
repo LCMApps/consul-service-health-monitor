@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events');
 const _ = require('lodash');
 const instancesFactory = require('./Factory');
@@ -5,7 +7,6 @@ const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
 const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
-
 
 const DEFAULT_TIMEOUT_MSEC = 5000;
 
@@ -16,7 +17,6 @@ const DEFAULT_TIMEOUT_MSEC = 5000;
  * @property {string} serverId - the id of the server
  */
 
-
 /**
  * Event is emmitted when something happens
  *
@@ -25,8 +25,8 @@ const DEFAULT_TIMEOUT_MSEC = 5000;
  */
 
 /**
- * @fires ServiceInstancesMonitor#initialized
- * @fires ServiceInstancesMonitor#changed
+ * @emits ServiceInstancesMonitor#initialized
+ * @emits ServiceInstancesMonitor#changed
  */
 class ServiceInstancesMonitor extends EventEmitter {
 
@@ -36,10 +36,11 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @param {string} options.checkNameWithStatus
      * @param {string} [options.timeoutMsec=5000] - connection timeout to consul
      * @param {Consul} consul
+     * @param {Object} extractors
      * @throws {TypeError} On invalid options format
      * @public
      */
-    constructor(options, consul) {
+    constructor(options, consul, extractors) {
         super();
 
         if (!_.isPlainObject(options)) {
@@ -74,11 +75,22 @@ class ServiceInstancesMonitor extends EventEmitter {
             throw new TypeError('consul argument does not look like Consul object');
         }
 
-        this._serviceName         = options.serviceName;
+        if (_.isPlainObject(extractors)) {
+            for (const extractorName in extractors) {
+                if (!extractors[extractorName] || !_.isFunction(extractors[extractorName].extract)) {
+                    throw new TypeError('extractors instances must have a method "extract"');
+                }
+            }
+        } else if (extractors !== undefined) {
+            throw new TypeError('extractors argument must be an plain object or undefined');
+        }
+
+        this._serviceName = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
-        this._initialized         = false;
+        this._initialized = false;
 
         this._consul = consul;
+        this._extractors = extractors;
 
         this._onWatcherChange = this._onWatcherChange.bind(this);
         this._onWatcherError = this._onWatcherError.bind(this);
@@ -219,7 +231,9 @@ class ServiceInstancesMonitor extends EventEmitter {
                 clearTimeout(timerId);
 
                 const {instances, errors} = instancesFactory.buildServiceInstances(
-                    data, this._checkNameWithStatus
+                    data,
+                    this._checkNameWithStatus,
+                    this._extractors
                 );
 
                 if (!_.isEmpty(errors)) {
@@ -266,7 +280,9 @@ class ServiceInstancesMonitor extends EventEmitter {
         }
 
         const {instances, errors} = instancesFactory.buildServiceInstances(
-            data, this._checkNameWithStatus
+            data,
+            this._checkNameWithStatus,
+            this._extractors
         );
 
         this._serviceInstances = instances;
@@ -282,7 +298,7 @@ class ServiceInstancesMonitor extends EventEmitter {
             this._setWatchUnealthy();
         }
 
-        this.emit('error', new WatchError(err.message, { err }));
+        this.emit('error', new WatchError(err.message, {err}));
     }
 
     _onWatcherEnd() {

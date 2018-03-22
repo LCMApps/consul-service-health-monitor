@@ -4,7 +4,7 @@ const assert = require('chai').assert;
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const ServiceInstance = require('src/ServiceInstance');
-const ServiceInstanceStatus = require('src/ServiceInstanceStatus');
+const ServiceInstanceInfo = require('src/ServiceInstanceInfo');
 
 /**
  * Returns object with passed to function variable itself and its type.
@@ -40,25 +40,19 @@ const testParams = {
     notAnArray: [
         vt('8080'), vt(123), vt(true), vt(undefined), vt(Symbol()), vt({ }), vt(setTimeout), vt(null)
     ],
-    // all types except an object
-    notAnObject: [
-        vt('8080'), vt(123), vt(true), vt(undefined), vt(Symbol()), vt(setTimeout), vt(null)
+    // all types except an object and null
+    notAnObjectExceptNull: [
+        vt('8080'), vt(123), vt(true), vt(undefined), vt(Symbol()), vt(setTimeout)
     ],
 };
 
 describe('ServiceInstance::constructor', function () {
 
-    let serviceInstanceStatus;
+    let serviceInstanceInfo;
 
     beforeEach(() => {
-        const pid = 87;
-        const statusOk = ServiceInstanceStatus.STATE_OK;
-        const memTotal = 2047;
-        const memFree = 1337;
-        const cpuUsage = 34.91;
-        const cpuCount = 16;
-        serviceInstanceStatus = deepFreeze(
-            new ServiceInstanceStatus(pid, statusOk, memTotal, memFree, cpuUsage, cpuCount)
+        serviceInstanceInfo = deepFreeze(
+            new ServiceInstanceInfo({})
         );
     });
 
@@ -75,7 +69,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -94,7 +88,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getLanIp());
@@ -110,7 +104,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getLanIp(), lanIp);
@@ -129,7 +123,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -148,7 +142,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getWanIp());
@@ -164,7 +158,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getWanIp(), wanIp);
@@ -183,7 +177,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -202,7 +196,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getPort(), port);
@@ -221,7 +215,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -240,7 +234,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeAddress(), nodeAddress);
@@ -259,7 +253,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -278,7 +272,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeName(), nodeName);
@@ -296,7 +290,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -315,7 +309,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeName(), nodeName);
@@ -334,7 +328,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -353,7 +347,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getServiceId(), serviceId);
@@ -372,7 +366,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -394,7 +388,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -413,14 +407,14 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = deepFreeze([]);
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getServiceTags(), serviceTags);
     });
 
-    dataDriven(testParams.notAnObject, function () {
-        it('incorrect type of serviceInstanceStatus elements, type = {type}', function (arg) {
+    dataDriven(testParams.notAnObjectExceptNull, function () {
+        it('incorrect type of serviceInstanceInfo elements, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
             const port = 8080;
@@ -428,21 +422,21 @@ describe('ServiceInstance::constructor', function () {
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
-            const serviceInstanceStatus = arg.value;
+            const serviceInstanceInfo = arg.value;
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
                     );
                 },
                 TypeError,
-                'serviceInstanceStatus must be an instance of ServiceInstanceStatus'
+                'serviceInstanceInfo must be an instance of ServiceInstanceInfo'
             );
         });
     });
 
-    it('no errors on serviceTags with array of strings', function () {
+    it('"getInfo" method returns valid value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
         const port = 8080;
@@ -452,9 +446,25 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceStatus
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
-        assert.deepEqual(serviceInstance.getStatus(), serviceInstanceStatus);
+        assert.deepEqual(serviceInstance.getInfo(), serviceInstanceInfo);
+    });
+
+    it('no errors on serviceInstanceInfo with null value', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceId = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, null
+        );
+
+        assert.deepEqual(serviceInstance.getInfo(), null);
     });
 });
