@@ -2,7 +2,7 @@
 
 ### 2.0.0
 
-- [#20123](https://redmine.hwtool.net/issues/20123) Delete "emergencyStop" event from consul-service-health-monitor
+- [#20123](https://redmine.hwtool.net/issues/20123) Add to "consul-service-health-monitor" module functionality of an auto-reconnect to Сonsul
 - [#19681](https://redmine.hwtool.net/issues/19681) Extending consul-service-health-monitor to extract custom data from output
 
 ### 1.3.0
