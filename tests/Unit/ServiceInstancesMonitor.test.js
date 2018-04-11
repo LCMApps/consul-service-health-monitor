@@ -3,9 +3,12 @@
 const _ = require('lodash');
 const consul = require('consul');
 const assert = require('chai').assert;
+const sinon = require('sinon');
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
+const ServiceInstances = require('src/ServiceInstances');
+const WatchError = require('src/Error').WatchError;
 
 /**
  * Returns object with passed to function variable itself and its type.
@@ -253,6 +256,85 @@ describe('ServiceInstancesMonitor::constructor', function () {
     it('no errors on extractors argument equal undefined', function () {
         new ServiceInstancesMonitor(validOptions, validConsulClient, undefined);
     });
+});
+
+describe('ServiceInstancesMonitor::_retryStartService', function () {
+    const options = deepFreeze({
+        serviceName: 'transcoder',
+        timeoutMsec: 100,
+        checkNameWithStatus: "Service 'transcoder' check",
+        autoReconnect: true
+    });
+    const consulClient = consul();
+
+    it('successfully restart watcher', async function () {
+        const serviceInstances = new ServiceInstances();
+        const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
+
+        const serviceStartStub = sinon.stub(monitor, 'startService');
+        serviceStartStub.returns(serviceInstances);
+
+        let changeFired = false;
+        let firedInstances = undefined;
+
+        monitor.on('change', instances => {
+            changeFired = true;
+            firedInstances = instances;
+        });
+
+        await monitor._retryStartService();
+
+        assert.isTrue(changeFired);
+        assert.isTrue(serviceStartStub.calledOnce);
+        assert.isTrue(serviceStartStub.calledWithExactly());
+        assert.deepEqual(monitor._serviceInstances, serviceInstances);
+        assert.deepEqual(firedInstances, serviceInstances);
+    });
 
 
+    it('on error from "startService()" retry run "_retryStartService" after timeout', async function () {
+        const serviceInstances = new ServiceInstances();
+        const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
+
+        const serviceStartStub = sinon.stub(monitor, 'startService');
+        serviceStartStub.onFirstCall().rejects(new WatchError('Some error'));
+        serviceStartStub.onSecondCall().returns(serviceInstances);
+
+        const retryStartServiceSpy = sinon.spy(monitor, '_retryStartService');
+
+        let isChangeFired = false;
+        let firedInstances = undefined;
+        let isErrorFired = false;
+        let firedError = undefined;
+
+        monitor.on('change', instances => {
+            isErrorFired = true;
+            firedInstances = instances;
+        });
+
+        monitor.on('error', error => {
+            isChangeFired = true;
+            firedError = error;
+        });
+
+        function waitFn() {
+            return new Promise(resolve => {
+                setTimeout(resolve, options.timeoutMsec * 2);
+            });
+        }
+
+        await monitor._retryStartService();
+
+        await waitFn();
+
+        assert.isTrue(isChangeFired);
+        assert.isTrue(isErrorFired);
+        assert.isTrue(retryStartServiceSpy.calledTwice);
+        assert.isTrue(serviceStartStub.calledTwice);
+        assert.isTrue(serviceStartStub.calledWithExactly());
+        assert.deepEqual(monitor._serviceInstances, serviceInstances);
+        assert.deepEqual(firedInstances, serviceInstances);
+        assert.instanceOf(firedError, WatchError);
+        assert.match(firedError, /Some error/);
+    });
 });

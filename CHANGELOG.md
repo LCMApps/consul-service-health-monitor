@@ -2,8 +2,8 @@
 
 ### 2.0.0
 
-- [#19681](https://redmine.hwtool.net/issues/19681) Extending consul-service-health-monitor to extract custom data 
-from output
+- [#20123](https://redmine.hwtool.net/issues/20123) Delete "emergencyStop" event from consul-service-health-monitor
+- [#19681](https://redmine.hwtool.net/issues/19681) Extending consul-service-health-monitor to extract custom data from output
 
 ### 1.3.0
 

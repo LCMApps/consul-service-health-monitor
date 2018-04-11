@@ -5,10 +5,11 @@ const _ = require('lodash');
 const instancesFactory = require('./Factory');
 const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
-const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
+const NotInitializedError = require('./Error').NotInitializedError;
 
 const DEFAULT_TIMEOUT_MSEC = 5000;
+const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
 
 /**
  * Single node data
@@ -27,6 +28,8 @@ const DEFAULT_TIMEOUT_MSEC = 5000;
 /**
  * @emits ServiceInstancesMonitor#initialized
  * @emits ServiceInstancesMonitor#changed
+ * @emits ServiceInstancesMonitor#emergencyStop
+ * @emits ServiceInstancesMonitor#error
  */
 class ServiceInstancesMonitor extends EventEmitter {
 
@@ -34,7 +37,8 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @param {Object} options
      * @param {string} options.serviceName -  name of service in consul to monitor
      * @param {string} options.checkNameWithStatus
-     * @param {string} [options.timeoutMsec=5000] - connection timeout to consul
+     * @param {number} [options.timeoutMsec=5000] - connection timeout to consul
+     * @param {boolean} [options.autoReconnect=true] - enable auto reconnect on watcher end
      * @param {Consul} consul
      * @param {Object} extractors
      * @throws {TypeError} On invalid options format
@@ -68,6 +72,16 @@ class ServiceInstancesMonitor extends EventEmitter {
             this._timeoutMsec = options.timeoutMsec;
         }
 
+        if (!_.has(options, 'autoReconnect')) {
+            this._autoReconnect = true;
+        } else {
+            if (!_.isBoolean(options.autoReconnect)) {
+                throw new TypeError('options.autoReconnect must be a boolean');
+            }
+
+            this._autoReconnect = options.autoReconnect;
+        }
+
         // duck typing check
         if (!_.isObject(consul) || !_.isFunction(consul.watch) ||
             !_.isObject(consul.health) || !_.isFunction(consul.health.service)
@@ -95,6 +109,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._onWatcherChange = this._onWatcherChange.bind(this);
         this._onWatcherError = this._onWatcherError.bind(this);
         this._onWatcherEnd = this._onWatcherEnd.bind(this);
+        this._retryStartService = this._retryStartService.bind(this);
 
         this._serviceInstances = new ServiceInstances();
         this._watchAnyNodeChange = null;
@@ -135,18 +150,18 @@ class ServiceInstancesMonitor extends EventEmitter {
     }
 
     /**
-     * Starts service and resolves promise with initial list of nodes that provide the service.
+     * Starts service and resolves promise with initial list of nodes that provide the service, "change" or "error"
+     * events will not be emited
      *
      * Listens for changes after successful resolve.
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if service is already started.
-     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watcher was stopped and no retries will be done.
      *
-     * @returns {Promise<Array,AlreadyInitializedError|WatchError|WatchTimeoutError>}
+     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError>}
      * @public
      */
     startService() {
@@ -174,7 +189,6 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if service is already started.
-     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watcher was stopped and no retries will be done.
@@ -197,6 +211,21 @@ class ServiceInstancesMonitor extends EventEmitter {
     }
 
     /**
+     * Returns unix timestamp when last success response was received from consul
+     *
+     * @returns {number}
+     * @throws {NotInitializedError} On not started service
+     * @public
+     */
+    getUpdateTime() {
+        if (!this._isWatcherRegistered()) {
+            throw new NotInitializedError('Service is not started');
+        }
+
+        return this._watchAnyNodeChange.updateTime();
+    }
+
+    /**
      * Registers `consul.watch` and assigns watcher to `this._watchAnyNodeChange` and waits for the
      * first successful response from consul with list of healthy nodes that provide the service.
      * On successful response resolves promise with array of healthy nodes (it may be empty). Method doesn't
@@ -204,18 +233,17 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if another `consul.watch` execution is found.
-     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watch was stopped and `this._watchAnyNodeChange` was cleared.
      *
-     * @returns {Promise<Array,AlreadyInitializedError|WatchError|WatchTimeoutError>}
+     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError>}
      * @private
      */
     _registerWatcherAndWaitForInitialNodes() {
         return new Promise((resolve, reject) => {
             if (this._watchAnyNodeChange !== null) {
-                reject(new AlreadyInitializedError('Another `consul.watch` execution is found'));
+                return reject(new AlreadyInitializedError('Another `consul.watch` execution is found'));
             }
 
             this._watchAnyNodeChange = this._consul.watch({
@@ -223,12 +251,12 @@ class ServiceInstancesMonitor extends EventEmitter {
                 options: {
                     service: this._serviceName,
                     wait: '60s',
+                    timeout: this._timeoutMsec
                 },
             });
 
             const firstChange = (data) => {
                 this._watchAnyNodeChange.removeListener('error', firstError);
-                clearTimeout(timerId);
 
                 const {instances, errors} = instancesFactory.buildServiceInstances(
                     data,
@@ -247,17 +275,8 @@ class ServiceInstancesMonitor extends EventEmitter {
                 this._watchAnyNodeChange.removeListener('change', firstChange);
                 this._watchAnyNodeChange.end();
                 this._watchAnyNodeChange = null;
-                clearTimeout(timerId);
                 reject(new WatchError(err.message, {err}));
             };
-
-            const timerId = setTimeout(() => {
-                this._watchAnyNodeChange.removeListener('error', firstError);
-                this._watchAnyNodeChange.removeListener('change', firstChange);
-                this._watchAnyNodeChange.end();
-                this._watchAnyNodeChange = null;
-                reject(new WatchTimeoutError('Initial consul watch request was timed out'));
-            }, this._timeoutMsec);
 
             this._watchAnyNodeChange.once('change', firstChange);
             this._watchAnyNodeChange.once('error', firstError);
@@ -265,13 +284,13 @@ class ServiceInstancesMonitor extends EventEmitter {
     }
 
     /**
-     * This method receives list of healthy nodes sent by `consul.watch` in `consul` format. Performs
+     * This method receives list of a valid nodes sent by `consul.watch` in `consul` format. Performs
      * validation of response format.
      *
      * If service was unhealthy, it becomes healthy.
      *
      * @param {Array} data - list of healthy nodes after some changes
-     * @emits ServiceInstancesMonitor#changed actual array of healthy nodes
+     * @emits ServiceInstancesMonitor#changed actual array of a valid nodes
      * @private
      */
     _onWatcherChange(data) {
@@ -304,14 +323,34 @@ class ServiceInstancesMonitor extends EventEmitter {
     _onWatcherEnd() {
         this._setUninitialized();
         this._setWatchUnealthy();
+        this._watchAnyNodeChange.removeAllListeners();
         this._watchAnyNodeChange = null;
-        this.emit('emergencyStop');
+
+        if (this._autoReconnect) {
+            this._retryStartService();
+        } else {
+            this.emit('emergencyStop');
+        }
     }
 
     _emitFactoryErrors(errors) {
         setImmediate(() => {
             errors.forEach(error => this.emit.call(this, 'error', error));
         });
+    }
+
+    async _retryStartService() {
+        try {
+            const serviceInstances = await this.startService();
+            this._serviceInstances = serviceInstances;
+
+            this.emit('change', serviceInstances);
+        } catch (err) {
+            this.emit('error', err);
+
+            const timeout = Math.min(DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC, this._timeoutMsec);
+            setTimeout(this._retryStartService, timeout);
+        }
     }
 }
 
