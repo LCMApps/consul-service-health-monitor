@@ -291,8 +291,11 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
         assert.deepEqual(firedInstances, serviceInstances);
     });
 
-
     it('on error from "startService()" retry run "_retryStartService" after timeout', async function () {
+        const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
+
+        this.timeout(DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 3);
+
         const serviceInstances = new ServiceInstances();
         const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
 
@@ -304,22 +307,20 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
 
         let isChangeFired = false;
         let firedInstances = undefined;
-        let isErrorFired = false;
-        let firedError = undefined;
+        const errors = [];
 
         monitor.on('change', instances => {
-            isErrorFired = true;
+            isChangeFired = true;
             firedInstances = instances;
         });
 
         monitor.on('error', error => {
-            isChangeFired = true;
-            firedError = error;
+            errors.push(error);
         });
 
         function waitFn() {
             return new Promise(resolve => {
-                setTimeout(resolve, options.timeoutMsec * 2);
+                setTimeout(resolve, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 2);
             });
         }
 
@@ -328,13 +329,59 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
         await waitFn();
 
         assert.isTrue(isChangeFired);
-        assert.isTrue(isErrorFired);
         assert.isTrue(retryStartServiceSpy.calledTwice);
         assert.isTrue(serviceStartStub.calledTwice);
         assert.isTrue(serviceStartStub.calledWithExactly());
         assert.deepEqual(monitor._serviceInstances, serviceInstances);
         assert.deepEqual(firedInstances, serviceInstances);
-        assert.instanceOf(firedError, WatchError);
-        assert.match(firedError, /Some error/);
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.match(errors[0], /Some error/);
+    });
+
+    it('not retry run "_retryStartService" after "stopService" calling', async function () {
+        const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
+
+        this.timeout(DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 3);
+
+        const serviceInstances = new ServiceInstances();
+        const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
+
+        const serviceStartStub = sinon.stub(monitor, 'startService');
+        serviceStartStub.onFirstCall().rejects(new WatchError('Some error'));
+        serviceStartStub.onSecondCall().returns(serviceInstances);
+
+        const retryStartServiceSpy = sinon.spy(monitor, '_retryStartService');
+
+        let isChangeFired = false;
+        const errors = [];
+
+        monitor.on('change', instances => {
+            isChangeFired = true;
+        });
+
+        monitor.on('error', error => {
+            errors.push(error);
+        });
+
+        function waitFn() {
+            return new Promise(resolve => {
+                setTimeout(resolve, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 2);
+            });
+        }
+
+        await monitor._retryStartService();
+
+        monitor.stopService();
+
+        await waitFn();
+
+        assert.isFalse(isChangeFired);
+        assert.isTrue(retryStartServiceSpy.calledOnce);
+        assert.isTrue(serviceStartStub.calledOnce);
+        assert.isTrue(serviceStartStub.calledWithExactly());
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.match(errors[0], /Some error/);
     });
 });

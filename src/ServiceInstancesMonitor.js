@@ -102,6 +102,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._serviceName = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
         this._initialized = false;
+        this._retryTimer = undefined;
 
         this._consul = consul;
         this._extractors = extractors;
@@ -197,6 +198,10 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @public
      */
     stopService() {
+        if (this._retryTimer !== undefined) {
+            clearTimeout(this._retryTimer);
+        }
+
         if (!this._isWatcherRegistered()) {
             return this;
         }
@@ -207,6 +212,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._watchAnyNodeChange = null;
         this._setUninitialized();
         this._setWatchUnealthy();
+
         return this;
     }
 
@@ -348,8 +354,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         } catch (err) {
             this.emit('error', err);
 
-            const timeout = Math.min(DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC, this._timeoutMsec);
-            setTimeout(this._retryStartService, timeout);
+            this._retryTimer = setTimeout(this._retryStartService, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC);
         }
     }
 }
