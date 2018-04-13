@@ -419,7 +419,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         const waitFn = () => {
             return new Promise(resolve => {
-                setTimeout(resolve, 1);
+                setTimeout(resolve, 100);
             });
         };
 
@@ -430,6 +430,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         });
 
         const initialInstances = await monitor.startService();
+        monitor._watchAnyNodeChange.end();
 
         assert.lengthOf(errors, 0);
         assert.instanceOf(initialInstances, ServiceInstances);
@@ -442,7 +443,6 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.instanceOf(errors[0], expectedErrorType);
         assert.strictEqual(errors[0].message, expectedErrorMessage);
         assert.deepEqual(errors[0].extra, expectedErrorExtra);
-        monitor._watchAnyNodeChange.end();
     });
 
     it('"emergencyStop" emission on watcher "end" and autoReconnect disable', async function () {
