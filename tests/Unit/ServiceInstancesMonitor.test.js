@@ -6,6 +6,7 @@ const assert = require('chai').assert;
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
+const sinon = require('sinon');
 
 /**
  * Returns object with passed to function variable itself and its type.
@@ -217,5 +218,177 @@ describe('ServiceInstancesMonitor::constructor', function () {
                 'consul argument does not look like Consul object'
             );
         });
+    });
+});
+
+describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
+    let tg;
+    let clock;
+
+    beforeEach(() => {
+        clock = sinon.useFakeTimers();
+
+        tg = sinon.createStubInstance(ServiceInstancesMonitor);
+
+        tg._watchAnyNodeChange = {
+            updateTime: sinon.stub(),
+            isRunning:  sinon.stub(),
+        };
+    });
+
+    afterEach(() => clock.restore());
+
+    it('should unset previous fallback interval if it exists', () => {
+        tg._setFallbackToWatchHealthy.restore();
+
+        tg._fallbackToWatchHealthyInterval = 123;
+
+        tg._setFallbackToWatchHealthy();
+
+        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
+
+        sinon.assert.callOrder(
+            tg._unsetFallbackToWatchHealthy, tg._watchAnyNodeChange.updateTime
+        );
+
+        clearInterval(tg._fallbackToWatchHealthyInterval);
+    });
+
+    it('should correctly stops working when watcher becomes unregistered', () => {
+        tg._setFallbackToWatchHealthy.restore();
+
+        tg._unsetFallbackToWatchHealthy.callThrough();
+
+        tg._fallbackToWatchHealthyInterval = null;
+
+        tg._watchAnyNodeChange.updateTime.returns(123);
+        tg._isWatcherRegistered.returns(true);
+        tg._watchAnyNodeChange.isRunning.returns(true);
+
+        tg._setFallbackToWatchHealthy();
+
+        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
+        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
+        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
+
+        clock.tick(5000);
+
+        tg._isWatcherRegistered.returns(false);
+
+        clock.tick(1000);
+
+        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
+        assert.isOk(tg._setWatchHealthy.notCalled);
+
+        sinon.assert.callOrder(
+            tg._watchAnyNodeChange.updateTime, tg._unsetFallbackToWatchHealthy
+        );
+
+        assert.isNull(tg._fallbackToWatchHealthyInterval);
+    });
+
+    it('should correctly stops working when watcher is not running', () => {
+        tg._setFallbackToWatchHealthy.restore();
+
+        tg._unsetFallbackToWatchHealthy.callThrough();
+
+        tg._fallbackToWatchHealthyInterval = null;
+
+        tg._watchAnyNodeChange.updateTime.returns(123);
+        tg._isWatcherRegistered.returns(true);
+        tg._watchAnyNodeChange.isRunning.returns(true);
+
+        tg._setFallbackToWatchHealthy();
+
+        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
+        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
+        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
+
+        clock.tick(5000);
+
+        tg._watchAnyNodeChange.isRunning.returns(false);
+
+        clock.tick(1000);
+
+        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
+        assert.isOk(tg._setWatchHealthy.notCalled);
+
+        sinon.assert.callOrder(
+            tg._watchAnyNodeChange.updateTime, tg._unsetFallbackToWatchHealthy
+        );
+
+        assert.isNull(tg._fallbackToWatchHealthyInterval);
+    });
+
+    it('should correctly stops working when watch becomes healthy', () => {
+        tg._setFallbackToWatchHealthy.restore();
+
+        tg._unsetFallbackToWatchHealthy.callThrough();
+
+        tg._fallbackToWatchHealthyInterval = null;
+
+        tg._watchAnyNodeChange.updateTime.returns(123);
+        tg._isWatcherRegistered.returns(true);
+        tg._watchAnyNodeChange.isRunning.returns(true);
+        tg.isWatchHealthy.returns(false);
+
+        tg._setFallbackToWatchHealthy();
+
+        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
+        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
+        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
+
+        clock.tick(5000);
+
+        tg.isWatchHealthy.returns(true);
+
+        clock.tick(1000);
+
+        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
+        assert.isOk(tg._setWatchHealthy.notCalled);
+
+        sinon.assert.callOrder(
+            tg._watchAnyNodeChange.updateTime, tg.isWatchHealthy, tg._unsetFallbackToWatchHealthy
+        );
+
+        assert.isNull(tg._fallbackToWatchHealthyInterval);
+    });
+
+    it('should correctly fallbacks to healthy state', () => {
+        tg._setFallbackToWatchHealthy.restore();
+
+        tg._unsetFallbackToWatchHealthy.callThrough();
+
+        tg._fallbackToWatchHealthyInterval = null;
+
+        tg._watchAnyNodeChange.updateTime.returns(123);
+        tg._isWatcherRegistered.returns(true);
+        tg._watchAnyNodeChange.isRunning.returns(true);
+        tg.isWatchHealthy.returns(false);
+
+        tg._setFallbackToWatchHealthy();
+
+        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
+        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
+        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
+
+        clock.tick(5000);
+
+        tg._watchAnyNodeChange.updateTime.returns(1234);
+
+        clock.tick(1000);
+
+        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
+        assert.isOk(tg._setWatchHealthy.calledOnce);
+
+        sinon.assert.callOrder(
+            tg._watchAnyNodeChange.updateTime,
+            tg.isWatchHealthy,
+            tg._watchAnyNodeChange.updateTime,
+            tg._unsetFallbackToWatchHealthy,
+            tg._setWatchHealthy
+        );
+
+        assert.isNull(tg._fallbackToWatchHealthyInterval);
     });
 });

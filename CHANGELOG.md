@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.4.0
+
+- [#20405](https://redmine.hwtool.net/issues/20405) Implement fallback to healthy state after watch error.
+
 ### 1.3.0
 
 - [#19653](https://redmine.hwtool.net/issues/19653) `ServiceInstance::getNodeId()` method was refactored to
