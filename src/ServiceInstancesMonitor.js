@@ -28,8 +28,9 @@ const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
 /**
  * @emits ServiceInstancesMonitor#initialized
  * @emits ServiceInstancesMonitor#changed
- * @emits ServiceInstancesMonitor#emergencyStop
  * @emits ServiceInstancesMonitor#error
+ * @emits ServiceInstancesMonitor#healthy
+ * @emits ServiceInstancesMonitor#unhealthy
  */
 class ServiceInstancesMonitor extends EventEmitter {
 
@@ -70,16 +71,6 @@ class ServiceInstancesMonitor extends EventEmitter {
             }
 
             this._timeoutMsec = options.timeoutMsec;
-        }
-
-        if (!_.has(options, 'autoReconnect')) {
-            this._autoReconnect = true;
-        } else {
-            if (!_.isBoolean(options.autoReconnect)) {
-                throw new TypeError('options.autoReconnect must be a boolean');
-            }
-
-            this._autoReconnect = options.autoReconnect;
         }
 
         // duck typing check
@@ -302,6 +293,7 @@ class ServiceInstancesMonitor extends EventEmitter {
     _onWatcherChange(data) {
         if (!this.isWatchHealthy()) {
             this._setWatchHealthy();
+            this.emit('healthy');
         }
 
         const {instances, errors} = instancesFactory.buildServiceInstances(
@@ -321,6 +313,7 @@ class ServiceInstancesMonitor extends EventEmitter {
     _onWatcherError(err) {
         if (this.isWatchHealthy()) {
             this._setWatchUnealthy();
+            this.emit('unhealthy');
         }
 
         this.emit('error', new WatchError(err.message, {err}));
@@ -331,12 +324,8 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._setWatchUnealthy();
         this._watchAnyNodeChange.removeAllListeners();
         this._watchAnyNodeChange = null;
-
-        if (this._autoReconnect) {
-            this._retryStartService();
-        } else {
-            this.emit('emergencyStop');
-        }
+        this.emit('unhealthy');
+        this._retryStartService();
     }
 
     _emitFactoryErrors(errors) {
@@ -350,9 +339,10 @@ class ServiceInstancesMonitor extends EventEmitter {
             const serviceInstances = await this.startService();
             this._serviceInstances = serviceInstances;
 
-            this.emit('change', serviceInstances);
+            this.emit('healthy');
+            this.emit('changed', serviceInstances);
         } catch (err) {
-            this.emit('error', err);
+            setImmediate(() => this.emit('error', err));
 
             this._retryTimer = setTimeout(this._retryStartService, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC);
         }

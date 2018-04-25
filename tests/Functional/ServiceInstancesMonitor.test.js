@@ -25,8 +25,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
     const options = deepFreeze({
         serviceName: 'transcoder',
         timeoutMsec: 500,
-        checkNameWithStatus: 'Transcoder health status',
-        autoReconnect: false
+        checkNameWithStatus: 'Transcoder health status'
     });
 
     before(async () => {
@@ -144,7 +143,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         assert.isTrue(monitor.isInitialized());
         assert.isTrue(monitor.isWatchHealthy());
-        monitor._watchAnyNodeChange.end();
+        monitor.stopService();
     });
 
     it('check of initial list of nodes received from startService', async function () {
@@ -183,7 +182,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
-        monitor._watchAnyNodeChange.end();
+        monitor.stopService();
 
         assert.instanceOf(initialInstances, ServiceInstances);
         assert.lengthOf(initialInstances.getHealthy(), 2);
@@ -212,7 +211,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
         const instancesFromGetter = monitor.getInstances();
-        monitor._watchAnyNodeChange.end();
+        monitor.stopService();
 
         assert.strictEqual(initialInstances, instancesFromGetter);
     });
@@ -250,7 +249,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         const waitFn = () => {
             return new Promise(resolve => {
-                setTimeout(resolve, 0);
+                setTimeout(resolve, 10);
             });
         };
 
@@ -281,10 +280,10 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isEmpty(initialInstances.getHealthy());
         assert.isEmpty(initialInstances.getUnhealthy());
 
-        monitor._watchAnyNodeChange.end();
+        monitor.stopService();
     });
 
-    it('reaction on a request timeout', async function () {
+    it('reaction on a request timeout during startService', async function () {
         this.slow(options.timeoutMsec * 5);
         this.timeout(options.timeoutMsec * 5);
 
@@ -317,6 +316,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isEmpty(monitor.getInstances().getHealthy());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
         assert.isFalse(monitor._isWatcherRegistered());
+        monitor.stopService();
     });
 
     it('reaction on 500 error from consul during startService', async function () {
@@ -430,7 +430,6 @@ describe('ServiceInstancesMonitor methods tests', function () {
         });
 
         const initialInstances = await monitor.startService();
-        monitor._watchAnyNodeChange.end();
 
         assert.lengthOf(errors, 0);
         assert.instanceOf(initialInstances, ServiceInstances);
@@ -443,9 +442,10 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.instanceOf(errors[0], expectedErrorType);
         assert.strictEqual(errors[0].message, expectedErrorMessage);
         assert.deepEqual(errors[0].extra, expectedErrorExtra);
+        monitor.stopService();
     });
 
-    it('"emergencyStop" emission on watcher "end" and autoReconnect disable', async function () {
+    it('auto retry service restart on watcher "end"', async function () {
         const firstRequestIndex = 0;
         const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
 
@@ -456,61 +456,9 @@ describe('ServiceInstancesMonitor methods tests', function () {
             .reply(400, 'Not available');
 
         let changeFired = false;
-        let emergencyStopFired = false;
+        let unhealthyFired = false;
         const errors = [];
         const monitor = new ServiceInstancesMonitor(options, consulClient);
-
-        monitor.on('changed', () => {
-            changeFired = true;
-        });
-
-        monitor.on('error', err => {
-            errors.push(err);
-        });
-
-        monitor.on('emergencyStop', () => {
-            emergencyStopFired = true;
-        });
-
-        await monitor.startService();
-
-        const waitFn = () => {
-            return new Promise(resolve => {
-                setTimeout(resolve, options.timeoutMsec * 2);
-            });
-        };
-
-        await waitFn();
-
-        assert.isTrue(nockInstance.isDone());
-        assert.isFalse(changeFired);
-        assert.isTrue(emergencyStopFired);
-        assert.isFalse(monitor.isInitialized());
-        assert.isFalse(monitor.isWatchHealthy());
-        assert.lengthOf(monitor.getInstances().getHealthy(), nockTestParams.firstResponseBody.length);
-        assert.isEmpty(monitor.getInstances().getUnhealthy());
-        assert.isFalse(monitor._isWatcherRegistered());
-        assert.lengthOf(errors, 1);
-        assert.instanceOf(errors[0], WatchError);
-    });
-
-    it('auto retry service restart on watcher "end" and autoReconnect enable', async function () {
-        const firstRequestIndex = 0;
-        const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
-
-        const nockInstance = nock(consulHostAndPort)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
-            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
-            .reply(400, 'Not available');
-
-        let changeFired = false;
-        let emergencyStopFired = false;
-        const errors = [];
-
-        const config = _.clone(options);
-        config.autoReconnect = true;
-        const monitor = new ServiceInstancesMonitor(config, consulClient);
 
         sinon.stub(monitor, '_retryStartService');
 
@@ -522,8 +470,8 @@ describe('ServiceInstancesMonitor methods tests', function () {
             errors.push(err);
         });
 
-        monitor.on('emergencyStop', () => {
-            emergencyStopFired = true;
+        monitor.on('unhealthy', () => {
+            unhealthyFired = true;
         });
 
         await monitor.startService();
@@ -538,7 +486,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         assert.isTrue(nockInstance.isDone());
         assert.isFalse(changeFired);
-        assert.isFalse(emergencyStopFired);
+        assert.isTrue(unhealthyFired);
         assert.isFalse(monitor.isInitialized());
         assert.isFalse(monitor.isWatchHealthy());
         assert.lengthOf(monitor.getInstances().getHealthy(), nockTestParams.firstResponseBody.length);

@@ -275,16 +275,22 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
         serviceStartStub.returns(serviceInstances);
 
         let changeFired = false;
+        let healthyFired = false;
         let firedInstances = undefined;
 
-        monitor.on('change', instances => {
+        monitor.on('changed', instances => {
             changeFired = true;
             firedInstances = instances;
+        });
+
+        monitor.on('healthy', () => {
+            healthyFired = true;
         });
 
         await monitor._retryStartService();
 
         assert.isTrue(changeFired);
+        assert.isTrue(healthyFired);
         assert.isTrue(serviceStartStub.calledOnce);
         assert.isTrue(serviceStartStub.calledWithExactly());
         assert.deepEqual(monitor._serviceInstances, serviceInstances);
@@ -305,17 +311,22 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
 
         const retryStartServiceSpy = sinon.spy(monitor, '_retryStartService');
 
-        let isChangeFired = false;
+        let changedFiredCount = 0;
+        let healthyFiredCount = 0;
         let firedInstances = undefined;
         const errors = [];
 
-        monitor.on('change', instances => {
-            isChangeFired = true;
+        monitor.on('changed', instances => {
+            changedFiredCount++;
             firedInstances = instances;
         });
 
         monitor.on('error', error => {
             errors.push(error);
+        });
+
+        monitor.on('healthy', () => {
+            healthyFiredCount++;
         });
 
         function waitFn() {
@@ -328,7 +339,8 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
 
         await waitFn();
 
-        assert.isTrue(isChangeFired);
+        assert.equal(changedFiredCount, 1);
+        assert.equal(healthyFiredCount, 1);
         assert.isTrue(retryStartServiceSpy.calledTwice);
         assert.isTrue(serviceStartStub.calledTwice);
         assert.isTrue(serviceStartStub.calledWithExactly());
