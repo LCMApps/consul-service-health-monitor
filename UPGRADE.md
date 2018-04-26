@@ -14,8 +14,6 @@ This argument must be `undefined` or object that consists of objects with requir
 If none extractors setted then `ServiceInstance::getInfo` method returns `null`.
 - All information from HealthCheck output is available only via extractors.
 - Removed method `getStatus` from `ServiceInstance` and added `getInfo`
-- Added `ServiceInstancesMonitor::getUpdateTime` as an additional feature, this method returns a timestamp of the 
-last response from Consul.
 - Added events `healthy` on a successful reconnect to Consul and `unhealthy` on watching "end" after a successful service start.
 - Error `WatchTimeoutError` and event `emergencyStop` from `ServiceInstancesMonitor` is not supported already.
 

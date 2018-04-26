@@ -4,7 +4,6 @@ const instancesFactory = require('./Factory');
 const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
-const NotInitializedError = require('./Error').NotInitializedError;
 
 const DEFAULT_TIMEOUT_MSEC = 5000;
 const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
@@ -207,21 +206,6 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._setWatchUnealthy();
 
         return this;
-    }
-
-    /**
-     * Returns unix timestamp when last success response was received from consul
-     *
-     * @returns {number}
-     * @throws {NotInitializedError} On not started service
-     * @public
-     */
-    getUpdateTime() {
-        if (!this._isWatcherRegistered()) {
-            throw new NotInitializedError('Service is not started');
-        }
-
-        return this._watchAnyNodeChange.updateTime();
     }
 
     /**
