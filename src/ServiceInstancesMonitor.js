@@ -277,9 +277,10 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @private
      */
     _onWatcherChange(data) {
+        let isHealthyStateChanged = false;
         if (!this.isWatchHealthy()) {
             this._setWatchHealthy();
-            this.emit('healthy');
+            isHealthyStateChanged = true;
         }
 
         const {instances, errors} = instancesFactory.buildServiceInstances(
@@ -289,6 +290,9 @@ class ServiceInstancesMonitor extends EventEmitter {
         );
 
         this._serviceInstances = instances;
+        if (isHealthyStateChanged) {
+            this.emit('healthy');
+        }
         this.emit('changed', instances);
 
         if (!_.isEmpty(errors)) {
