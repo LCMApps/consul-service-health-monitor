@@ -84,7 +84,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
     });
 
     it('start monitor fails due to consul response timeout - no requests after timeout', async function () {
-        // in this test monitor must response with WatchTimeoutError after options.timeoutMsec
+        // in this test monitor must response with WatchError after options.timeoutMsec
         // then after extra options.timeoutMsec time response from nock must be returned
         // and monitor must ignore that update
 
