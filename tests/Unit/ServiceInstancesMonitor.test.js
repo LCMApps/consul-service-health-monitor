@@ -262,8 +262,7 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
     const options = deepFreeze({
         serviceName: 'transcoder',
         timeoutMsec: 100,
-        checkNameWithStatus: "Service 'transcoder' check",
-        autoReconnect: true
+        checkNameWithStatus: "Service 'transcoder' check"
     });
     const consulClient = consul();
 
