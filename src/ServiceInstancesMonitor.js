@@ -92,7 +92,6 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._serviceName = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
         this._initialized = false;
-        this._retryTimer = null;
 
         this._consul = consul;
         this._extractors = extractors;
@@ -108,6 +107,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._setUninitialized();
 
         this._fallbackToWatchHealthyInterval = null;
+        this._retryTimer = null;
     }
 
     isWatchHealthy() {
