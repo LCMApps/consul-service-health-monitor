@@ -327,6 +327,7 @@ class ServiceInstancesMonitor extends EventEmitter {
     }
 
     _onWatcherEnd() {
+        this._unsetFallbackToWatchHealthy();
         this._setUninitialized();
         this._setWatchUnealthy();
         this._watchAnyNodeChange.removeAllListeners();
@@ -349,11 +350,8 @@ class ServiceInstancesMonitor extends EventEmitter {
         const initialUpdateTime = this._watchAnyNodeChange.updateTime();
 
         this._fallbackToWatchHealthyInterval = setInterval(() => {
-            const isWatcherRunning = this._isWatcherRegistered() && this._watchAnyNodeChange.isRunning();
-
-            if (!isWatcherRunning || this.isWatchHealthy()) {
-
-                // watcher is currently ends or becomes `healthy`, unset fallback interval',
+            if (this.isWatchHealthy()) {
+                // watcher is currently becomes `healthy`, unset fallback interval',
                 this._unsetFallbackToWatchHealthy();
 
                 return;
@@ -365,6 +363,7 @@ class ServiceInstancesMonitor extends EventEmitter {
                 this._unsetFallbackToWatchHealthy();
 
                 this._setWatchHealthy();
+                this.emit('healthy');
             }
 
         }, HEALTH_FALLBACK_INTERVAL_MSEC);

@@ -430,72 +430,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         clearInterval(tg._fallbackToWatchHealthyInterval);
     });
 
-    it('should correctly stops working when watcher becomes unregistered', () => {
-        tg._setFallbackToWatchHealthy.restore();
-
-        tg._unsetFallbackToWatchHealthy.callThrough();
-
-        tg._fallbackToWatchHealthyInterval = null;
-
-        tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
-
-        tg._setFallbackToWatchHealthy();
-
-        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
-        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
-        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
-
-        clock.tick(5000);
-
-        tg._isWatcherRegistered.returns(false);
-
-        clock.tick(1000);
-
-        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
-        assert.isOk(tg._setWatchHealthy.notCalled);
-
-        sinon.assert.callOrder(
-            tg._watchAnyNodeChange.updateTime, tg._unsetFallbackToWatchHealthy
-        );
-
-        assert.isNull(tg._fallbackToWatchHealthyInterval);
-    });
-
-    it('should correctly stops working when watcher is not running', () => {
-        tg._setFallbackToWatchHealthy.restore();
-
-        tg._unsetFallbackToWatchHealthy.callThrough();
-
-        tg._fallbackToWatchHealthyInterval = null;
-
-        tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
-
-        tg._setFallbackToWatchHealthy();
-
-        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
-        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
-        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
-
-        clock.tick(5000);
-
-        tg._watchAnyNodeChange.isRunning.returns(false);
-
-        clock.tick(1000);
-
-        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
-        assert.isOk(tg._setWatchHealthy.notCalled);
-
-        sinon.assert.callOrder(
-            tg._watchAnyNodeChange.updateTime, tg._unsetFallbackToWatchHealthy
-        );
-
-        assert.isNull(tg._fallbackToWatchHealthyInterval);
-    });
-
     it('should correctly stops working when watch becomes healthy', () => {
         tg._setFallbackToWatchHealthy.restore();
 
@@ -504,8 +438,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         tg._fallbackToWatchHealthyInterval = null;
 
         tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
         tg.isWatchHealthy.returns(false);
 
         tg._setFallbackToWatchHealthy();
@@ -538,8 +470,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         tg._fallbackToWatchHealthyInterval = null;
 
         tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
         tg.isWatchHealthy.returns(false);
 
         tg._setFallbackToWatchHealthy();
@@ -566,5 +496,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         );
 
         assert.isNull(tg._fallbackToWatchHealthyInterval);
+        assert.isTrue(tg.emit.calledWithExactly('healthy'));
     });
 });
