@@ -38,7 +38,6 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @param {string} options.serviceName -  name of service in consul to monitor
      * @param {string} options.checkNameWithStatus
      * @param {number} [options.timeoutMsec=5000] - connection timeout to consul
-     * @param {boolean} [options.autoReconnect=true] - enable auto reconnect on watcher end
      * @param {Consul} consul
      * @param {Object} extractors
      * @throws {TypeError} On invalid options format
@@ -190,7 +189,7 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @public
      */
     stopService() {
-        if (this._retryTimer !== undefined) {
+        if (this._retryTimer !== null) {
             clearTimeout(this._retryTimer);
             this._retryTimer = null;
         }
