@@ -93,7 +93,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._serviceName = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
         this._initialized = false;
-        this._retryTimer = undefined;
+        this._retryTimer = null;
 
         this._consul = consul;
         this._extractors = extractors;
@@ -191,6 +191,7 @@ class ServiceInstancesMonitor extends EventEmitter {
     stopService() {
         if (this._retryTimer !== undefined) {
             clearTimeout(this._retryTimer);
+            this._retryTimer = null;
         }
 
         if (!this._isWatcherRegistered()) {
