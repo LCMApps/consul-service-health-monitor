@@ -367,7 +367,7 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
         let isChangeFired = false;
         const errors = [];
 
-        monitor.on('change', instances => {
+        monitor.on('changed', instances => {
             isChangeFired = true;
         });
 
