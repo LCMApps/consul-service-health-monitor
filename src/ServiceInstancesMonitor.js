@@ -316,10 +316,14 @@ class ServiceInstancesMonitor extends EventEmitter {
     async _onWatcherEnd() {
         this._unsetFallbackToWatchHealthy();
         this._setUninitialized();
-        this._setWatchUnealthy();
+
+        if (this.isWatchHealthy()) {
+            this._setWatchUnealthy();
+            this.emit('unhealthy');
+        }
+
         this._watchAnyNodeChange.removeAllListeners();
         this._watchAnyNodeChange = null;
-        this.emit('unhealthy');
         await this._retryStartService();
     }
 
