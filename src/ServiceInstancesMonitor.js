@@ -9,6 +9,7 @@ const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
 
 const DEFAULT_TIMEOUT_MSEC = 5000;
+const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
 
 /**
  * Single node data
@@ -100,6 +101,8 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._watchAnyNodeChange = null;
         this._setWatchUnealthy();
         this._setUninitialized();
+
+        this._fallbackToWatchHealthyInterval = null;
     }
 
     isWatchHealthy() {
@@ -191,6 +194,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._watchAnyNodeChange.removeListener('end', this._onWatcherEnd);
         this._watchAnyNodeChange.end();
         this._watchAnyNodeChange = null;
+        this._unsetFallbackToWatchHealthy();
         this._setUninitialized();
         this._setWatchUnealthy();
         return this;
@@ -294,9 +298,13 @@ class ServiceInstancesMonitor extends EventEmitter {
     }
 
     _onWatcherError(err) {
+        this._unsetFallbackToWatchHealthy();
+
         if (this.isWatchHealthy()) {
             this._setWatchUnealthy();
         }
+
+        this._setFallbackToWatchHealthy();
 
         this.emit('error', new WatchError(err.message, {err}));
     }
@@ -313,6 +321,42 @@ class ServiceInstancesMonitor extends EventEmitter {
             errors.forEach(error => this.emit.call(this, 'error', error));
         });
     }
+
+    _setFallbackToWatchHealthy() {
+        if (this._fallbackToWatchHealthyInterval) {
+            this._unsetFallbackToWatchHealthy();
+        }
+
+        const initialUpdateTime = this._watchAnyNodeChange.updateTime();
+
+        this._fallbackToWatchHealthyInterval = setInterval(() => {
+            const isWatcherRunning = this._isWatcherRegistered() && this._watchAnyNodeChange.isRunning();
+
+            if (!isWatcherRunning || this.isWatchHealthy()) {
+
+                // watcher is currently ends or becomes `healthy`, unset fallback interval',
+                this._unsetFallbackToWatchHealthy();
+
+                return;
+            }
+
+            const lastUpdateTime = this._watchAnyNodeChange.updateTime();
+
+            if (initialUpdateTime !== lastUpdateTime) {
+                this._unsetFallbackToWatchHealthy();
+
+                this._setWatchHealthy();
+            }
+
+        }, HEALTH_FALLBACK_INTERVAL_MSEC);
+    }
+
+    _unsetFallbackToWatchHealthy() {
+        clearInterval(this._fallbackToWatchHealthyInterval);
+
+        this._fallbackToWatchHealthyInterval = null;
+    }
+
 }
 
 module.exports = ServiceInstancesMonitor;
