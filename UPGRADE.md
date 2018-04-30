@@ -10,11 +10,24 @@ was fully changed.
      - Healthy instance is one with all checks in `passing` state (method `getHealthy`)
      - Unhealthy instance is one that has at least one check, except serfHealth check, not in `passing` state (method `getUnhealthy`)
 - Added the third argument `extractors` to `ServiceInstancesMonitor::constructor`. 
-This argument must be `undefined` or object that consists of objects with required `extract` method.
-If none extractors setted then `ServiceInstance::getInfo` method returns `null`.
-- All information from HealthCheck output is available only via extractors.
+This argument must be `undefined` or object where keys are names of extractors and values must be objects with required `extract` method.
+```javascript
+    const CPU_EXTRACTOR_NAME = 'cpu';
+    const extractors = {
+        CPU_EXTRACTOR_NAME: {
+            extract() {
+                //...
+            }
+        },
+    };
+```
+If none extractors set then `ServiceInstance::getInfo` method returns `null` otherwise `ServiceInstanceInfo` will be returned.
+- All information from HealthCheck output is available only via extractors. For receive extractor data use method 
+`ServiceInstanceInfo::get` with extractor name as argument.
 - Removed method `getStatus` from `ServiceInstance` and added `getInfo`
-- Added events `healthy` on a successful reconnect to Consul and `unhealthy` on watching "end" after a successful service start.
+- Added new events `healthy` and `unhealthy`. Event `unhealthy` is emitted on a connectivity issues (like a request timeout to Consul
+or an unsuccessful response). This event mean that module has a not consistent data with Consul. When information will be 
+synchronized again than event `healthy` will be emitted.
 - Error `WatchTimeoutError` and event `emergencyStop` from `ServiceInstancesMonitor` is not supported already.
 
 ### Example :
@@ -85,7 +98,7 @@ If none extractors setted then `ServiceInstance::getInfo` method returns `null`.
             return this._cpuUsage;
         }
     }
-````
+```
 
 ```javascript
     const CpuInfo = require('./CpuInfo');
@@ -133,4 +146,4 @@ If none extractors setted then `ServiceInstance::getInfo` method returns `null`.
             return new CpuInfo(cpuObject.cpuUsage, cpuObject.cpuCount);
         }
     }
-````
+```
