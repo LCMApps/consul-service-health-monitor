@@ -310,7 +310,7 @@ class ServiceInstancesMonitor extends EventEmitter {
 
         this._setFallbackToWatchHealthy();
 
-        this.emit('error', new WatchError(err.message, { err }));
+        this.emit('error', new WatchError(err.message, {err}));
     }
 
     async _onWatcherEnd() {
