@@ -6,8 +6,7 @@ const WatchError = require('./Error').WatchError;
 const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
 
-const DEFAULT_START_TIMEOUT_MSEC = 5000;
-const DEFAULT_WAIT_TIMEOUT_MSEC = 60000;
+const DEFAULT_TIMEOUT_MSEC = 5000;
 const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
 const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
 
@@ -63,7 +62,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         }
 
         if (!_.has(options, 'timeoutMsec')) {
-            this._timeoutMsec = DEFAULT_START_TIMEOUT_MSEC;
+            this._timeoutMsec = DEFAULT_TIMEOUT_MSEC;
         } else {
             if (!_.isSafeInteger(options.timeoutMsec) || options.timeoutMsec <= 0) {
                 throw new TypeError('options.timeoutMsec must be a positive integer if set');
@@ -238,7 +237,6 @@ class ServiceInstancesMonitor extends EventEmitter {
                 options: {
                     service: this._serviceName,
                     wait: '60s',
-                    timeout: DEFAULT_WAIT_TIMEOUT_MSEC
                 },
             });
 

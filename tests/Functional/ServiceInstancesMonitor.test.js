@@ -22,7 +22,6 @@ describe('ServiceInstancesMonitor methods tests', function () {
     let consulHostAndPort;
     let consulClient;
 
-    const DEFAULT_WAIT_TIMEOUT_MSEC = 60000;
     const options = deepFreeze({
         serviceName: 'transcoder',
         timeoutMsec: 500,
@@ -523,84 +522,6 @@ describe('ServiceInstancesMonitor methods tests', function () {
         const waitFn = () => {
             return new Promise(resolve => {
                 setTimeout(resolve, options.timeoutMsec / 2);
-            });
-        };
-
-        await waitFn();
-
-        assert.isTrue(nockInstance.isDone());
-        assert.equal(changeFiredCount, 1);
-        assert.equal(unhealthyFiredCount, 1);
-        assert.equal(healthyFiredCount, 1);
-        assert.isTrue(monitor.isInitialized());
-        assert.isTrue(monitor.isWatchHealthy());
-        assert.deepEqual(firedInstances, monitor.getInstances());
-        assert.lengthOf(monitor.getInstances().getHealthy(), secondResponseBody.length);
-        assert.isEmpty(monitor.getInstances().getUnhealthy());
-        assert.lengthOf(errors, 1);
-        assert.instanceOf(errors[0], WatchError);
-        assert.isTrue(monitor._isWatcherRegistered());
-        assert.isTrue(monitor._retryStartService.notCalled);
-        monitor.stopService();
-    });
-
-    it('service goes to "unhealthy" state on response timeout and ' +
-        'returns to "healthy" after success response', async function () {
-        const clock = sinon.useFakeTimers();
-
-        const firstRequestIndex = 0;
-        const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
-        const secondResponseBody = [nockTestParams.firstResponseBody[0]];
-        const secondResponseHeaders = _.cloneDeep(nockTestParams.firstResponseHeaders);
-        secondResponseHeaders['X-Consul-Index'] += 1;
-        const thirdRequestIndex = secondResponseHeaders['X-Consul-Index'];
-
-        const nockInstance = nock(consulHostAndPort)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
-            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
-            .delay(DEFAULT_WAIT_TIMEOUT_MSEC)
-            .reply(200, secondResponseBody, secondResponseHeaders)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
-            .reply(200, secondResponseBody, secondResponseHeaders)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: thirdRequestIndex, wait: '60s'})
-            .delay(60000)
-            .reply(400, 'Not available');
-
-        let changeFiredCount = 0;
-        let firedInstances;
-        let healthyFiredCount = 0;
-        let unhealthyFiredCount = 0;
-        const errors = [];
-        const monitor = new ServiceInstancesMonitor(options, consulClient);
-
-        sinon.spy(monitor, '_retryStartService');
-
-        monitor.on('changed', instances => {
-            changeFiredCount++;
-            firedInstances = instances;
-        });
-
-        monitor.on('error', err => {
-            errors.push(err);
-        });
-
-        monitor.on('unhealthy', () => {
-            unhealthyFiredCount++;
-        });
-
-        monitor.on('healthy', () => {
-            healthyFiredCount++;
-        });
-
-        await monitor.startService();
-
-        clock.tick(DEFAULT_WAIT_TIMEOUT_MSEC * 1.1);
-        clock.restore();
-
-        const waitFn = () => {
-            return new Promise(resolve => {
-                setTimeout(resolve, 500);
             });
         };
 
