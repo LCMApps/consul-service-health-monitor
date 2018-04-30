@@ -28,7 +28,7 @@ If none extractors set then `ServiceInstance::getInfo` method returns `null` oth
 - Added new events `healthy` and `unhealthy`. Event `unhealthy` is emitted on a connectivity issues (like a request timeout to Consul
 or an unsuccessful response). This event mean that module has a not consistent data with Consul. When information will be 
 synchronized again than event `healthy` will be emitted.
-- Error `WatchTimeoutError` and event `emergencyStop` from `ServiceInstancesMonitor` is not supported already.
+- Event `emergencyStop` from `ServiceInstancesMonitor` is not supported already.
 
 ### Example :
 

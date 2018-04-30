@@ -11,7 +11,7 @@ const getPort = require('get-port');
 const ServiceInstance = require('src/ServiceInstance');
 const ServiceInstances = require('src/ServiceInstances');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
-const {WatchError, InvalidDataError} = require('src/Error');
+const {WatchError, WatchTimeoutError, InvalidDataError} = require('src/Error');
 
 const nockTestParams = require('./nock.data');
 
@@ -22,6 +22,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
     let consulHostAndPort;
     let consulClient;
 
+    const DEFAULT_WAIT_TIMEOUT_MSEC = 60000;
     const options = deepFreeze({
         serviceName: 'transcoder',
         timeoutMsec: 500,
@@ -84,11 +85,10 @@ describe('ServiceInstancesMonitor methods tests', function () {
     });
 
     it('start monitor fails due to consul response timeout - no requests after timeout', async function () {
-        // in this test monitor must response with WatchError after options.timeoutMsec
+        // in this test monitor must response with WatchTimeoutError after options.timeoutMsec
         // then after extra options.timeoutMsec time response from nock must be returned
         // and monitor must ignore that update
 
-        this.slow(options.timeoutMsec * 8);
         this.timeout(options.timeoutMsec * 4);
 
         const nockInstance = nock(consulHostAndPort)
@@ -106,8 +106,8 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         await assertThrowsAsync(
             () => monitor.startService(),
-            WatchError,
-            /request timed out/ig
+            WatchTimeoutError,
+            'Initial consul watch request was timed out'
         );
 
         const waitFn = () => {
@@ -283,46 +283,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         monitor.stopService();
     });
 
-    it('reaction on a request timeout during startService', async function () {
-        this.slow(options.timeoutMsec * 5);
-        this.timeout(options.timeoutMsec * 5);
-
-        const firstRequestIndex = 0;
-
-        const nockInstance = nock(consulHostAndPort)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
-            .delay(options.timeoutMsec * 2)
-            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
-            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
-            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders);
-
-        let changeFired = false;
-        const monitor = new ServiceInstancesMonitor(options, consulClient);
-
-        monitor.on('changed', () => {
-            changeFired = true;
-        });
-
-        await assertThrowsAsync(
-            () => monitor.startService(),
-            WatchError,
-            /request timed out/ig
-        );
-
-        assert.isFalse(nockInstance.isDone());
-        assert.isFalse(changeFired);
-        assert.isFalse(monitor.isInitialized());
-        assert.isFalse(monitor.isWatchHealthy());
-        assert.isEmpty(monitor.getInstances().getHealthy());
-        assert.isEmpty(monitor.getInstances().getUnhealthy());
-        assert.isFalse(monitor._isWatcherRegistered());
-        monitor.stopService();
-    });
-
     it('reaction on 500 error from consul during startService', async function () {
-        this.slow(options.timeoutMsec * 5);
-        this.timeout(options.timeoutMsec * 5);
-
         const firstRequestIndex = 0;
 
         const nockInstance = nock(consulHostAndPort)
@@ -359,9 +320,6 @@ describe('ServiceInstancesMonitor methods tests', function () {
     });
 
     it('reaction on 400 error from consul during startService', async function () {
-        this.slow(options.timeoutMsec * 15);
-        this.timeout(options.timeoutMsec * 5);
-
         const firstRequestIndex = 0;
 
         const nockInstance = nock(consulHostAndPort)
@@ -588,6 +546,8 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
     it('service goes to "unhealthy" state on response timeout and ' +
         'returns to "healthy" after success response', async function () {
+        const clock = sinon.useFakeTimers();
+
         const firstRequestIndex = 0;
         const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
         const secondResponseBody = [nockTestParams.firstResponseBody[0]];
@@ -599,7 +559,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
             .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
             .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
             .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
-            .delay(options.timeoutMsec * 2)
+            .delay(DEFAULT_WAIT_TIMEOUT_MSEC)
             .reply(200, secondResponseBody, secondResponseHeaders)
             .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
             .reply(200, secondResponseBody, secondResponseHeaders)
@@ -635,9 +595,12 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         await monitor.startService();
 
+        clock.tick(DEFAULT_WAIT_TIMEOUT_MSEC * 1.1);
+        clock.restore();
+
         const waitFn = () => {
             return new Promise(resolve => {
-                setTimeout(resolve, options.timeoutMsec * 2);
+                setTimeout(resolve, 500);
             });
         };
 
