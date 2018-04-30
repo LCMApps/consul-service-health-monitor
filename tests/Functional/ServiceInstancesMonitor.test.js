@@ -5,16 +5,17 @@ const {assertThrowsAsync} = require('../support/helpers');
 const consul = require('consul');
 const nock = require('nock');
 const assert = require('chai').assert;
+const sinon = require('sinon');
 const deepFreeze = require('deep-freeze');
 const getPort = require('get-port');
 const ServiceInstance = require('src/ServiceInstance');
 const ServiceInstances = require('src/ServiceInstances');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
-const {WatchError, WatchTimeoutError, InvalidDataError} = require('src/Error');
+const {WatchError, InvalidDataError} = require('src/Error');
 
 const nockTestParams = require('./nock.data');
 
-describe('ServiceInstancesMonitor::constructor', function () {
+describe('ServiceInstancesMonitor methods tests', function () {
 
     const consulHost = '127.0.0.1';
     let consulPort;
@@ -75,13 +76,15 @@ describe('ServiceInstancesMonitor::constructor', function () {
     it('start monitor fails if port is closed', async function () {
         const monitor = new ServiceInstancesMonitor(options, consulClient);
 
-        assertThrowsAsync(async () => {
-            await monitor.startService();
-        }, WatchError, /connect ECONNREFUSED/);
+        await assertThrowsAsync(
+            () => monitor.startService(),
+            WatchError,
+            /connect ECONNREFUSED/
+        );
     });
 
     it('start monitor fails due to consul response timeout - no requests after timeout', async function () {
-        // in this test monitor must response with WatchTimeoutError after options.timeoutMsec
+        // in this test monitor must response with WatchError after options.timeoutMsec
         // then after extra options.timeoutMsec time response from nock must be returned
         // and monitor must ignore that update
 
@@ -101,9 +104,11 @@ describe('ServiceInstancesMonitor::constructor', function () {
             changeFired = true;
         });
 
-        assertThrowsAsync(async () => {
-            await monitor.startService();
-        }, WatchTimeoutError, 'Initial consul watch request was timed out');
+        await assertThrowsAsync(
+            () => monitor.startService(),
+            WatchError,
+            /request timed out/ig
+        );
 
         const waitFn = () => {
             return new Promise(resolve => {
@@ -138,6 +143,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         assert.isTrue(monitor.isInitialized());
         assert.isTrue(monitor.isWatchHealthy());
+        monitor.stopService();
     });
 
     it('check of initial list of nodes received from startService', async function () {
@@ -176,6 +182,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
+        monitor.stopService();
 
         assert.instanceOf(initialInstances, ServiceInstances);
         assert.lengthOf(initialInstances.getHealthy(), 2);
@@ -204,6 +211,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
         const instancesFromGetter = monitor.getInstances();
+        monitor.stopService();
 
         assert.strictEqual(initialInstances, instancesFromGetter);
     });
@@ -241,7 +249,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         const waitFn = () => {
             return new Promise(resolve => {
-                setTimeout(resolve, 0);
+                setTimeout(resolve, 10);
             });
         };
 
@@ -271,6 +279,44 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.instanceOf(initialInstances, ServiceInstances);
         assert.isEmpty(initialInstances.getHealthy());
         assert.isEmpty(initialInstances.getUnhealthy());
+
+        monitor.stopService();
+    });
+
+    it('reaction on a request timeout during startService', async function () {
+        this.slow(options.timeoutMsec * 5);
+        this.timeout(options.timeoutMsec * 5);
+
+        const firstRequestIndex = 0;
+
+        const nockInstance = nock(consulHostAndPort)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+            .delay(options.timeoutMsec * 2)
+            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders);
+
+        let changeFired = false;
+        const monitor = new ServiceInstancesMonitor(options, consulClient);
+
+        monitor.on('changed', () => {
+            changeFired = true;
+        });
+
+        await assertThrowsAsync(
+            () => monitor.startService(),
+            WatchError,
+            /request timed out/ig
+        );
+
+        assert.isFalse(nockInstance.isDone());
+        assert.isFalse(changeFired);
+        assert.isFalse(monitor.isInitialized());
+        assert.isFalse(monitor.isWatchHealthy());
+        assert.isEmpty(monitor.getInstances().getHealthy());
+        assert.isEmpty(monitor.getInstances().getUnhealthy());
+        assert.isFalse(monitor._isWatcherRegistered());
+        monitor.stopService();
     });
 
     it('reaction on 500 error from consul during startService', async function () {
@@ -292,9 +338,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
             changeFired = true;
         });
 
-        assertThrowsAsync(async () => {
-            await monitor.startService();
-        }, WatchError, 'internal server error');
+        await assertThrowsAsync(() => monitor.startService(), WatchError, 'internal server error');
 
 
         const waitFn = () => {
@@ -311,6 +355,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.isFalse(monitor.isWatchHealthy());
         assert.isEmpty(monitor.getInstances().getHealthy());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
+        assert.isFalse(monitor._isWatcherRegistered());
     });
 
     it('reaction on 400 error from consul during startService', async function () {
@@ -332,9 +377,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
             changeFired = true;
         });
 
-        assertThrowsAsync(async () => {
-            await monitor.startService();
-        }, WatchError, 'bad request');
+        await assertThrowsAsync(() => monitor.startService(), WatchError, 'bad request');
 
 
         const waitFn = () => {
@@ -351,6 +394,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.isFalse(monitor.isWatchHealthy());
         assert.isEmpty(monitor.getInstances().getHealthy());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
+        assert.isFalse(monitor._isWatcherRegistered());
     });
 
     it('emission of error on initial data', async function () {
@@ -375,7 +419,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
 
         const waitFn = () => {
             return new Promise(resolve => {
-                setTimeout(resolve, 0);
+                setTimeout(resolve, 100);
             });
         };
 
@@ -398,5 +442,220 @@ describe('ServiceInstancesMonitor::constructor', function () {
         assert.instanceOf(errors[0], expectedErrorType);
         assert.strictEqual(errors[0].message, expectedErrorMessage);
         assert.deepEqual(errors[0].extra, expectedErrorExtra);
+        monitor.stopService();
+    });
+
+    it('auto restart service on watcher "end" (response with status 400)', async function () {
+        const firstRequestIndex = 0;
+        const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
+        const secondResponseBody = [nockTestParams.firstResponseBody[0]];
+
+        const nockInstance = nock(consulHostAndPort)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+            .reply(400, 'Not available')
+            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+            .reply(200, secondResponseBody, nockTestParams.firstResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+            .delay(60000)
+            .reply(400, 'Not available');
+
+        let changeFiredCount = 0;
+        let firedInstances;
+        let healthyFiredCount = 0;
+        let unhealthyFiredCount = 0;
+        const errors = [];
+        const monitor = new ServiceInstancesMonitor(options, consulClient);
+
+        sinon.spy(monitor, '_retryStartService');
+
+        monitor.on('changed', instances => {
+            changeFiredCount++;
+            firedInstances = instances;
+        });
+
+        monitor.on('error', err => {
+            errors.push(err);
+        });
+
+        monitor.on('unhealthy', () => {
+            unhealthyFiredCount++;
+        });
+
+        monitor.on('healthy', () => {
+            healthyFiredCount++;
+        });
+
+        await monitor.startService();
+
+        const waitFn = () => {
+            return new Promise(resolve => {
+                setTimeout(resolve, options.timeoutMsec / 2);
+            });
+        };
+
+        await waitFn();
+
+        assert.isTrue(nockInstance.isDone());
+        assert.equal(changeFiredCount, 1);
+        assert.equal(unhealthyFiredCount, 1);
+        assert.equal(healthyFiredCount, 1);
+        assert.isTrue(monitor.isInitialized());
+        assert.isTrue(monitor.isWatchHealthy());
+        assert.deepEqual(firedInstances, monitor.getInstances());
+        assert.lengthOf(monitor.getInstances().getHealthy(), secondResponseBody.length);
+        assert.isEmpty(monitor.getInstances().getUnhealthy());
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.isTrue(monitor._isWatcherRegistered());
+        assert.isTrue(monitor._retryStartService.calledOnce);
+        assert.isTrue(monitor._retryStartService.calledWithExactly());
+        monitor.stopService();
+    });
+
+    it('service goes to "unhealthy" state on response with status 500 and ' +
+        'returns to "healthy" after success response', async function () {
+        const firstRequestIndex = 0;
+        const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
+        const secondResponseBody = [nockTestParams.firstResponseBody[0]];
+        const secondResponseHeaders = _.cloneDeep(nockTestParams.firstResponseHeaders);
+        secondResponseHeaders['X-Consul-Index'] += 1;
+        const thirdRequestIndex = secondResponseHeaders['X-Consul-Index'];
+
+        const nockInstance = nock(consulHostAndPort)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+            .reply(500, 'Internal error')
+            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+            .reply(200, secondResponseBody, secondResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: thirdRequestIndex, wait: '60s'})
+            .delay(60000)
+            .reply(400, 'Not available');
+
+        let changeFiredCount = 0;
+        let firedInstances;
+        let healthyFiredCount = 0;
+        let unhealthyFiredCount = 0;
+        const errors = [];
+        const monitor = new ServiceInstancesMonitor(options, consulClient);
+
+        sinon.spy(monitor, '_retryStartService');
+
+        monitor.on('changed', instances => {
+            changeFiredCount++;
+            firedInstances = instances;
+        });
+
+        monitor.on('error', err => {
+            errors.push(err);
+        });
+
+        monitor.on('unhealthy', () => {
+            unhealthyFiredCount++;
+        });
+
+        monitor.on('healthy', () => {
+            healthyFiredCount++;
+        });
+
+        await monitor.startService();
+
+        const waitFn = () => {
+            return new Promise(resolve => {
+                setTimeout(resolve, options.timeoutMsec / 2);
+            });
+        };
+
+        await waitFn();
+
+        assert.isTrue(nockInstance.isDone());
+        assert.equal(changeFiredCount, 1);
+        assert.equal(unhealthyFiredCount, 1);
+        assert.equal(healthyFiredCount, 1);
+        assert.isTrue(monitor.isInitialized());
+        assert.isTrue(monitor.isWatchHealthy());
+        assert.deepEqual(firedInstances, monitor.getInstances());
+        assert.lengthOf(monitor.getInstances().getHealthy(), secondResponseBody.length);
+        assert.isEmpty(monitor.getInstances().getUnhealthy());
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.isTrue(monitor._isWatcherRegistered());
+        assert.isTrue(monitor._retryStartService.notCalled);
+        monitor.stopService();
+    });
+
+    it('service goes to "unhealthy" state on response timeout and ' +
+        'returns to "healthy" after success response', async function () {
+        const firstRequestIndex = 0;
+        const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
+        const secondResponseBody = [nockTestParams.firstResponseBody[0]];
+        const secondResponseHeaders = _.cloneDeep(nockTestParams.firstResponseHeaders);
+        secondResponseHeaders['X-Consul-Index'] += 1;
+        const thirdRequestIndex = secondResponseHeaders['X-Consul-Index'];
+
+        const nockInstance = nock(consulHostAndPort)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
+            .reply(200, nockTestParams.firstResponseBody, nockTestParams.firstResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+            .delay(options.timeoutMsec * 2)
+            .reply(200, secondResponseBody, secondResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: secondRequestIndex, wait: '60s'})
+            .reply(200, secondResponseBody, secondResponseHeaders)
+            .get(`/v1/health/service/${options.serviceName}`).query({index: thirdRequestIndex, wait: '60s'})
+            .delay(60000)
+            .reply(400, 'Not available');
+
+        let changeFiredCount = 0;
+        let firedInstances;
+        let healthyFiredCount = 0;
+        let unhealthyFiredCount = 0;
+        const errors = [];
+        const monitor = new ServiceInstancesMonitor(options, consulClient);
+
+        sinon.spy(monitor, '_retryStartService');
+
+        monitor.on('changed', instances => {
+            changeFiredCount++;
+            firedInstances = instances;
+        });
+
+        monitor.on('error', err => {
+            errors.push(err);
+        });
+
+        monitor.on('unhealthy', () => {
+            unhealthyFiredCount++;
+        });
+
+        monitor.on('healthy', () => {
+            healthyFiredCount++;
+        });
+
+        await monitor.startService();
+
+        const waitFn = () => {
+            return new Promise(resolve => {
+                setTimeout(resolve, options.timeoutMsec * 2);
+            });
+        };
+
+        await waitFn();
+
+        assert.isTrue(nockInstance.isDone());
+        assert.equal(changeFiredCount, 1);
+        assert.equal(unhealthyFiredCount, 1);
+        assert.equal(healthyFiredCount, 1);
+        assert.isTrue(monitor.isInitialized());
+        assert.isTrue(monitor.isWatchHealthy());
+        assert.deepEqual(firedInstances, monitor.getInstances());
+        assert.lengthOf(monitor.getInstances().getHealthy(), secondResponseBody.length);
+        assert.isEmpty(monitor.getInstances().getUnhealthy());
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.isTrue(monitor._isWatcherRegistered());
+        assert.isTrue(monitor._retryStartService.notCalled);
+        monitor.stopService();
     });
 });

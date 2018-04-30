@@ -3,10 +3,12 @@
 const _ = require('lodash');
 const consul = require('consul');
 const assert = require('chai').assert;
+const sinon = require('sinon');
 const dataDriven = require('data-driven');
 const deepFreeze = require('deep-freeze');
 const ServiceInstancesMonitor = require('src/ServiceInstancesMonitor');
-const sinon = require('sinon');
+const ServiceInstances = require('src/ServiceInstances');
+const WatchError = require('src/Error').WatchError;
 
 /**
  * Returns object with passed to function variable itself and its type.
@@ -254,8 +256,145 @@ describe('ServiceInstancesMonitor::constructor', function () {
     it('no errors on extractors argument equal undefined', function () {
         new ServiceInstancesMonitor(validOptions, validConsulClient, undefined);
     });
+});
 
+describe('ServiceInstancesMonitor::_retryStartService', function () {
+    const options = deepFreeze({
+        serviceName: 'transcoder',
+        timeoutMsec: 100,
+        checkNameWithStatus: "Service 'transcoder' check"
+    });
+    const consulClient = consul();
 
+    it('successfully restart watcher', async function () {
+        const serviceInstances = new ServiceInstances();
+        const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
+
+        const serviceStartStub = sinon.stub(monitor, 'startService');
+        serviceStartStub.returns(serviceInstances);
+
+        let changeFired = false;
+        let healthyFired = false;
+        let firedInstances = undefined;
+
+        monitor.on('changed', instances => {
+            changeFired = true;
+            firedInstances = instances;
+        });
+
+        monitor.on('healthy', () => {
+            healthyFired = true;
+        });
+
+        await monitor._retryStartService();
+
+        assert.isTrue(changeFired);
+        assert.isTrue(healthyFired);
+        assert.isTrue(serviceStartStub.calledOnce);
+        assert.isTrue(serviceStartStub.calledWithExactly());
+        assert.deepEqual(monitor._serviceInstances, serviceInstances);
+        assert.deepEqual(firedInstances, serviceInstances);
+    });
+
+    it('on error from "startService()" retry run "_retryStartService" after timeout', async function () {
+        const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
+
+        this.timeout(DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 3);
+
+        const serviceInstances = new ServiceInstances();
+        const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
+
+        const serviceStartStub = sinon.stub(monitor, 'startService');
+        serviceStartStub.onFirstCall().rejects(new WatchError('Some error'));
+        serviceStartStub.onSecondCall().returns(serviceInstances);
+
+        const retryStartServiceSpy = sinon.spy(monitor, '_retryStartService');
+
+        let changedFiredCount = 0;
+        let healthyFiredCount = 0;
+        let firedInstances = undefined;
+        const errors = [];
+
+        monitor.on('changed', instances => {
+            changedFiredCount++;
+            firedInstances = instances;
+        });
+
+        monitor.on('error', error => {
+            errors.push(error);
+        });
+
+        monitor.on('healthy', () => {
+            healthyFiredCount++;
+        });
+
+        function waitFn() {
+            return new Promise(resolve => {
+                setTimeout(resolve, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 2);
+            });
+        }
+
+        await monitor._retryStartService();
+
+        await waitFn();
+
+        assert.equal(changedFiredCount, 1);
+        assert.equal(healthyFiredCount, 1);
+        assert.isTrue(retryStartServiceSpy.calledTwice);
+        assert.isTrue(serviceStartStub.calledTwice);
+        assert.isTrue(serviceStartStub.calledWithExactly());
+        assert.deepEqual(monitor._serviceInstances, serviceInstances);
+        assert.deepEqual(firedInstances, serviceInstances);
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.match(errors[0], /Some error/);
+    });
+
+    it('not retry run "_retryStartService" after "stopService" calling', async function () {
+        const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
+
+        this.timeout(DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 3);
+
+        const serviceInstances = new ServiceInstances();
+        const monitor = new ServiceInstancesMonitor(options, consulClient, undefined);
+
+        const serviceStartStub = sinon.stub(monitor, 'startService');
+        serviceStartStub.onFirstCall().rejects(new WatchError('Some error'));
+        serviceStartStub.onSecondCall().returns(serviceInstances);
+
+        const retryStartServiceSpy = sinon.spy(monitor, '_retryStartService');
+
+        let isChangeFired = false;
+        const errors = [];
+
+        monitor.on('changed', instances => {
+            isChangeFired = true;
+        });
+
+        monitor.on('error', error => {
+            errors.push(error);
+        });
+
+        function waitFn() {
+            return new Promise(resolve => {
+                setTimeout(resolve, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC * 2);
+            });
+        }
+
+        await monitor._retryStartService();
+
+        monitor.stopService();
+
+        await waitFn();
+
+        assert.isFalse(isChangeFired);
+        assert.isTrue(retryStartServiceSpy.calledOnce);
+        assert.isTrue(serviceStartStub.calledOnce);
+        assert.isTrue(serviceStartStub.calledWithExactly());
+        assert.lengthOf(errors, 1);
+        assert.instanceOf(errors[0], WatchError);
+        assert.match(errors[0], /Some error/);
+    });
 });
 
 describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
@@ -291,72 +430,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         clearInterval(tg._fallbackToWatchHealthyInterval);
     });
 
-    it('should correctly stops working when watcher becomes unregistered', () => {
-        tg._setFallbackToWatchHealthy.restore();
-
-        tg._unsetFallbackToWatchHealthy.callThrough();
-
-        tg._fallbackToWatchHealthyInterval = null;
-
-        tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
-
-        tg._setFallbackToWatchHealthy();
-
-        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
-        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
-        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
-
-        clock.tick(5000);
-
-        tg._isWatcherRegistered.returns(false);
-
-        clock.tick(1000);
-
-        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
-        assert.isOk(tg._setWatchHealthy.notCalled);
-
-        sinon.assert.callOrder(
-            tg._watchAnyNodeChange.updateTime, tg._unsetFallbackToWatchHealthy
-        );
-
-        assert.isNull(tg._fallbackToWatchHealthyInterval);
-    });
-
-    it('should correctly stops working when watcher is not running', () => {
-        tg._setFallbackToWatchHealthy.restore();
-
-        tg._unsetFallbackToWatchHealthy.callThrough();
-
-        tg._fallbackToWatchHealthyInterval = null;
-
-        tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
-
-        tg._setFallbackToWatchHealthy();
-
-        assert.isOk(tg._watchAnyNodeChange.updateTime.calledOnce);
-        assert.isNotNull(tg._fallbackToWatchHealthyInterval);
-        assert.isOk(tg._unsetFallbackToWatchHealthy.notCalled);
-
-        clock.tick(5000);
-
-        tg._watchAnyNodeChange.isRunning.returns(false);
-
-        clock.tick(1000);
-
-        assert.isOk(tg._unsetFallbackToWatchHealthy.calledOnce);
-        assert.isOk(tg._setWatchHealthy.notCalled);
-
-        sinon.assert.callOrder(
-            tg._watchAnyNodeChange.updateTime, tg._unsetFallbackToWatchHealthy
-        );
-
-        assert.isNull(tg._fallbackToWatchHealthyInterval);
-    });
-
     it('should correctly stops working when watch becomes healthy', () => {
         tg._setFallbackToWatchHealthy.restore();
 
@@ -365,8 +438,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         tg._fallbackToWatchHealthyInterval = null;
 
         tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
         tg.isWatchHealthy.returns(false);
 
         tg._setFallbackToWatchHealthy();
@@ -399,8 +470,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         tg._fallbackToWatchHealthyInterval = null;
 
         tg._watchAnyNodeChange.updateTime.returns(123);
-        tg._isWatcherRegistered.returns(true);
-        tg._watchAnyNodeChange.isRunning.returns(true);
         tg.isWatchHealthy.returns(false);
 
         tg._setFallbackToWatchHealthy();
@@ -427,5 +496,6 @@ describe('ServiceInstancesMonitor::_setFallbackToWatchHealthy', () => {
         );
 
         assert.isNull(tg._fallbackToWatchHealthyInterval);
+        assert.isTrue(tg.emit.calledWithExactly('healthy'));
     });
 });
