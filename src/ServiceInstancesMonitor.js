@@ -9,6 +9,7 @@ const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
 const DEFAULT_TIMEOUT_MSEC = 5000;
 const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
 const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
+const X_CONSUL_HEADERS = ['x-consul-index', 'x-consul-knownleader', 'x-consul-lastcontact'];
 
 /**
  * Single node data
@@ -101,6 +102,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._retryStartService = this._retryStartService.bind(this);
 
         this._serviceInstances = new ServiceInstances();
+        this._consulHeaders = {};
         this._watchAnyNodeChange = null;
         this._setWatchUnealthy();
         this._setUninitialized();
@@ -139,6 +141,10 @@ class ServiceInstancesMonitor extends EventEmitter {
 
     getInstances() {
         return this._serviceInstances;
+    }
+
+    getConsulHeaders() {
+        return this._consulHeaders;
     }
 
     /**
@@ -240,7 +246,7 @@ class ServiceInstancesMonitor extends EventEmitter {
                 },
             });
 
-            const firstChange = (data) => {
+            const firstChange = (data, response) => {
                 this._watchAnyNodeChange.removeListener('error', firstError);
                 clearTimeout(timerId);
 
@@ -249,6 +255,10 @@ class ServiceInstancesMonitor extends EventEmitter {
                     this._checkNameWithStatus,
                     this._extractors
                 );
+
+                for (const headerName of X_CONSUL_HEADERS) {
+                    this._consulHeaders[headerName] = response.headers[headerName];
+                }
 
                 if (!_.isEmpty(errors)) {
                     this._emitFactoryErrors(errors);
@@ -285,10 +295,11 @@ class ServiceInstancesMonitor extends EventEmitter {
      * If service was unhealthy, it becomes healthy.
      *
      * @param {Array} data - list of healthy nodes after some changes
+     * @param {IncomingMessage} response - response from Consul
      * @emits ServiceInstancesMonitor#changed actual array of a valid nodes
      * @private
      */
-    _onWatcherChange(data) {
+    _onWatcherChange(data, response) {
         let isHealthyStateChanged = false;
         if (!this.isWatchHealthy()) {
             this._setWatchHealthy();
@@ -302,6 +313,9 @@ class ServiceInstancesMonitor extends EventEmitter {
         );
 
         this._serviceInstances = instances;
+        for (const headerName of X_CONSUL_HEADERS) {
+            this._consulHeaders[headerName] = response.headers[headerName];
+        }
         if (isHealthyStateChanged) {
             this.emit('healthy');
         }

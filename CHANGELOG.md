@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.1.0
+
+- [#20553](https://redmine.hwtool.net/issues/20553) Add forwarding headers X-Consul-*
+
 ### 2.0.0
 
 UPDATES:
