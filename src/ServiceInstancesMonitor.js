@@ -3,6 +3,7 @@ const _ = require('lodash');
 const instancesFactory = require('./Factory');
 const ServiceInstances = require('./ServiceInstances');
 const WatchError = require('./Error').WatchError;
+const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
 
 const DEFAULT_TIMEOUT_MSEC = 5000;
@@ -148,11 +149,12 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if service is already started.
+     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watcher was stopped and no retries will be done.
      *
-     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError>}
+     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError|WatchTimeoutError>}
      * @public
      */
     startService() {
@@ -216,11 +218,12 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if another `consul.watch` execution is found.
+     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watch was stopped and `this._watchAnyNodeChange` was cleared.
      *
-     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError>}
+     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError|WatchTimeoutError>}
      * @private
      */
     _registerWatcherAndWaitForInitialNodes() {
@@ -234,12 +237,12 @@ class ServiceInstancesMonitor extends EventEmitter {
                 options: {
                     service: this._serviceName,
                     wait: '60s',
-                    timeout: this._timeoutMsec
                 },
             });
 
             const firstChange = (data) => {
                 this._watchAnyNodeChange.removeListener('error', firstError);
+                clearTimeout(timerId);
 
                 const {instances, errors} = instancesFactory.buildServiceInstances(
                     data,
@@ -258,8 +261,17 @@ class ServiceInstancesMonitor extends EventEmitter {
                 this._watchAnyNodeChange.removeListener('change', firstChange);
                 this._watchAnyNodeChange.end();
                 this._watchAnyNodeChange = null;
+                clearTimeout(timerId);
                 reject(new WatchError(err.message, {err}));
             };
+
+            const timerId = setTimeout(() => {
+                this._watchAnyNodeChange.removeListener('error', firstError);
+                this._watchAnyNodeChange.removeListener('change', firstChange);
+                this._watchAnyNodeChange.end();
+                this._watchAnyNodeChange = null;
+                reject(new WatchTimeoutError('Initial consul watch request was timed out'));
+            }, this._timeoutMsec);
 
             this._watchAnyNodeChange.once('change', firstChange);
             this._watchAnyNodeChange.once('error', firstError);

@@ -4,10 +4,10 @@
 
 UPDATES:
 
+- [#20521](https://redmine.hwtool.net/issues/20521) Fix bug with default timeout for Consul Watch
 - [#20123](https://redmine.hwtool.net/issues/20123) Add to "consul-service-health-monitor" module functionality of an auto-reconnect to Сonsul
 - [#19681](https://redmine.hwtool.net/issues/19681) Extending consul-service-health-monitor to extract custom data from output
 - support auto-reconnect to Consul 
-- error `WatchTimeoutError` is not supported already
 - removed `emergencyStop` event from `ServiceInstancesMonitor`
 - removed `ServiceInstanceStatus` class and added `ServiceInstanceInfo`
 - removed methods `addOnMaintenance`, `addOverloaded`, `getOverloaded` and `getOnMaintenance` from `ServiceInstances` class.
