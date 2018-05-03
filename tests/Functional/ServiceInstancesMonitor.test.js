@@ -126,6 +126,12 @@ describe('ServiceInstancesMonitor methods tests', function () {
     });
 
     it('monitor becomes initialized and watch becomes healthy after start of monitor', async function () {
+        const expectedConsulHeaders = {
+            'x-consul-index': nockTestParams.firstResponseHeaders['X-Consul-Index'],
+            'x-consul-knownleader': nockTestParams.firstResponseHeaders['X-Consul-Knownleader'],
+            'x-consul-lastcontact': nockTestParams.firstResponseHeaders['X-Consul-Lastcontact']
+        };
+
         const firstRequestIndex = 0;
         // blocking queries read X-Consul-Index header and make next request using that value as index
         const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
@@ -142,10 +148,17 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         assert.isTrue(monitor.isInitialized());
         assert.isTrue(monitor.isWatchHealthy());
+        assert.deepEqual(monitor.getConsulHeaders(), expectedConsulHeaders);
         monitor.stopService();
     });
 
     it('check of initial list of nodes received from startService', async function () {
+        const expectedConsulHeaders = {
+            'x-consul-index': nockTestParams.firstResponseHeaders['X-Consul-Index'],
+            'x-consul-knownleader': nockTestParams.firstResponseHeaders['X-Consul-Knownleader'],
+            'x-consul-lastcontact': nockTestParams.firstResponseHeaders['X-Consul-Lastcontact']
+        };
+
         const expectedNode1 = new ServiceInstance(
             nockTestParams.firstResponseBody[0].Node.TaggedAddresses.lan,
             nockTestParams.firstResponseBody[0].Node.TaggedAddresses.wan,
@@ -193,6 +206,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.instanceOf(node2, ServiceInstance);
         assert.deepEqual(node1, expectedNode1);
         assert.deepEqual(node2, expectedNode2);
+        assert.deepEqual(monitor.getConsulHeaders(), expectedConsulHeaders);
     });
 
     it('initial list of nodes is the same as received from getter', async function () {
@@ -316,6 +330,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isEmpty(monitor.getInstances().getHealthy());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
         assert.isFalse(monitor._isWatcherRegistered());
+        assert.deepEqual(monitor.getConsulHeaders(), {});
     });
 
     it('reaction on 400 error from consul during startService', async function () {
@@ -352,9 +367,16 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isEmpty(monitor.getInstances().getHealthy());
         assert.isEmpty(monitor.getInstances().getUnhealthy());
         assert.isFalse(monitor._isWatcherRegistered());
+        assert.deepEqual(monitor.getConsulHeaders(), {});
     });
 
     it('emission of error on initial data', async function () {
+        const expectedConsulHeaders = {
+            'x-consul-index': nockTestParams.firstResponseHeaders['X-Consul-Index'],
+            'x-consul-knownleader': nockTestParams.firstResponseHeaders['X-Consul-Knownleader'],
+            'x-consul-lastcontact': nockTestParams.firstResponseHeaders['X-Consul-Lastcontact']
+        };
+
         const firstResponseBody = _.cloneDeep(nockTestParams.firstResponseBody);
         firstResponseBody[0].Checks[1].Name = 'Name of check that will not match checkNameWithStatus';
 
@@ -399,10 +421,17 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.instanceOf(errors[0], expectedErrorType);
         assert.strictEqual(errors[0].message, expectedErrorMessage);
         assert.deepEqual(errors[0].extra, expectedErrorExtra);
+        assert.deepEqual(monitor.getConsulHeaders(), expectedConsulHeaders);
         monitor.stopService();
     });
 
     it('auto restart service on watcher "end" (response with status 400)', async function () {
+        const expectedConsulHeaders = {
+            'x-consul-index': nockTestParams.firstResponseHeaders['X-Consul-Index'],
+            'x-consul-knownleader': nockTestParams.firstResponseHeaders['X-Consul-Knownleader'],
+            'x-consul-lastcontact': nockTestParams.firstResponseHeaders['X-Consul-Lastcontact']
+        };
+
         const firstRequestIndex = 0;
         const secondRequestIndex = nockTestParams.firstResponseHeaders['X-Consul-Index'];
         const secondResponseBody = [nockTestParams.firstResponseBody[0]];
@@ -468,6 +497,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isTrue(monitor._isWatcherRegistered());
         assert.isTrue(monitor._retryStartService.calledOnce);
         assert.isTrue(monitor._retryStartService.calledWithExactly());
+        assert.deepEqual(monitor.getConsulHeaders(), expectedConsulHeaders);
         monitor.stopService();
     });
 
@@ -479,6 +509,12 @@ describe('ServiceInstancesMonitor methods tests', function () {
         const secondResponseHeaders = _.cloneDeep(nockTestParams.firstResponseHeaders);
         secondResponseHeaders['X-Consul-Index'] += 1;
         const thirdRequestIndex = secondResponseHeaders['X-Consul-Index'];
+
+        const expectedConsulHeaders = {
+            'x-consul-index': secondResponseHeaders['X-Consul-Index'],
+            'x-consul-knownleader': secondResponseHeaders['X-Consul-Knownleader'],
+            'x-consul-lastcontact': secondResponseHeaders['X-Consul-Lastcontact']
+        };
 
         const nockInstance = nock(consulHostAndPort)
             .get(`/v1/health/service/${options.serviceName}`).query({index: firstRequestIndex, wait: '60s'})
@@ -540,6 +576,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.instanceOf(errors[0], WatchError);
         assert.isTrue(monitor._isWatcherRegistered());
         assert.isTrue(monitor._retryStartService.notCalled);
+        assert.deepEqual(monitor.getConsulHeaders(), expectedConsulHeaders);
         monitor.stopService();
     });
 });
