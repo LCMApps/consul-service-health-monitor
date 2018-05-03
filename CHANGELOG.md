@@ -1,13 +1,10 @@
 ## Changelog
 
-### 2.1.0
-
-- [#20553](https://redmine.hwtool.net/issues/20553) Add forwarding headers X-Consul-*
-
 ### 2.0.0
 
 UPDATES:
 
+- [#20553](https://redmine.hwtool.net/issues/20553) Add forwarding headers X-Consul-*
 - [#20521](https://redmine.hwtool.net/issues/20521) Fix bug with default timeout for Consul Watch
 - [#20123](https://redmine.hwtool.net/issues/20123) Add to "consul-service-health-monitor" module functionality of an auto-reconnect to Сonsul
 - [#19681](https://redmine.hwtool.net/issues/19681) Extending consul-service-health-monitor to extract custom data from output
