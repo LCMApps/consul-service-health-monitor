@@ -54,6 +54,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isArray(errors);
         assert.isEmpty(instances.getHealthy());
         assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getAll());
         assert.isEmpty(errors);
     });
 
@@ -89,6 +90,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isArray(errors);
         assert.isEmpty(instances.getHealthy());
         assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getAll());
         assert.lengthOf(errors, 1);
         assert.deepEqual(errors[0].toString(), expectedErr.toString());
     });
@@ -139,6 +141,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isArray(errors);
         assert.isEmpty(instances.getHealthy());
         assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getAll());
         assert.lengthOf(errors, 1);
         assert.deepEqual(errors[0].toString(), expectedErr.toString());
     });
@@ -198,6 +201,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isArray(errors);
         assert.isEmpty(instances.getHealthy());
         assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getAll());
         assert.lengthOf(errors, 1);
         assert.deepEqual(errors[0].toString(), expectedErr.toString());
     });
@@ -257,6 +261,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isArray(errors);
         assert.isEmpty(instances.getHealthy());
         assert.isEmpty(instances.getUnhealthy());
+        assert.isEmpty(instances.getAll());
         assert.lengthOf(errors, 1);
         assert.deepEqual(errors[0].toString(), expectedErr.toString());
     });
@@ -324,6 +329,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isEmpty(errors);
         assert.isEmpty(instances.getHealthy());
         assert.lengthOf(instances.getUnhealthy(), 1);
+        assert.lengthOf(instances.getAll(), 1);
         /** @var {ServiceInstance} */
         const unhealthyTranscoder = instances.getUnhealthy()[0];
         assert.deepEqual(unhealthyTranscoder, expTranscoder);
@@ -395,6 +401,7 @@ describe('Factory::buildServiceInstances', function () {
         const healthyTranscoder = instances.getHealthy()[0];
         assert.deepEqual(healthyTranscoder, expTranscoder);
         assert.isEmpty(instances.getUnhealthy());
+        assert.lengthOf(instances.getAll(), 1);
     });
 
     it('healthy - node with serfHealth in passing state and TaggedAddresses === null', function () {
@@ -456,6 +463,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isEmpty(errors);
         assert.lengthOf(instances.getHealthy(), 1);
         assert.isEmpty(instances.getUnhealthy());
+        assert.lengthOf(instances.getAll(), 1);
         /** @var {ServiceInstance} */
         const healthyTranscoder = instances.getHealthy()[0];
         assert.deepEqual(healthyTranscoder, expTranscoder);
@@ -565,6 +573,7 @@ describe('Factory::buildServiceInstances', function () {
         assert.isEmpty(errors);
         assert.lengthOf(instances.getHealthy(), 2);
         assert.isEmpty(instances.getUnhealthy());
+        assert.lengthOf(instances.getAll(), 2);
         /** @var {ServiceInstance} */
         const healthyTranscoder1 = instances.getHealthy()[0];
         assert.deepEqual(healthyTranscoder1, expTranscoder1);
@@ -620,6 +629,7 @@ describe('Factory::buildServiceInstances', function () {
             assert.isArray(errors);
             assert.lengthOf(instances.getHealthy(), 1);
             assert.isEmpty(instances.getUnhealthy());
+            assert.lengthOf(instances.getAll(), 1);
             assert.lengthOf(errors, 0);
         });
     });
@@ -667,6 +677,7 @@ describe('Factory::buildServiceInstances', function () {
             assert.isArray(errors);
             assert.lengthOf(instances.getHealthy(), 1);
             assert.isEmpty(instances.getUnhealthy());
+            assert.lengthOf(instances.getAll(), 1);
             assert.lengthOf(errors, 1);
             assert.instanceOf(errors[0], InvalidDataError);
         });
