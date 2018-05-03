@@ -6,9 +6,10 @@ const WatchError = require('./Error').WatchError;
 const WatchTimeoutError = require('./Error').WatchTimeoutError;
 const AlreadyInitializedError = require('./Error').AlreadyInitializedError;
 
-
 const DEFAULT_TIMEOUT_MSEC = 5000;
 const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
+const DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC = 1000;
+const X_CONSUL_HEADERS = ['x-consul-index', 'x-consul-knownleader', 'x-consul-lastcontact'];
 
 /**
  * Single node data
@@ -16,7 +17,6 @@ const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
  * @typedef {Object} ServiceInstancesMonitor~ConsulHealthyNode
  * @property {string} serverId - the id of the server
  */
-
 
 /**
  * Event is emmitted when something happens
@@ -26,8 +26,11 @@ const HEALTH_FALLBACK_INTERVAL_MSEC = 1000;
  */
 
 /**
- * @fires ServiceInstancesMonitor#initialized
- * @fires ServiceInstancesMonitor#changed
+ * @emits ServiceInstancesMonitor#initialized
+ * @emits ServiceInstancesMonitor#changed
+ * @emits ServiceInstancesMonitor#error
+ * @emits ServiceInstancesMonitor#healthy
+ * @emits ServiceInstancesMonitor#unhealthy
  */
 class ServiceInstancesMonitor extends EventEmitter {
 
@@ -35,12 +38,13 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @param {Object} options
      * @param {string} options.serviceName -  name of service in consul to monitor
      * @param {string} options.checkNameWithStatus
-     * @param {string} [options.timeoutMsec=5000] - connection timeout to consul
+     * @param {number} [options.timeoutMsec=5000] - connection timeout to consul
      * @param {Consul} consul
+     * @param {Object} extractors
      * @throws {TypeError} On invalid options format
      * @public
      */
-    constructor(options, consul) {
+    constructor(options, consul, extractors) {
         super();
 
         if (!_.isPlainObject(options)) {
@@ -75,22 +79,36 @@ class ServiceInstancesMonitor extends EventEmitter {
             throw new TypeError('consul argument does not look like Consul object');
         }
 
-        this._serviceName         = options.serviceName;
+        if (_.isPlainObject(extractors)) {
+            for (const extractorName in extractors) {
+                if (!extractors[extractorName] || !_.isFunction(extractors[extractorName].extract)) {
+                    throw new TypeError('extractors instances must have a method "extract"');
+                }
+            }
+        } else if (extractors !== undefined) {
+            throw new TypeError('extractors argument must be an plain object or undefined');
+        }
+
+        this._serviceName = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
-        this._initialized         = false;
+        this._initialized = false;
 
         this._consul = consul;
+        this._extractors = extractors;
 
         this._onWatcherChange = this._onWatcherChange.bind(this);
         this._onWatcherError = this._onWatcherError.bind(this);
         this._onWatcherEnd = this._onWatcherEnd.bind(this);
+        this._retryStartService = this._retryStartService.bind(this);
 
         this._serviceInstances = new ServiceInstances();
+        this._consulHeaders = {};
         this._watchAnyNodeChange = null;
         this._setWatchUnealthy();
         this._setUninitialized();
 
         this._fallbackToWatchHealthyInterval = null;
+        this._retryTimer = null;
     }
 
     isWatchHealthy() {
@@ -125,8 +143,13 @@ class ServiceInstancesMonitor extends EventEmitter {
         return this._serviceInstances;
     }
 
+    getConsulHeaders() {
+        return this._consulHeaders;
+    }
+
     /**
-     * Starts service and resolves promise with initial list of nodes that provide the service.
+     * Starts service and resolves promise with initial list of nodes that provide the service, "change" or "error"
+     * events will not be emited
      *
      * Listens for changes after successful resolve.
      *
@@ -137,7 +160,7 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Rejection of promise means that watcher was stopped and no retries will be done.
      *
-     * @returns {Promise<Array,AlreadyInitializedError|WatchError|WatchTimeoutError>}
+     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError|WatchTimeoutError>}
      * @public
      */
     startService() {
@@ -165,7 +188,6 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if service is already started.
-     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watcher was stopped and no retries will be done.
@@ -174,6 +196,11 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @public
      */
     stopService() {
+        if (this._retryTimer !== null) {
+            clearTimeout(this._retryTimer);
+            this._retryTimer = null;
+        }
+
         if (!this._isWatcherRegistered()) {
             return this;
         }
@@ -185,6 +212,7 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._unsetFallbackToWatchHealthy();
         this._setUninitialized();
         this._setWatchUnealthy();
+
         return this;
     }
 
@@ -201,13 +229,13 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Rejection of promise means that watch was stopped and `this._watchAnyNodeChange` was cleared.
      *
-     * @returns {Promise<Array,AlreadyInitializedError|WatchError|WatchTimeoutError>}
+     * @returns {Promise<ServiceInstances,AlreadyInitializedError|WatchError|WatchTimeoutError>}
      * @private
      */
     _registerWatcherAndWaitForInitialNodes() {
         return new Promise((resolve, reject) => {
             if (this._watchAnyNodeChange !== null) {
-                reject(new AlreadyInitializedError('Another `consul.watch` execution is found'));
+                return reject(new AlreadyInitializedError('Another `consul.watch` execution is found'));
             }
 
             this._watchAnyNodeChange = this._consul.watch({
@@ -218,13 +246,19 @@ class ServiceInstancesMonitor extends EventEmitter {
                 },
             });
 
-            const firstChange = (data) => {
+            const firstChange = (data, response) => {
                 this._watchAnyNodeChange.removeListener('error', firstError);
                 clearTimeout(timerId);
 
                 const {instances, errors} = instancesFactory.buildServiceInstances(
-                    data, this._checkNameWithStatus
+                    data,
+                    this._checkNameWithStatus,
+                    this._extractors
                 );
+
+                for (const headerName of X_CONSUL_HEADERS) {
+                    this._consulHeaders[headerName] = response.headers[headerName];
+                }
 
                 if (!_.isEmpty(errors)) {
                     this._emitFactoryErrors(errors);
@@ -255,25 +289,36 @@ class ServiceInstancesMonitor extends EventEmitter {
     }
 
     /**
-     * This method receives list of healthy nodes sent by `consul.watch` in `consul` format. Performs
+     * This method receives list of a valid nodes sent by `consul.watch` in `consul` format. Performs
      * validation of response format.
      *
      * If service was unhealthy, it becomes healthy.
      *
      * @param {Array} data - list of healthy nodes after some changes
-     * @emits ServiceInstancesMonitor#changed actual array of healthy nodes
+     * @param {IncomingMessage} response - response from Consul
+     * @emits ServiceInstancesMonitor#changed actual array of a valid nodes
      * @private
      */
-    _onWatcherChange(data) {
+    _onWatcherChange(data, response) {
+        let isHealthyStateChanged = false;
         if (!this.isWatchHealthy()) {
             this._setWatchHealthy();
+            isHealthyStateChanged = true;
         }
 
         const {instances, errors} = instancesFactory.buildServiceInstances(
-            data, this._checkNameWithStatus
+            data,
+            this._checkNameWithStatus,
+            this._extractors
         );
 
         this._serviceInstances = instances;
+        for (const headerName of X_CONSUL_HEADERS) {
+            this._consulHeaders[headerName] = response.headers[headerName];
+        }
+        if (isHealthyStateChanged) {
+            this.emit('healthy');
+        }
         this.emit('changed', instances);
 
         if (!_.isEmpty(errors)) {
@@ -286,18 +331,26 @@ class ServiceInstancesMonitor extends EventEmitter {
 
         if (this.isWatchHealthy()) {
             this._setWatchUnealthy();
+            this.emit('unhealthy');
         }
 
         this._setFallbackToWatchHealthy();
 
-        this.emit('error', new WatchError(err.message, { err }));
+        this.emit('error', new WatchError(err.message, {err}));
     }
 
-    _onWatcherEnd() {
+    async _onWatcherEnd() {
+        this._unsetFallbackToWatchHealthy();
         this._setUninitialized();
-        this._setWatchUnealthy();
+
+        if (this.isWatchHealthy()) {
+            this._setWatchUnealthy();
+            this.emit('unhealthy');
+        }
+
+        this._watchAnyNodeChange.removeAllListeners();
         this._watchAnyNodeChange = null;
-        this.emit('emergencyStop');
+        await this._retryStartService();
     }
 
     _emitFactoryErrors(errors) {
@@ -314,11 +367,8 @@ class ServiceInstancesMonitor extends EventEmitter {
         const initialUpdateTime = this._watchAnyNodeChange.updateTime();
 
         this._fallbackToWatchHealthyInterval = setInterval(() => {
-            const isWatcherRunning = this._isWatcherRegistered() && this._watchAnyNodeChange.isRunning();
-
-            if (!isWatcherRunning || this.isWatchHealthy()) {
-
-                // watcher is currently ends or becomes `healthy`, unset fallback interval',
+            if (this.isWatchHealthy()) {
+                // watcher is currently becomes `healthy`, unset fallback interval',
                 this._unsetFallbackToWatchHealthy();
 
                 return;
@@ -330,6 +380,7 @@ class ServiceInstancesMonitor extends EventEmitter {
                 this._unsetFallbackToWatchHealthy();
 
                 this._setWatchHealthy();
+                this.emit('healthy');
             }
 
         }, HEALTH_FALLBACK_INTERVAL_MSEC);
@@ -341,6 +392,20 @@ class ServiceInstancesMonitor extends EventEmitter {
         this._fallbackToWatchHealthyInterval = null;
     }
 
+
+    async _retryStartService() {
+        try {
+            const serviceInstances = await this.startService();
+            this._serviceInstances = serviceInstances;
+
+            this.emit('healthy');
+            this.emit('changed', serviceInstances);
+        } catch (err) {
+            setImmediate(() => this.emit('error', err));
+
+            this._retryTimer = setTimeout(this._retryStartService, DEFAULT_RETRY_START_SERVICE_TIMEOUT_MSEC);
+        }
+    }
 }
 
 module.exports = ServiceInstancesMonitor;
