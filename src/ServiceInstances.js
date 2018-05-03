@@ -98,6 +98,16 @@ class ServiceInstances {
     }
 
     /**
+     * @return {ServiceInstance[]}
+     */
+    getAll() {
+        return [
+            ...this._healthyMap.values(),
+            ...this._unhealthyMap.values()
+        ];
+    }
+
+    /**
      * @param {ServiceInstance} instance
      * @return {string}
      */
