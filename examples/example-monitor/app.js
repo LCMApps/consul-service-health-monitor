@@ -1,8 +1,11 @@
 'use strict';
 
 const Consul = require('consul');
+
 // replace it with the package if you use it outside the repo
-const {ServiceInstancesMonitor} = require('../../index');
+//const {ServiceInstancesMonitor} = require('../../index');
+const {ServiceInstancesMonitor} = require('consul-service-health-monitor');
+
 const CpuInfoExtractor = require('./src/extractors/CpuInfoExtractor');
 const StatusInfoExtractor = require('./src/extractors/StatusInfoExtractor');
 

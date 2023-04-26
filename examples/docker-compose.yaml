@@ -54,6 +54,7 @@ services:
       - CONSUL_HOST=example-consul
       - CONSUL_PORT=8500
       - CONSUL_SERVICE_NAME_TO_MONITOR=example_http_service
+      - CONSUL_SERVICE_CHECK_NAME_WITH_STATUS=example_http_service health status
     volumes:
       - ./example-monitor:/app
     extra_hosts:
