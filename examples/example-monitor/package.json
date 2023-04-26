@@ -1,0 +1,20 @@
+{
+  "name": "example-monitor",
+  "version": "1.0.0",
+  "description": "Example of the monitor to track example-http-service",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "start:debug": "node --inspect=0.0.0.0:9229 app.js",
+    "start:debug-brk": "node --inspect-brk=0.0.0.0:9229 app.js",
+    "build": "yarn install --ignore-optional"
+  },
+  "author": "Dmitry Menshikov",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "engines": {
+    "node": ">=12.0"
+  },
+  "dependencies": {
+    "consul": "1.2.0"
+  }
+}

@@ -248,11 +248,20 @@ concat-stream@^1.6.0:
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
 
-consul@^0.30.0:
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/consul/-/consul-0.30.0.tgz#8ae6719b46674dd15a95b7614881bfc5b9e4eac3"
+consul-service-registrator@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/consul-service-registrator/-/consul-service-registrator-2.4.1.tgz#39f5f2c797f83ab63d850fbb2c2c72146ae54475"
+  integrity sha512-eiwp2sLJ/dxrhe4/TIZoULMKXABFuusIygvIZ6DPxb8il6aMWlENmeLW3fnJ2tYnqdYgNULuMEn/6Hw5cQD8jg==
   dependencies:
-    papi "^0.27.0"
+    consul "1.2.0"
+    lodash "4.17.21"
+
+consul@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/consul/-/consul-1.2.0.tgz#9c1357da0e0780c05a29d97f5d66ca445052d800"
+  integrity sha512-xWMEDRszShfzKI7XQKq12gr3359VUHUFOrAC2ETNpNe8PFO6AUnY0sbscB7JW5WhUEfuveDcI5ScYqM//20bow==
+  dependencies:
+    papi "^1.1.0"
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -817,6 +826,11 @@ lodash.keys@^3.0.0:
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
 
+lodash@4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+
 lodash@^4.17.4, lodash@^4.3.0, lodash@~4.17.2:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
@@ -959,9 +973,10 @@ os-tmpdir@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
 
-papi@^0.27.0:
-  version "0.27.0"
-  resolved "https://registry.yarnpkg.com/papi/-/papi-0.27.0.tgz#7392a38ebefa7fb67e98b363bca3d136827caf28"
+papi@^1.1.0:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/papi/-/papi-1.1.2.tgz#5b1d7686834bec489f1f823103c5e8554f2b984f"
+  integrity sha512-cwM6pPpfAYgPe3EQi23SmB5J5s4XFS9lou9z63I5BbnMGmFaR8LAKvKboW7n1IUAKj76OtnyK0YU16JjnZrqVg==
 
 path-is-absolute@^1.0.0:
   version "1.0.1"

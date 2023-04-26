@@ -2,6 +2,8 @@
 /var/log/*
 /web/assets/**
 /node_modules
+/examples/example-http-service/node_modules
+/examples/example-monitor/node_modules
 /config/local-*.json
 /coverage
 package-lock.json

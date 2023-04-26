@@ -1,0 +1,9 @@
+/examples/
+/tests/
+/node_modules/
+/coverage/
+/.eslintignore
+/.eslintrc
+/CHANGELOG.md
+/UPGRADE.md
+/README.md

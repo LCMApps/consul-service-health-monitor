@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  consul:
+    image: consul:1.15.2
+    hostname: example-consul
+    container_name: example-consul
+    restart: unless-stopped
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    ports:
+      - "8500:8500/tcp"
+      - "8300:8300/tcp"
+      - "8301:8301/tcp"
+      - "8302:8302/tcp"
+      - "8301:8301/udp"
+      - "8302:8302/udp"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  example-http-service:
+    build:
+      context: ./example-http-service/
+      dockerfile: Dockerfile
+    hostname: example-http-service
+    container_name: example-http-service
+    restart: unless-stopped
+    environment:
+      - RUN_MODE=${RUN_MODE:-default}
+      - CONSUL_HOST=example-consul
+      - CONSUL_PORT=8500
+      - CONSUL_SERVICE_NAME=example_http_service
+      - CONSUL_CHECK_INTERFACE=eth0
+    ports:
+      - "8083:3000/tcp"
+    volumes:
+      - ./example-http-service:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  example-monitor:
+    build:
+      context: ./example-monitor/
+      dockerfile: Dockerfile
+    hostname: example-monitor
+    container_name: example-monitor
+    restart: unless-stopped
+    environment:
+      - RUN_MODE=${RUN_MODE:-default}
+      - CONSUL_HOST=example-consul
+      - CONSUL_PORT=8500
+      - CONSUL_SERVICE_NAME_TO_MONITOR=example_http_service
+    volumes:
+      - ./example-monitor:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
