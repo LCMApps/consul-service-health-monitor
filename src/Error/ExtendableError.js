@@ -1,5 +1,7 @@
 'use strict';
 
+const util = require('util');
+
 class ExtendableError extends Error {
     /**
      * @param {string} message
@@ -20,7 +22,7 @@ class ExtendableError extends Error {
      * @return {string}
      */
     toString() {
-        return this.extra ? super.toString() + ' Extra: ' + JSON.stringify(this.extra) : super.toString();
+        return this.extra ? super.toString() + ' Extra: ' + util.inspect(this.extra, false, 2) : super.toString();
     }
 }
 

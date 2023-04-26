@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const {assertThrowsAsync} = require('../support/helpers');
-const consul = require('consul');
+const Consul = require('consul');
 const nock = require('nock');
 const assert = require('chai').assert;
 const sinon = require('sinon');
@@ -34,10 +34,9 @@ describe('ServiceInstancesMonitor methods tests', function () {
     });
 
     beforeEach(function () {
-        consulClient = consul({
+        consulClient = new Consul({
             host: consulHost,
             port: consulPort,
-            promisify: true
         });
 
         nock.cleanAll();

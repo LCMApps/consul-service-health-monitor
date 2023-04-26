@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const consul = require('consul');
+const Consul = require('consul');
 const assert = require('chai').assert;
 const sinon = require('sinon');
 const dataDriven = require('data-driven');
@@ -60,7 +60,7 @@ describe('ServiceInstancesMonitor::constructor', function () {
     let validConsulClient;
 
     beforeEach(() => {
-        validConsulClient = consul();
+        validConsulClient = new Consul();
     });
 
     it('valid arguments', function () {
@@ -264,7 +264,7 @@ describe('ServiceInstancesMonitor::_retryStartService', function () {
         timeoutMsec: 100,
         checkNameWithStatus: "Service 'transcoder' check"
     });
-    const consulClient = consul();
+    const consulClient = new Consul();
 
     it('successfully restart watcher', async function () {
         const serviceInstances = new ServiceInstances();
