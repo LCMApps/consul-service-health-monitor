@@ -51,6 +51,7 @@ function buildServiceInstance(node, instanceInfo) {
     try {
         let lanIp = null;
         let wanIp = null;
+        let serviceAddress = null;
 
         if (_.has(node.Node.TaggedAddresses, 'lan')) {
             lanIp = node.Node.TaggedAddresses.lan;
@@ -60,9 +61,14 @@ function buildServiceInstance(node, instanceInfo) {
             wanIp = node.Node.TaggedAddresses.wan;
         }
 
+        if (_.has(node.Service, 'Address') && _.isString(node.Service.Address) && !_.isEmpty(node.Service.Address)) {
+            serviceAddress = node.Service.Address;
+        }
+
         return new ServiceInstance(
             lanIp,
             wanIp,
+            serviceAddress,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,

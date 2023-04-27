@@ -58,7 +58,8 @@ class ServiceInstance {
     /**
      * @param {string|null} lanIp
      * @param {string|null} wanIp
-     * @param {number} port
+     * @param {string|null} serviceAddress
+     * @param {number} servicePort
      * @param {string} nodeAddress - ip or host of node on which service instance is running
      * @param {string} nodeName - in most cases it is hostname of node where service instance is running
      * @param {string} serviceId - unique identifier of service instance
@@ -66,10 +67,21 @@ class ServiceInstance {
      * @param {ServiceInstanceInfo|null} serviceInstanceInfo - info of the service
      * @throws {TypeError} on invalid type or value of one of arguments
      */
-    constructor(lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo) {
+    constructor(
+        lanIp,
+        wanIp,
+        serviceAddress,
+        servicePort,
+        nodeAddress,
+        nodeName,
+        serviceId,
+        serviceTags,
+        serviceInstanceInfo
+    ) {
         throwErrorIfNotNullOrNotEmptyString(lanIp, 'lanIp');
         throwErrorIfNotNullOrNotEmptyString(wanIp, 'wanIp');
-        throwErrorIfNotNumber(port, 'port');
+        throwErrorIfNotNullOrNotEmptyString(serviceAddress, 'serviceAddress');
+        throwErrorIfNotNumber(servicePort, 'servicePort');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
         throwErrorIfNotEmptyString(nodeName, 'nodeName');
         throwErrorIfNotEmptyString(serviceId, 'serviceId');
@@ -88,7 +100,8 @@ class ServiceInstance {
 
         this._lanIp = lanIp;
         this._wanIp = wanIp;
-        this._port = port;
+        this._serviceAddress = serviceAddress;
+        this._port = servicePort;
         this._nodeAddress = nodeAddress;
         this._nodeName = nodeName;
         this._serviceId = serviceId;
@@ -120,6 +133,17 @@ class ServiceInstance {
      */
     getWanIp() {
         return this._wanIp;
+    }
+
+    /**
+     * Returns Service.Address value from the consul.
+     *
+     * May be null if service explicitly ignores setting of address.
+     *
+     * @returns {string|null}
+     */
+    getServiceAddress() {
+        return this._serviceAddress;
     }
 
     /**

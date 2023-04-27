@@ -286,6 +286,7 @@ describe('Factory::buildServiceInstances', function () {
                 },
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -310,6 +311,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Address,
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
@@ -355,6 +357,7 @@ describe('Factory::buildServiceInstances', function () {
                 },
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -379,6 +382,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             inputNodes[0].Node.TaggedAddresses.lan,
             inputNodes[0].Node.TaggedAddresses.wan,
+            inputNodes[0].Service.Address,
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
@@ -422,6 +426,7 @@ describe('Factory::buildServiceInstances', function () {
             },
             Service: {
                 Tags: ['transcoder_app'],
+                Address: '172.0.10.10',
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
             },
@@ -445,6 +450,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder = new ServiceInstance(
             null,
             null,
+            inputNodes[0].Service.Address,
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
@@ -495,6 +501,7 @@ describe('Factory::buildServiceInstances', function () {
                 TaggedAddresses: null,
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -521,6 +528,7 @@ describe('Factory::buildServiceInstances', function () {
                 TaggedAddresses: null,
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8081'
@@ -545,6 +553,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder1 = new ServiceInstance(
             null,
             null,
+            inputNodes[0].Service.Address,
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
@@ -555,6 +564,7 @@ describe('Factory::buildServiceInstances', function () {
         const expTranscoder2 = new ServiceInstance(
             null,
             null,
+            inputNodes[1].Service.Address,
             inputNodes[1].Service.Port,
             inputNodes[1].Node.Address,
             inputNodes[1].Node.Node,

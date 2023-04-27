@@ -60,6 +60,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of lanIp, type = {type}', function (arg) {
             const lanIp = arg.value;
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -69,7 +70,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -81,6 +83,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on lanIp with null value', function () {
         const lanIp = null;
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -88,7 +91,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getLanIp());
@@ -97,6 +100,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on lanIp with non empty string', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -104,7 +108,63 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+        );
+
+        assert.strictEqual(serviceInstance.getLanIp(), lanIp);
+    });
+
+    it('no errors on serviceAddress with null value', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const serviceAddress = null;
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceId = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+        );
+
+        assert.isNull(serviceInstance.getServiceAddress());
+    });
+
+    it('error on serviceAddress with empty string', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const serviceAddress = '';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceId = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        assert.throws(
+            function () {
+                new ServiceInstance(
+                    lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                    serviceInstanceInfo
+                );
+            },
+            TypeError,
+            'serviceAddress must be a non-empty string or null'
+        );
+    });
+
+    it('no errors on serviceAddress with non empty string', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const serviceId = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getLanIp(), lanIp);
@@ -114,6 +174,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of wanIp, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = arg.value;
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -123,7 +184,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -135,6 +197,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on wanIp with null value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = null;
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -142,7 +205,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getWanIp());
@@ -151,6 +214,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on wanIp with non empty string', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -158,7 +222,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getWanIp(), wanIp);
@@ -168,6 +232,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of port, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = arg.value;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -177,11 +242,12 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
-                'port must be a number'
+                'servicePort must be a number'
             );
         });
     });
@@ -189,6 +255,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on port with number value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -196,7 +263,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getPort(), port);
@@ -206,6 +273,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of nodeAddress, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = arg.value;
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -215,7 +283,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -227,6 +296,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on nodeAddress with string value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -234,7 +304,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeAddress(), nodeAddress);
@@ -244,6 +314,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of nodeName, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = arg.value;
@@ -253,7 +324,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -265,6 +337,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on nodeName with string value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -272,7 +345,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeName(), nodeName);
@@ -281,6 +354,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of nodeName, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = arg.value;
@@ -290,7 +364,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -302,6 +377,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on nodeName with string value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -309,7 +385,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeName(), nodeName);
@@ -319,6 +395,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of serviceId, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -328,7 +405,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -340,6 +418,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on serviceId with string value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -347,7 +426,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getServiceId(), serviceId);
@@ -357,6 +436,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of serviceTags, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -366,7 +446,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -379,6 +460,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of serviceTags elements, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -388,7 +470,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -400,6 +483,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on serviceTags with array of strings', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -407,7 +491,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = deepFreeze([]);
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getServiceTags(), serviceTags);
@@ -417,6 +501,7 @@ describe('ServiceInstance::constructor', function () {
         it('incorrect type of serviceInstanceInfo elements, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
             const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -427,7 +512,8 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        serviceInstanceInfo
                     );
                 },
                 TypeError,
@@ -439,6 +525,7 @@ describe('ServiceInstance::constructor', function () {
     it('"getInfo" method returns valid value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -446,7 +533,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
         );
 
         assert.deepEqual(serviceInstance.getInfo(), serviceInstanceInfo);
@@ -455,6 +542,7 @@ describe('ServiceInstance::constructor', function () {
     it('no errors on serviceInstanceInfo with null value', function () {
         const lanIp = '192.168.1.1';
         const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
@@ -462,7 +550,7 @@ describe('ServiceInstance::constructor', function () {
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, port, nodeAddress, nodeName, serviceId, serviceTags, null
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, null
         );
 
         assert.deepEqual(serviceInstance.getInfo(), null);

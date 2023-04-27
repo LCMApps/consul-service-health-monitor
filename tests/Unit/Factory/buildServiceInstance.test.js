@@ -69,6 +69,7 @@ describe('Factory::buildServiceInstance', function () {
                 },
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -80,6 +81,7 @@ describe('Factory::buildServiceInstance', function () {
         const expectedInstance = new ServiceInstance(
             node.Node.TaggedAddresses.lan,
             node.Node.TaggedAddresses.wan,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -96,6 +98,7 @@ describe('Factory::buildServiceInstance', function () {
         assert.isTrue(stub.firstCall.calledWithExactly(
             node.Node.TaggedAddresses.lan,
             node.Node.TaggedAddresses.wan,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -118,6 +121,7 @@ describe('Factory::buildServiceInstance', function () {
                 },
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -129,6 +133,7 @@ describe('Factory::buildServiceInstance', function () {
         const expectedInstance = new ServiceInstance(
             null,
             node.Node.TaggedAddresses.wan,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -145,6 +150,7 @@ describe('Factory::buildServiceInstance', function () {
         assert.isTrue(stub.firstCall.calledWithExactly(
             null,
             node.Node.TaggedAddresses.wan,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -167,6 +173,7 @@ describe('Factory::buildServiceInstance', function () {
                 },
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -178,6 +185,7 @@ describe('Factory::buildServiceInstance', function () {
         const expectedInstance = new ServiceInstance(
             node.Node.TaggedAddresses.lan,
             null,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -194,6 +202,7 @@ describe('Factory::buildServiceInstance', function () {
         assert.isTrue(stub.firstCall.calledWithExactly(
             node.Node.TaggedAddresses.lan,
             null,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -214,6 +223,7 @@ describe('Factory::buildServiceInstance', function () {
                 TaggedAddresses: null,
             },
             Service: {
+                Address: '172.0.10.10',
                 Tags: ['transcoder_app'],
                 Port: 12345,
                 ID: 'service_192.168.1.10_8080'
@@ -225,6 +235,7 @@ describe('Factory::buildServiceInstance', function () {
         const expectedInstance = new ServiceInstance(
             null,
             null,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
@@ -241,6 +252,7 @@ describe('Factory::buildServiceInstance', function () {
         assert.isTrue(stub.firstCall.calledWithExactly(
             null,
             null,
+            node.Service.Address,
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,

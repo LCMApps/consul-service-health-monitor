@@ -1,5 +1,6 @@
 'use strict';
 
+const util = require('util');
 const Consul = require('consul');
 
 // replace it with the package if you use it outside the repo
@@ -37,7 +38,8 @@ function logInstance(instance) {
     console.log('  Node address: ', instance.getNodeAddress());
     console.log('  LanIP: ', instance.getLanIp());
     console.log('  WanIP: ', instance.getWanIp());
-    console.log('  Port: ', instance.getPort());
+    console.log('  Service Address: ', instance.getServiceAddress());
+    console.log('  Service Port: ', instance.getPort());
     console.log('  Service tags: ', instance.getServiceTags());
 
     if (instance.getInfo() === null) {
@@ -81,7 +83,7 @@ Promise.resolve().then(async () => {
     console.log(`Starting monitor for the service "${serviceName}"`);
 
     monitor.on('error', error => {
-        console.log(`ServiceInstanceMonitor error: ${error.message}`, error);
+        console.log(`ServiceInstanceMonitor error: ${error.message}`, util.inspect(error, true, 5));
     });
 
     monitor.on('healthy', () => {

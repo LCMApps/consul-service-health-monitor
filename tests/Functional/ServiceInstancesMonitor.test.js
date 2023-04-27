@@ -161,6 +161,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         const expectedNode1 = new ServiceInstance(
             nockTestParams.firstResponseBody[0].Node.TaggedAddresses.lan,
             nockTestParams.firstResponseBody[0].Node.TaggedAddresses.wan,
+            nockTestParams.firstResponseBody[0].Service.Address,
             nockTestParams.firstResponseBody[0].Service.Port,
             nockTestParams.firstResponseBody[0].Node.Address,
             nockTestParams.firstResponseBody[0].Node.Node,
@@ -172,6 +173,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         const expectedNode2 = new ServiceInstance(
             nockTestParams.firstResponseBody[1].Node.TaggedAddresses.lan,
             nockTestParams.firstResponseBody[1].Node.TaggedAddresses.wan,
+            nockTestParams.firstResponseBody[1].Service.Address,
             nockTestParams.firstResponseBody[1].Service.Port,
             nockTestParams.firstResponseBody[1].Node.Address,
             nockTestParams.firstResponseBody[1].Node.Node,
