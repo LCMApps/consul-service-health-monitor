@@ -16,6 +16,6 @@
   },
   "dependencies": {
     "consul": "1.2.0",
-    "consul-service-health-monitor": "2.0.0"
+    "consul-service-health-monitor": "2.1.0"
   }
 }

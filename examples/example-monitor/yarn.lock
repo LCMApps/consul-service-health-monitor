@@ -2,12 +2,11 @@
 # yarn lockfile v1
 
 
-consul-service-health-monitor@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/consul-service-health-monitor/-/consul-service-health-monitor-2.0.0.tgz#b3172714fd007b0f50c496e4bf20e83821e4e460"
-  integrity sha512-pLpUr5mhvKjybRYB32x7eH+99nl3gdmvmTHKMGy8rxZsbAi98qci2YJb9FkbeKgpDDqEECnHTlknX+3tVjORRg==
+consul-service-health-monitor@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/consul-service-health-monitor/-/consul-service-health-monitor-2.1.0.tgz#a3fde881fc4be793c599ec71bd7dce99ef2bf73b"
+  integrity sha512-tbIfkKsH9GQUR5PSyVNYE4q2FZkFtMDL2CKYqHMbCkez6sbt3OzUGyvIQUQr3a/mkGiel2h4XxQFrYWVmP+Yrw==
   dependencies:
-    deep-freeze "0.0.1"
     lodash "^4.17.4"
 
 consul@1.2.0:
@@ -16,11 +15,6 @@ consul@1.2.0:
   integrity sha512-xWMEDRszShfzKI7XQKq12gr3359VUHUFOrAC2ETNpNe8PFO6AUnY0sbscB7JW5WhUEfuveDcI5ScYqM//20bow==
   dependencies:
     papi "^1.1.0"
-
-deep-freeze@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/deep-freeze/-/deep-freeze-0.0.1.tgz#3a0b0005de18672819dfd38cd31f91179c893e84"
-  integrity sha512-Z+z8HiAvsGwmjqlphnHW5oz6yWlOwu6EQfFTjmeTWlDeda3FS2yv3jhq35TX/ewmsnqB+RX2IdsIOyjJCQN5tg==
 
 lodash@^4.17.4:
   version "4.17.21"
