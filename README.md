@@ -33,3 +33,26 @@ Also, you will not be able to launch it in docker, only from the host machine. T
 $ CONSUL_SERVICE_NAME_TO_MONITOR=example_http_service CONSUL_SERVICE_CHECK_NAME_WITH_STATUS="example_http_service health status" yarn run start
 ```
 
+You may run containers separately. To launch only consul run `docker-compose up consul`.
+
+To launch `example-http-service` container run `docker-compose up --build example-http-service`.
+
+Also, there is `RUN_MODE` env variable that defines how to launch the container and the application inside
+(works for both `example-http-service` and `example-monitor`):
+* `RUN_MODE=debug` to open port 9229 in the container (`node --inspect=0.0.0.0:9229`).
+* `RUN_MODE=debug-brk` to open port 9229 in the container and wait for the connection before the launch of the
+application (`node --inspect-brk=0.0.0.0:9229`).
+* `RUN_MODE=no-process` to start the container only, but not start the application. Application must be launched
+manually.
+
+Example. Launch consul, example-http-service container only. Launch example-monitor locally (not in container) 
+
+```
+$ RUN_MODE=no-process docker-compose up --build consul example-http-service
+
+# In one terminal
+$ docker-compose exec example-http-service sh -c "yarn run start"
+
+# In second terminal
+$ CONSUL_SERVICE_NAME_TO_MONITOR=example_http_service CONSUL_SERVICE_CHECK_NAME_WITH_STATUS="example_http_service health status" yarn run start
+```
