@@ -1,5 +1,11 @@
 ## Changelog
 
+### 2.1.0
+
+UPDATES:
+- New method getServiceAddress() in ServiceInstance class
+- Examples plus docker-compose with the real demo
+
 ### 2.0.0
 
 UPDATES:
