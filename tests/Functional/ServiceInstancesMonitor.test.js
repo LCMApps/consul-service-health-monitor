@@ -44,6 +44,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
     after(function () {
         nock.cleanAll();
+        nock.abortPendingRequests();
     });
 
 
@@ -148,7 +149,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isTrue(monitor.isInitialized());
         assert.isTrue(monitor.isWatchHealthy());
         assert.deepEqual(monitor.getConsulHeaders(), expectedConsulHeaders);
-        monitor.stopService();
+        await monitor.stopService();
     });
 
     it('check of initial list of nodes received from startService', async function () {
@@ -165,6 +166,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
             nockTestParams.firstResponseBody[0].Service.Port,
             nockTestParams.firstResponseBody[0].Node.Address,
             nockTestParams.firstResponseBody[0].Node.Node,
+            nockTestParams.firstResponseBody[0].Node.Datacenter,
             nockTestParams.firstResponseBody[0].Service.ID,
             nockTestParams.firstResponseBody[0].Service.Tags,
             null
@@ -177,6 +179,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
             nockTestParams.firstResponseBody[1].Service.Port,
             nockTestParams.firstResponseBody[1].Node.Address,
             nockTestParams.firstResponseBody[1].Node.Node,
+            nockTestParams.firstResponseBody[1].Node.Datacenter,
             nockTestParams.firstResponseBody[1].Service.ID,
             nockTestParams.firstResponseBody[1].Service.Tags,
             null
@@ -195,7 +198,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
 
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
-        monitor.stopService();
+        await monitor.stopService();
 
         assert.instanceOf(initialInstances, ServiceInstances);
         assert.lengthOf(initialInstances.getHealthy(), 2);
@@ -225,7 +228,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         const monitor = new ServiceInstancesMonitor(options, consulClient);
         const initialInstances = await monitor.startService();
         const instancesFromGetter = monitor.getInstances();
-        monitor.stopService();
+        await monitor.stopService();
 
         assert.strictEqual(initialInstances, instancesFromGetter);
     });
@@ -294,7 +297,7 @@ describe('ServiceInstancesMonitor methods tests', function () {
         assert.isEmpty(initialInstances.getHealthy());
         assert.isEmpty(initialInstances.getUnhealthy());
 
-        monitor.stopService();
+        await monitor.stopService();
     });
 
     it('reaction on 500 error from consul during startService', async function () {

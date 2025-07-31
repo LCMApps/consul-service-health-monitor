@@ -63,6 +63,7 @@ module.exports = {
             'Node': {
                 'Address': '192.168.101.10',
                 'CreateIndex': 142154652,
+                'Datacenter': 'dc1',
                 'ID': 'b3894b74-7627-4545-a303-5a28806a5ff2',
                 'Meta': {},
                 'ModifyIndex': 142154657,
@@ -116,6 +117,7 @@ module.exports = {
             'Node': {
                 'Address': '192.168.101.11',
                 'CreateIndex': 142155255,
+                'Datacenter': 'dc1',
                 'ID': '242878a4-b66a-48de-9094-e58ee2156ca5',
                 'Meta': {},
                 'ModifyIndex': 142155273,

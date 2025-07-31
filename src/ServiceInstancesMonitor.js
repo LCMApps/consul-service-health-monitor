@@ -44,7 +44,7 @@ class ServiceInstancesMonitor extends EventEmitter {
      * @throws {TypeError} On invalid options format
      * @public
      */
-    constructor(options, consul, extractors) {
+    constructor(options, consul, extractors = undefined) {
         super();
 
         if (!_.isPlainObject(options)) {
@@ -60,6 +60,10 @@ class ServiceInstancesMonitor extends EventEmitter {
             _.isEmpty(options.checkNameWithStatus)
         ) {
             throw new TypeError('options.checkNameWithStatus must be set and be a non-empty string');
+        }
+
+        if (_.has(options, 'dc') && (!_.isString(options.dc) || _.isEmpty(options.dc))) {
+            throw new TypeError('options.dc must be a non-empty string');
         }
 
         if (!_.has(options, 'timeoutMsec')) {
@@ -91,6 +95,7 @@ class ServiceInstancesMonitor extends EventEmitter {
 
         this._serviceName = options.serviceName;
         this._checkNameWithStatus = options.checkNameWithStatus;
+        this._dc = options.dc;
         this._initialized = false;
 
         this._consul = consul;
@@ -155,7 +160,7 @@ class ServiceInstancesMonitor extends EventEmitter {
      *
      * Promise will be rejected with:
      *   `AlreadyInitializedError` if service is already started.
-     *   `WatchTimeoutError` if either initial data nor error received for 5000 msec
+     *   `WatchTimeoutError` if either initial data nor error received for timeotMsec or default timeout.
      *   `WatchError` on error from `consul` underlying method
      *
      * Rejection of promise means that watcher was stopped and no retries will be done.
@@ -242,6 +247,7 @@ class ServiceInstancesMonitor extends EventEmitter {
                 method: this._consul.health.service,
                 options: {
                     service: this._serviceName,
+                    dc: this._dc,
                     wait: '60s',
                 },
             });

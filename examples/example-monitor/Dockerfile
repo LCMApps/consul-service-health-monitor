@@ -6,4 +6,7 @@ WORKDIR /app
 
 COPY . /app
 
+RUN set -eux; \
+    npm install ;
+
 ENTRYPOINT ["/app/entrypoint.sh"]

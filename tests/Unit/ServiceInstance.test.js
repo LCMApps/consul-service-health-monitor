@@ -64,13 +64,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -87,11 +88,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getLanIp());
@@ -104,11 +107,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getLanIp(), lanIp);
@@ -121,11 +126,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getServiceAddress());
@@ -138,13 +145,14 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         assert.throws(
             function () {
                 new ServiceInstance(
-                    lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                    lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                     serviceInstanceInfo
                 );
             },
@@ -160,11 +168,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getLanIp(), lanIp);
@@ -178,13 +188,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -201,11 +212,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.isNull(serviceInstance.getWanIp());
@@ -218,11 +231,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.strictEqual(serviceInstance.getWanIp(), wanIp);
@@ -236,13 +251,14 @@ describe('ServiceInstance::constructor', function () {
             const port = arg.value;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -259,11 +275,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getPort(), port);
@@ -277,13 +295,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = arg.value;
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -300,11 +319,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeAddress(), nodeAddress);
@@ -318,13 +339,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = arg.value;
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -341,15 +363,18 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeName(), nodeName);
     });
+
     dataDriven(testParams.notAString, function () {
         it('incorrect type of nodeName, type = {type}', function (arg) {
             const lanIp = '192.168.1.1';
@@ -358,13 +383,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = arg.value;
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -381,11 +407,57 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
+        );
+
+        assert.equal(serviceInstance.getNodeName(), nodeName);
+    });
+
+    dataDriven(testParams.notAString, function () {
+        it('incorrect type of nodeDc, type = {type}', function (arg) {
+            const lanIp = '192.168.1.1';
+            const wanIp = '8.8.8.8';
+            const serviceAddress = '172.0.10.10';
+            const port = 8080;
+            const nodeAddress = '192.168.1.10';
+            const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = arg.value;
+            const serviceId = 'service_192.168.1.10_8080';
+            const serviceTags = [];
+
+            assert.throws(
+                function () {
+                    new ServiceInstance(
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+                        serviceInstanceInfo
+                    );
+                },
+                TypeError,
+                'nodeDc must be a string'
+            );
+        });
+    });
+
+    it('no errors on nodeDc with string value', function () {
+        const lanIp = '192.168.1.1';
+        const wanIp = '8.8.8.8';
+        const serviceAddress = '172.0.10.10';
+        const port = 8080;
+        const nodeAddress = '192.168.1.10';
+        const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
+        const serviceId = 'service_192.168.1.10_8080';
+        const serviceTags = [];
+
+        const serviceInstance = new ServiceInstance(
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getNodeName(), nodeName);
@@ -399,13 +471,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = arg.value;
             const serviceTags = [];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -422,11 +495,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getServiceId(), serviceId);
@@ -440,13 +515,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = arg.value;
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -464,13 +540,14 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [arg.value];
 
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -487,11 +564,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = deepFreeze([]);
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.equal(serviceInstance.getServiceTags(), serviceTags);
@@ -505,6 +584,7 @@ describe('ServiceInstance::constructor', function () {
             const port = 8080;
             const nodeAddress = '192.168.1.10';
             const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+            const nodeDc = 'dc1';
             const serviceId = 'service_192.168.1.10_8080';
             const serviceTags = [];
             const serviceInstanceInfo = arg.value;
@@ -512,7 +592,7 @@ describe('ServiceInstance::constructor', function () {
             assert.throws(
                 function () {
                     new ServiceInstance(
-                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags,
+                        lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
                         serviceInstanceInfo
                     );
                 },
@@ -529,11 +609,13 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, serviceInstanceInfo
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags,
+            serviceInstanceInfo
         );
 
         assert.deepEqual(serviceInstance.getInfo(), serviceInstanceInfo);
@@ -546,11 +628,12 @@ describe('ServiceInstance::constructor', function () {
         const port = 8080;
         const nodeAddress = '192.168.1.10';
         const nodeName = '9187535f-d190-4f62-8625-3f3f0ce66f02';
+        const nodeDc = 'dc1';
         const serviceId = 'service_192.168.1.10_8080';
         const serviceTags = [];
 
         const serviceInstance = new ServiceInstance(
-            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, serviceId, serviceTags, null
+            lanIp, wanIp, serviceAddress, port, nodeAddress, nodeName, nodeDc, serviceId, serviceTags, null
         );
 
         assert.deepEqual(serviceInstance.getInfo(), null);

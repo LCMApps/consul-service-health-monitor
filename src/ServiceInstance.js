@@ -62,6 +62,7 @@ class ServiceInstance {
      * @param {number} servicePort
      * @param {string} nodeAddress - ip or host of node on which service instance is running
      * @param {string} nodeName - in most cases it is hostname of node where service instance is running
+     * @param {string} nodeDc - consul datacenter of node on which service instance is running
      * @param {string} serviceId - unique identifier of service instance
      * @param {string[]} serviceTags - tags of service
      * @param {ServiceInstanceInfo|null} serviceInstanceInfo - info of the service
@@ -74,6 +75,7 @@ class ServiceInstance {
         servicePort,
         nodeAddress,
         nodeName,
+        nodeDc,
         serviceId,
         serviceTags,
         serviceInstanceInfo
@@ -84,6 +86,7 @@ class ServiceInstance {
         throwErrorIfNotNumber(servicePort, 'servicePort');
         throwErrorIfNotEmptyString(nodeAddress, 'nodeAddress');
         throwErrorIfNotEmptyString(nodeName, 'nodeName');
+        throwErrorIfNotEmptyString(nodeDc, 'nodeDc');
         throwErrorIfNotEmptyString(serviceId, 'serviceId');
 
         if (!Array.isArray(serviceTags)) {
@@ -104,6 +107,7 @@ class ServiceInstance {
         this._port = servicePort;
         this._nodeAddress = nodeAddress;
         this._nodeName = nodeName;
+        this._nodeDc = nodeDc;
         this._serviceId = serviceId;
         this._serviceTags = serviceTags;
         this._serverInstanceInfo = serviceInstanceInfo;
@@ -175,6 +179,15 @@ class ServiceInstance {
      */
     getNodeAddress() {
         return this._nodeAddress;
+    }
+
+    /**
+     * Returns consul datacenter of node where service is running
+     *
+     * @returns {string}
+     */
+    getNodeDatacenter() {
+        return this._nodeDc;
     }
 
     /**

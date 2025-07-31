@@ -72,6 +72,7 @@ function buildServiceInstance(node, instanceInfo) {
             node.Service.Port,
             node.Node.Address,
             node.Node.Node,
+            node.Node.Datacenter,
             node.Service.ID,
             node.Service.Tags,
             instanceInfo

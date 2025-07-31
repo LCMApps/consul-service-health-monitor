@@ -280,6 +280,7 @@ describe('Factory::buildServiceInstances', function () {
             Node: {
                 Node: 'transcoder_app',
                 Address: '192.168.101.4',
+                Datacenter: 'dc1',
                 TaggedAddresses: {
                     lan: '192.168.101.4',
                     wan: '1.2.3.4'
@@ -315,6 +316,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Node.Datacenter,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             null
@@ -351,6 +353,7 @@ describe('Factory::buildServiceInstances', function () {
             Node: {
                 Node: 'transcoder_app',
                 Address: '192.168.101.4',
+                Datacenter: 'dc1',
                 TaggedAddresses: {
                     lan: '192.168.101.4',
                     wan: '1.2.3.4'
@@ -386,6 +389,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Node.Datacenter,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             null
@@ -422,6 +426,7 @@ describe('Factory::buildServiceInstances', function () {
             Node: {
                 Node: 'transcoder_app',
                 Address: '192.168.101.4',
+                Datacenter: 'dc1',
                 TaggedAddresses: null,
             },
             Service: {
@@ -454,6 +459,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Node.Datacenter,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             null
@@ -498,6 +504,7 @@ describe('Factory::buildServiceInstances', function () {
             Node: {
                 Node: 'transcoder_app',
                 Address: '192.168.101.4',
+                Datacenter: 'dc1',
                 TaggedAddresses: null,
             },
             Service: {
@@ -525,6 +532,7 @@ describe('Factory::buildServiceInstances', function () {
             Node: {
                 Node: 'transcoder_app',
                 Address: '192.168.101.4',
+                Datacenter: 'dc1',
                 TaggedAddresses: null,
             },
             Service: {
@@ -557,6 +565,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[0].Service.Port,
             inputNodes[0].Node.Address,
             inputNodes[0].Node.Node,
+            inputNodes[0].Node.Datacenter,
             inputNodes[0].Service.ID,
             inputNodes[0].Service.Tags,
             null
@@ -568,6 +577,7 @@ describe('Factory::buildServiceInstances', function () {
             inputNodes[1].Service.Port,
             inputNodes[1].Node.Address,
             inputNodes[1].Node.Node,
+            inputNodes[1].Node.Datacenter,
             inputNodes[1].Service.ID,
             inputNodes[1].Service.Tags,
             null
@@ -602,6 +612,7 @@ describe('Factory::buildServiceInstances', function () {
                 Node: {
                     Node: 'transcoder_app',
                     Address: '192.168.101.4',
+                    Datacenter: 'dc1',
                     TaggedAddresses: {
                         lan: '192.168.101.4',
                         wan: '1.2.3.4'
@@ -650,6 +661,7 @@ describe('Factory::buildServiceInstances', function () {
                 Node: {
                     Node: 'transcoder_app',
                     Address: '192.168.101.4',
+                    Datacenter: 'dc1',
                     TaggedAddresses: {
                         lan: '192.168.101.4',
                         wan: '1.2.3.4'

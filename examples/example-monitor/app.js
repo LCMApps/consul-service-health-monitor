@@ -5,6 +5,8 @@ const Consul = require('consul');
 
 // replace it with the package if you use it outside the repo
 //const {ServiceInstancesMonitor} = require('../../index');
+// or
+// call `npm link ../../` - be careful with this approach, read npm link docs.
 const {ServiceInstancesMonitor} = require('consul-service-health-monitor');
 
 const CpuInfoExtractor = require('./src/extractors/CpuInfoExtractor');
@@ -22,7 +24,7 @@ const checkNameWithStatus = process.env.CONSUL_SERVICE_CHECK_NAME_WITH_STATUS;
 
 const monitorConfig = {
     serviceName,
-    checkNameWithStatus
+    checkNameWithStatus,
 };
 
 const extractors = {
@@ -36,6 +38,7 @@ function logInstance(instance) {
     console.log('  ServiceId: ', instance.getServiceId());
     console.log('  Node name: ', instance.getNodeName());
     console.log('  Node address: ', instance.getNodeAddress());
+    console.log('  Node DC: ', instance.getNodeDatacenter());
     console.log('  LanIP: ', instance.getLanIp());
     console.log('  WanIP: ', instance.getWanIp());
     console.log('  Service Address: ', instance.getServiceAddress());
@@ -106,6 +109,7 @@ Promise.resolve().then(async () => {
     logInstances(initialNodes);
 
     setInterval(() => {
+        console.log('Periodic repeated printing the list of instances, even if nothing was changed');
         logInstances(monitor.getInstances());
     }, 5000);
 

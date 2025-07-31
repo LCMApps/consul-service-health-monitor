@@ -2,7 +2,7 @@ version: "3"
 
 services:
   consul:
-    image: consul:1.15.2
+    image: hashicorp/consul:1.21.3
     hostname: example-consul
     container_name: example-consul
     restart: unless-stopped
@@ -55,6 +55,8 @@ services:
       - CONSUL_PORT=8500
       - CONSUL_SERVICE_NAME_TO_MONITOR=example_http_service
       - CONSUL_SERVICE_CHECK_NAME_WITH_STATUS=example_http_service health status
+    ports:
+      - "9229:9229/tcp"
     volumes:
       - ./example-monitor:/app
     extra_hosts:

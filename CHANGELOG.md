@@ -1,5 +1,13 @@
 ## Changelog
 
+### 2.2.0
+
+UPDATES:
+- New method `ServiceInstance::getNodeDatacenter()`, returns the name of datacenter where consul resides.
+- New option `dc` to filter instances from this datacenter only was added to the `monitorConfig` of the
+`ServiceInstancesMonitor`'s constructor.
+- Improvements in docs and examples.
+
 ### 2.1.0
 
 UPDATES:
